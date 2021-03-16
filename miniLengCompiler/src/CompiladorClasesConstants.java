@@ -9,31 +9,101 @@ public interface CompiladorClasesConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int tCLASE = 5;
+  int tCOMCORTO = 5;
   /** RegularExpression Id. */
-  int tMETODO = 6;
+  int tCOMLARGO = 6;
   /** RegularExpression Id. */
-  int tENTERO = 7;
+  int tPROGRAMA = 7;
   /** RegularExpression Id. */
-  int tDECIMAL = 8;
+  int tVAR = 8;
   /** RegularExpression Id. */
-  int tLLAVE_IZQ = 9;
+  int tPRINCIPIO = 9;
   /** RegularExpression Id. */
-  int tLLAVE_DCHA = 10;
+  int tFIN = 10;
   /** RegularExpression Id. */
-  int DIGITO = 11;
+  int tSI = 11;
   /** RegularExpression Id. */
-  int LETRA = 12;
+  int tENT = 12;
   /** RegularExpression Id. */
-  int tVALOR_ENTERO = 13;
+  int tSI_NO = 13;
   /** RegularExpression Id. */
-  int tVALOR_DECIMAL = 14;
+  int tFSI = 14;
   /** RegularExpression Id. */
-  int tIDENTIFICADOR = 15;
+  int tMQ = 15;
   /** RegularExpression Id. */
-  int tASIGNACION = 16;
+  int tFMQ = 16;
   /** RegularExpression Id. */
-  int tFIN_SENTENCIA = 17;
+  int tVAL = 17;
+  /** RegularExpression Id. */
+  int tREF = 18;
+  /** RegularExpression Id. */
+  int tACCION = 19;
+  /** RegularExpression Id. */
+  int tFIN_SENTENCIA = 20;
+  /** RegularExpression Id. */
+  int tSEPARADOR = 21;
+  /** RegularExpression Id. */
+  int tSUMA = 22;
+  /** RegularExpression Id. */
+  int tRESTA = 23;
+  /** RegularExpression Id. */
+  int tDIV = 24;
+  /** RegularExpression Id. */
+  int tMULT = 25;
+  /** RegularExpression Id. */
+  int tENTERO = 26;
+  /** RegularExpression Id. */
+  int tBOOLEANO = 27;
+  /** RegularExpression Id. */
+  int tCARACTER = 28;
+  /** RegularExpression Id. */
+  int tAND = 29;
+  /** RegularExpression Id. */
+  int tOR = 30;
+  /** RegularExpression Id. */
+  int tNOT = 31;
+  /** RegularExpression Id. */
+  int tMAYOR = 32;
+  /** RegularExpression Id. */
+  int tMENOR = 33;
+  /** RegularExpression Id. */
+  int tIGUAL = 34;
+  /** RegularExpression Id. */
+  int tMAI = 35;
+  /** RegularExpression Id. */
+  int tMEI = 36;
+  /** RegularExpression Id. */
+  int tNI = 37;
+  /** RegularExpression Id. */
+  int tOPAS = 38;
+  /** RegularExpression Id. */
+  int tMOD = 39;
+  /** RegularExpression Id. */
+  int tESCRIBIR = 40;
+  /** RegularExpression Id. */
+  int tLEER = 41;
+  /** RegularExpression Id. */
+  int tENTACAR = 42;
+  /** RegularExpression Id. */
+  int tCARAENT = 43;
+  /** RegularExpression Id. */
+  int DIGITO = 44;
+  /** RegularExpression Id. */
+  int LETRA = 45;
+  /** RegularExpression Id. */
+  int tVALOR_ENTERO = 46;
+  /** RegularExpression Id. */
+  int tVALOR_DECIMAL = 47;
+  /** RegularExpression Id. */
+  int tTRUE = 48;
+  /** RegularExpression Id. */
+  int tFALSE = 49;
+  /** RegularExpression Id. */
+  int tIDENTIFICADOR = 50;
+  /** RegularExpression Id. */
+  int tPAR_IZQ = 51;
+  /** RegularExpression Id. */
+  int tPAR_DCHA = 52;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -45,19 +115,54 @@ public interface CompiladorClasesConstants {
     "\"\\r\"",
     "\"\\t\"",
     "\"\\n\"",
-    "\"clase\"",
-    "\"metodo\"",
+    "\"%\"",
+    "\"%%\"",
+    "\"programa\"",
+    "\"var\"",
+    "\"principio\"",
+    "\"fin\"",
+    "\"si\"",
+    "\"ent\"",
+    "\"si_no\"",
+    "\"fsi\"",
+    "\"mq\"",
+    "\"fmq\"",
+    "\"val\"",
+    "\"ref\"",
+    "\"accion\"",
+    "\";\"",
+    "\",\"",
+    "\"+\"",
+    "\"-\"",
+    "\"/\"",
+    "\"*\"",
     "\"entero\"",
-    "\"decimal\"",
-    "\"{\"",
-    "\"}\"",
+    "\"booleano\"",
+    "\"caracter\"",
+    "\"and\"",
+    "\"or\"",
+    "\"not\"",
+    "\">\"",
+    "\"<\"",
+    "\"=\"",
+    "\">=\"",
+    "\"<=\"",
+    "\"<>\"",
+    "\":=\"",
+    "\"mod\"",
+    "\"escribir\"",
+    "\"leer\"",
+    "\"entacar\"",
+    "\"caraent\"",
     "<DIGITO>",
     "<LETRA>",
     "<tVALOR_ENTERO>",
     "<tVALOR_DECIMAL>",
+    "\"true\"",
+    "\"false\"",
     "<tIDENTIFICADOR>",
-    "\"=\"",
-    "\";\"",
+    "\"(\"",
+    "\")\"",
   };
 
 }

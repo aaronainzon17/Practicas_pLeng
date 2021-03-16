@@ -3,10 +3,9 @@ public class CompiladorClases implements CompiladorClasesConstants {
   public static void main(String args []) throws ParseException
   {
     CompiladorClases parser = new CompiladorClases(System.in);
-    System.out.println("Leyendo de la entrada est\u00c3\u00a1ndar...");
+    System.out.println("Leyendo de la entrada estandar...");
     try {
         CompiladorClases.programa();
-        System.out.println("Analizado correctamente");
     }
     catch (Exception e) {
                 System.out.println("NOK.");
@@ -19,66 +18,157 @@ public class CompiladorClases implements CompiladorClasesConstants {
         }
   }
 
-  static final public void programa() throws ParseException {
-    jj_consume_token(tCLASE);
-    jj_consume_token(tIDENTIFICADOR);
-    jj_consume_token(tLLAVE_IZQ);
+  static final public int programa() throws ParseException {
     label_1:
     while (true) {
-      metodo();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case tMETODO:
-        ;
+      case tPROGRAMA:
+        jj_consume_token(tPROGRAMA);
+        break;
+      case tVAR:
+        jj_consume_token(tVAR);
+        break;
+      case tAND:
+        jj_consume_token(tAND);
+        break;
+      case tOR:
+        jj_consume_token(tOR);
+        break;
+      case tNOT:
+        jj_consume_token(tNOT);
+        break;
+      case tPRINCIPIO:
+        jj_consume_token(tPRINCIPIO);
+        break;
+      case tFIN:
+        jj_consume_token(tFIN);
+        break;
+      case tSI:
+        jj_consume_token(tSI);
+        break;
+      case tENT:
+        jj_consume_token(tENT);
+        break;
+      case tSI_NO:
+        jj_consume_token(tSI_NO);
+        break;
+      case tFSI:
+        jj_consume_token(tFSI);
+        break;
+      case tMQ:
+        jj_consume_token(tMQ);
+        break;
+      case tFMQ:
+        jj_consume_token(tFMQ);
+        break;
+      case tESCRIBIR:
+        jj_consume_token(tESCRIBIR);
+        break;
+      case tLEER:
+        jj_consume_token(tLEER);
+        break;
+      case tMOD:
+        jj_consume_token(tMOD);
+        break;
+      case tENTERO:
+        jj_consume_token(tENTERO);
+        break;
+      case tBOOLEANO:
+        jj_consume_token(tBOOLEANO);
+        break;
+      case tCARACTER:
+        jj_consume_token(tCARACTER);
+        break;
+      case tTRUE:
+        jj_consume_token(tTRUE);
+        break;
+      case tFALSE:
+        jj_consume_token(tFALSE);
+        break;
+      case tENTACAR:
+        jj_consume_token(tENTACAR);
+        break;
+      case tCARAENT:
+        jj_consume_token(tCARAENT);
+        break;
+      case tACCION:
+        jj_consume_token(tACCION);
+        break;
+      case tVAL:
+        jj_consume_token(tVAL);
+        break;
+      case tREF:
+        jj_consume_token(tREF);
+        break;
+      case tMAYOR:
+        jj_consume_token(tMAYOR);
+        break;
+      case tMENOR:
+        jj_consume_token(tMENOR);
+        break;
+      case tIGUAL:
+        jj_consume_token(tIGUAL);
+        break;
+      case tMAI:
+        jj_consume_token(tMAI);
+        break;
+      case tMEI:
+        jj_consume_token(tMEI);
+        break;
+      case tNI:
+        jj_consume_token(tNI);
+        break;
+      case tOPAS:
+        jj_consume_token(tOPAS);
         break;
       default:
         jj_la1[0] = jj_gen;
-        break label_1;
+        jj_consume_token(-1);
+        throw new ParseException();
       }
-    }
-    jj_consume_token(tLLAVE_DCHA);
-  }
-
-  static final public void sentencia() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case tENTERO:
-      jj_consume_token(tENTERO);
-      jj_consume_token(tIDENTIFICADOR);
-      jj_consume_token(tASIGNACION);
-      jj_consume_token(tVALOR_ENTERO);
-      jj_consume_token(tFIN_SENTENCIA);
-      break;
-    case tDECIMAL:
-      jj_consume_token(tDECIMAL);
-      jj_consume_token(tIDENTIFICADOR);
-      jj_consume_token(tASIGNACION);
-      jj_consume_token(tVALOR_DECIMAL);
-      jj_consume_token(tFIN_SENTENCIA);
-      break;
-    default:
-      jj_la1[1] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-  }
-
-  static final public void metodo() throws ParseException {
-    jj_consume_token(tMETODO);
-    jj_consume_token(tIDENTIFICADOR);
-    jj_consume_token(tLLAVE_IZQ);
-    label_2:
-    while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case tPROGRAMA:
+      case tVAR:
+      case tPRINCIPIO:
+      case tFIN:
+      case tSI:
+      case tENT:
+      case tSI_NO:
+      case tFSI:
+      case tMQ:
+      case tFMQ:
+      case tVAL:
+      case tREF:
+      case tACCION:
       case tENTERO:
-      case tDECIMAL:
+      case tBOOLEANO:
+      case tCARACTER:
+      case tAND:
+      case tOR:
+      case tNOT:
+      case tMAYOR:
+      case tMENOR:
+      case tIGUAL:
+      case tMAI:
+      case tMEI:
+      case tNI:
+      case tOPAS:
+      case tMOD:
+      case tESCRIBIR:
+      case tLEER:
+      case tENTACAR:
+      case tCARAENT:
+      case tTRUE:
+      case tFALSE:
         ;
         break;
       default:
-        jj_la1[2] = jj_gen;
-        break label_2;
+        jj_la1[1] = jj_gen;
+        break label_1;
       }
-      sentencia();
     }
-    jj_consume_token(tLLAVE_DCHA);
+    {if (true) return 0;}
+    throw new Error("Missing return statement in function");
   }
 
   static private boolean jj_initialized_once = false;
@@ -91,13 +181,18 @@ public class CompiladorClases implements CompiladorClasesConstants {
   static public Token jj_nt;
   static private int jj_ntk;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[3];
+  static final private int[] jj_la1 = new int[2];
   static private int[] jj_la1_0;
+  static private int[] jj_la1_1;
   static {
       jj_la1_init_0();
+      jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x40,0x180,0x180,};
+      jj_la1_0 = new int[] {0xfc0fff80,0xfc0fff80,};
+   }
+   private static void jj_la1_init_1() {
+      jj_la1_1 = new int[] {0x30fff,0x30fff,};
    }
 
   /** Constructor with InputStream. */
@@ -118,7 +213,7 @@ public class CompiladorClases implements CompiladorClasesConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 3; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -132,7 +227,7 @@ public class CompiladorClases implements CompiladorClasesConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 3; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -149,7 +244,7 @@ public class CompiladorClases implements CompiladorClasesConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 3; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -159,7 +254,7 @@ public class CompiladorClases implements CompiladorClasesConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 3; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -175,7 +270,7 @@ public class CompiladorClases implements CompiladorClasesConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 3; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -184,7 +279,7 @@ public class CompiladorClases implements CompiladorClasesConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 3; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
 
   static private Token jj_consume_token(int kind) throws ParseException {
@@ -235,21 +330,24 @@ public class CompiladorClases implements CompiladorClasesConstants {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[18];
+    boolean[] la1tokens = new boolean[53];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
             la1tokens[j] = true;
           }
+          if ((jj_la1_1[i] & (1<<j)) != 0) {
+            la1tokens[32+j] = true;
+          }
         }
       }
     }
-    for (int i = 0; i < 18; i++) {
+    for (int i = 0; i < 53; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
