@@ -275,38 +275,38 @@ int programa() :
 {
 (
 	<tPROGRAMA>
-|<tVAR>
-|<tAND>
-|<tOR>
-|<tNOT>
-|<tPRINCIPIO>
-|<tFIN>
-|<tSI>
-|<tENT>
-|<tSI_NO>
-|<tFSI>
-|<tMQ>
-|<tFMQ>
-|<tESCRIBIR>
-|<tLEER>
-|<tMOD>
-|<tENTERO>
-|<tBOOLEANO>
-|<tCARACTER>
-|<tTRUE>
-|<tFALSE>
-|<tENTACAR>
-|<tCARAENT>
-|<tACCION>
-|<tVAL>
-|<tREF>
-|<tMAYOR>
-|<tMENOR>
-|<tIGUAL>
-|<tMAI>
-|<tMEI>
-|<tNI>
-|<tOPAS>
+|	<tVAR>
+|	<tAND>
+|	<tOR>
+|	<tNOT>
+|	<tPRINCIPIO>
+|	<tFIN>
+|	<tSI>
+|	<tENT>
+|	<tSI_NO>
+|	<tFSI>
+|	<tMQ>
+|	<tFMQ>
+|	<tESCRIBIR>
+|	<tLEER>
+|	<tMOD>
+|	<tENTERO>
+|	<tBOOLEANO>
+|	<tCARACTER>
+|	<tTRUE>
+|	<tFALSE>
+|	<tENTACAR>
+|	<tCARAENT>
+|	<tACCION>
+|	<tVAL>
+|	<tREF>
+|	<tMAYOR>
+|	<tMENOR>
+|	<tIGUAL>
+|	<tMAI>
+|	<tMEI>
+|	<tNI>
+|	<tOPAS>
 )+
   {
     return 0;
