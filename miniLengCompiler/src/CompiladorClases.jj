@@ -198,7 +198,7 @@ TOKEN : /* OPERADORES BOOLEANOS */
 	}
 |	<tOPAS : ":=">
 	{
-	  System.out.println("<>");
+	  System.out.println(":=");
 	}
 |	<tMOD : "mod">
 	{
@@ -226,14 +226,14 @@ TOKEN : /* OPERADORES CARACTERES */
 	}
 |	<tCARAENT : "caraent">
 	{
-	  System.out.println("entacar");
+	  System.out.println("caraent");
 	}
 }
 
 TOKEN : /* VALORES */
 {
-  	< #DIGITO : ["0"-"9"] >
-| 	< #LETRA : ["a"-"z","_","0"-"9"] >
+  	<#DIGITO : ["0"-"9"]>
+| 	<#LETRA : ["a"-"z"]>
 | 	< tVALOR_ENTERO : ("-")?(< DIGITO >)+ >
   	{
     	System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")");
@@ -250,10 +250,10 @@ TOKEN : /* VALORES */
 	{
 	  System.out.println("false");
 	} 
-| 	<tIDENTIFICADOR : (< LETRA >)+ >
+| 	<tIDENTIFICADOR : ("_" | < LETRA >)(< LETRA > | < DIGITO > | "_")* (< LETRA > | < DIGITO >) >
   	{
     	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
-  	}
+  	} 
 }
 
 
@@ -263,7 +263,7 @@ TOKEN : /* AGRUPACIONES */
   {
     System.out.println("PAR_IZQ");
   }
-| <tPAR_DCHA : ")">
+| <tPAR_DER : ")">
   {
     System.out.println("PAR_DCHA");
   }
@@ -274,39 +274,52 @@ int programa() :
 {}
 {
 (
-	<tPROGRAMA>
-|	<tVAR>
-|	<tAND>
-|	<tOR>
-|	<tNOT>
-|	<tPRINCIPIO>
-|	<tFIN>
-|	<tSI>
-|	<tENT>
-|	<tSI_NO>
-|	<tFSI>
-|	<tMQ>
-|	<tFMQ>
-|	<tESCRIBIR>
-|	<tLEER>
-|	<tMOD>
-|	<tENTERO>
-|	<tBOOLEANO>
-|	<tCARACTER>
-|	<tTRUE>
-|	<tFALSE>
-|	<tENTACAR>
-|	<tCARAENT>
-|	<tACCION>
-|	<tVAL>
-|	<tREF>
-|	<tMAYOR>
-|	<tMENOR>
-|	<tIGUAL>
-|	<tMAI>
-|	<tMEI>
-|	<tNI>
-|	<tOPAS>
+	< tCOMCORTO >
+| 	< tCOMLARGO >
+| 	< tPROGRAMA >
+|	< tVAR >
+|	< tAND >
+|	< tOR >
+|	< tNOT >
+|	< tPRINCIPIO >
+|	< tFIN >
+|	< tSI >
+|	< tENT >
+|	< tSI_NO >
+|	< tFSI >
+|	< tMQ >
+|	< tFMQ >
+|	< tESCRIBIR >
+|	< tLEER >
+|	< tMOD >
+|	< tENTERO >
+|	< tBOOLEANO >
+|	< tCARACTER >
+|	< tTRUE >
+|	< tFALSE >
+|	< tENTACAR >
+|	< tCARAENT >
+|	< tACCION >
+|	< tVAL >
+|	< tREF >
+|	< tMAYOR >
+|	< tMENOR >
+|	< tIGUAL >
+|	< tMAI >
+|	< tMEI >
+|	< tNI >
+|	< tOPAS >
+| 	< tSUMA >
+| 	< tRESTA >
+| 	< tDIV >
+|	< tMULT >
+| 	< tFIN_SENTENCIA >
+|  	< tSEPARADOR >
+| 	< tVALOR_ENTERO >
+| 	< tVALOR_DECIMAL >
+|	< tIDENTIFICADOR >
+| 	< tPAR_IZQ >
+| 	< tPAR_DER >
 )+
   {
     return 0;

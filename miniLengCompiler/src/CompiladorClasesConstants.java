@@ -103,7 +103,7 @@ public interface CompiladorClasesConstants {
   /** RegularExpression Id. */
   int tPAR_IZQ = 51;
   /** RegularExpression Id. */
-  int tPAR_DCHA = 52;
+  int tPAR_DER = 52;
 
   /** Lexical state. */
   int DEFAULT = 0;

@@ -8,4 +8,13 @@
 /miniLengGrammar.java
 /miniLengGrammarConstants.java
 /miniLengGrammarTokenManager.java
-/MyNewGrammar.jj
+/CompiladorClases.class
+/CompiladorClasesConstants.class
+/CompiladorClasesTokenManager.class
+/ParseException.class
+/SimpleCharStream.class
+/Token.class
+/TokenMgrError.class
+/miniLengGrammar.class
+/miniLengGrammarConstants.class
+/miniLengGrammarTokenManager.class

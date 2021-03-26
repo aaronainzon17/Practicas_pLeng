@@ -22,6 +22,12 @@ public class CompiladorClases implements CompiladorClasesConstants {
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case tCOMCORTO:
+        jj_consume_token(tCOMCORTO);
+        break;
+      case tCOMLARGO:
+        jj_consume_token(tCOMLARGO);
+        break;
       case tPROGRAMA:
         jj_consume_token(tPROGRAMA);
         break;
@@ -121,12 +127,47 @@ public class CompiladorClases implements CompiladorClasesConstants {
       case tOPAS:
         jj_consume_token(tOPAS);
         break;
+      case tSUMA:
+        jj_consume_token(tSUMA);
+        break;
+      case tRESTA:
+        jj_consume_token(tRESTA);
+        break;
+      case tDIV:
+        jj_consume_token(tDIV);
+        break;
+      case tMULT:
+        jj_consume_token(tMULT);
+        break;
+      case tFIN_SENTENCIA:
+        jj_consume_token(tFIN_SENTENCIA);
+        break;
+      case tSEPARADOR:
+        jj_consume_token(tSEPARADOR);
+        break;
+      case tVALOR_ENTERO:
+        jj_consume_token(tVALOR_ENTERO);
+        break;
+      case tVALOR_DECIMAL:
+        jj_consume_token(tVALOR_DECIMAL);
+        break;
+      case tIDENTIFICADOR:
+        jj_consume_token(tIDENTIFICADOR);
+        break;
+      case tPAR_IZQ:
+        jj_consume_token(tPAR_IZQ);
+        break;
+      case tPAR_DER:
+        jj_consume_token(tPAR_DER);
+        break;
       default:
         jj_la1[0] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case tCOMCORTO:
+      case tCOMLARGO:
       case tPROGRAMA:
       case tVAR:
       case tPRINCIPIO:
@@ -140,6 +181,12 @@ public class CompiladorClases implements CompiladorClasesConstants {
       case tVAL:
       case tREF:
       case tACCION:
+      case tFIN_SENTENCIA:
+      case tSEPARADOR:
+      case tSUMA:
+      case tRESTA:
+      case tDIV:
+      case tMULT:
       case tENTERO:
       case tBOOLEANO:
       case tCARACTER:
@@ -158,8 +205,13 @@ public class CompiladorClases implements CompiladorClasesConstants {
       case tLEER:
       case tENTACAR:
       case tCARAENT:
+      case tVALOR_ENTERO:
+      case tVALOR_DECIMAL:
       case tTRUE:
       case tFALSE:
+      case tIDENTIFICADOR:
+      case tPAR_IZQ:
+      case tPAR_DER:
         ;
         break;
       default:
@@ -189,10 +241,10 @@ public class CompiladorClases implements CompiladorClasesConstants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0xfc0fff80,0xfc0fff80,};
+      jj_la1_0 = new int[] {0xffffffe0,0xffffffe0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x30fff,0x30fff,};
+      jj_la1_1 = new int[] {0x1fcfff,0x1fcfff,};
    }
 
   /** Constructor with InputStream. */
