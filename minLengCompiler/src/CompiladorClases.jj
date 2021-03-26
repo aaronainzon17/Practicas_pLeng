@@ -1,5 +1,5 @@
 /**
- * Especificaci√≥n JavaCC para la Pr√°ctica 2 (Procesadores de Lenguajes)
+ * EspecificaciÛn JavaCC para la Pr·ctica 2 (Procesadores de Lenguajes)
  * Javier Fabra - jfabra@unizar.es
  * v1.2 - 2021/03/08
  */
@@ -250,7 +250,7 @@ TOKEN : /* VALORES */
 	{
 	  System.out.println("false");
 	} 
-| 	<tIDENTIFICADOR : ("_" | < LETRA >)(< LETRA > | < DIGITO > | "_")* (< LETRA > | < DIGITO >) >
+| 	<tIDENTIFICADOR : ("_" | < LETRA >)+(< LETRA > | < DIGITO > | "_")*(< LETRA > | < DIGITO >) >
   	{
     	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
   	} 

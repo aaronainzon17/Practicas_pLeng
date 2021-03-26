@@ -1,5 +1,5 @@
 /**
- * Especificaci√≥n JavaCC para la Pr√°ctica 2 (Procesadores de Lenguajes)
+ * EspecificaciÛn JavaCC para la Pr·ctica 2 (Procesadores de Lenguajes)
  * Javier Fabra - jfabra@unizar.es
  * v1.2 - 2021/03/08
  */
@@ -16,7 +16,7 @@ public class CompiladorClases
   public static void main(String args []) throws ParseException
   {
     CompiladorClases parser = new CompiladorClases(System.in);
-    System.out.println("Leyendo de la entrada est√°ndar...");
+    System.out.println("Leyendo de la entrada est·ndar...");
     try { 
     	CompiladorClases.programa();
     	System.out.println("Analizado correctamente");
