@@ -346,7 +346,7 @@ void parametros_formales():
 {
 }
 {
-	//FALTA POR RELLENAR 
+	"(" (parametros())* ")" //FALTA POR RELLENAR 
 }
 
 //lista_parametros ::= ...
@@ -355,6 +355,7 @@ void lista_parameteros():
 }
 {
 	//FALTA POR RELLENAR
+	(< tIDENTIFICADOR > | ",")*
 }
 
 //parametros ::= clase_parametros tipo_variables lista_parametros
