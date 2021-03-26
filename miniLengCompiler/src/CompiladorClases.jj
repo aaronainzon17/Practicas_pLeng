@@ -1,7 +1,7 @@
 /**
  * Especificacion JavaCC para la Practica 2 (Procesadores de Lenguajes)
  * Pablo Garcia Garcia - 781020@unizar.es
- * Aaron Ibaï¿½ez Espes - 779088@unizar.es
+ * Aaron Ibañez Espes - 779088@unizar.es
  * Ultima modificacion:
  */
 options
@@ -251,7 +251,7 @@ TOKEN : /* VALORES */
 	{
 	  System.out.println("false");
 	} 
-| 	<tIDENTIFICADOR : ("_" | < LETRA >)+(< LETRA > | < DIGITO > | "_")*(< LETRA > | < DIGITO >) >
+| 	<tIDENTIFICADOR : ("_" | < LETRA >)(< LETRA > | < DIGITO > | "_")* (< LETRA > | < DIGITO >) >
   	{
     	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
   	} 
