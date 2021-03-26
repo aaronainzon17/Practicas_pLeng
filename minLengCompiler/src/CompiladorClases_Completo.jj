@@ -277,7 +277,7 @@ TOKEN : /* AGRUPACIONES */
 */
 
 
-//programa ::= <tPROGRAMA> <tIDENTIFICADOR> ";"
+//programa ::= <tPROGRAMA> <tIDENTIFICADOR> ";" declaracion_variables declaracion_acciones bloque_sentencias
 void programa():
 {
 }
