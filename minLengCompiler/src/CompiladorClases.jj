@@ -251,7 +251,7 @@ TOKEN : /* VALORES */
 	{
 	  System.out.println("false");
 	} 
-| 	<tIDENTIFICADOR : ("_" | < LETRA >)+(< LETRA > | < DIGITO > | "_")*(< LETRA > | < DIGITO >) >
+| 	<tIDENTIFICADOR : ((< LETRA > | ("_")+(< DIGITO > | < LETRA >))(< DIGITO >)*)+ >
   	{
     	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
   	} 
