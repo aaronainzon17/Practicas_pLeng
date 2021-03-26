@@ -42,95 +42,515 @@ SKIP :
 | "\t"
 | "\n"
 }
+TOKEN: /* COMENTARIOS*/
+{
+  	<tCOMCORTO : "%">
+	{
+	  System.out.println("COMCORTO");
+	}
+|	<tCOMLARGO : "%%">
+	{
+	  System.out.println("COMLARGO");
+	}
+}
 
 TOKEN : /* PALABRAS RESERVADAS */
 {
-  < tCLASE : "clase" >
-  {
-    System.out.println("CLASE");
-  }
-| < tMETODO : "metodo" >
-  {
-    System.out.println("METODO");
-  }
+	<tPROGRAMA : "programa">
+	{
+	  System.out.println("programa");
+	}
+|	<tVAR : "var">
+	{
+	  System.out.println("var");
+	}
+|	<tPRINCIPIO : "principio">
+	{
+	  System.out.println("principio");
+	}
+|	<tFIN : "fin">
+	{
+	  System.out.println("fin");
+	}
+|	<tSI : "si">
+	{
+	  System.out.println("si");
+	}
+|	<tENT : "ent">
+	{
+	  System.out.println("ent");
+	}
+|	<tSI_NO : "si_no">
+	{
+	  System.out.println("si_no");
+	}
+|	<tFSI : "fsi">
+	{
+	  System.out.println("fsi");
+	}
+|	<tMQ : "mq">
+	{
+	  System.out.println("mq");
+	}
+|	<tFMQ : "fmq">
+	{
+	  System.out.println("fmq");
+	}
+|	<tVAL : "val">
+	{
+	  System.out.println("val");
+	}
+|	<tREF : "ref">
+	{
+	  System.out.println("ref");
+	}
+|	<tACCION : "accion">
+	{
+	  System.out.println("accion");
+	}
   
+}
+
+TOKEN: /* OPERADORES DE FLUJO */
+{
+	<tFIN_SENTENCIA : ";" >
+ 	{
+    	System.out.println("FIN_SENTENCIA");
+ 	}
+| 	<tSEPARADOR : "," >
+ 	{
+    	System.out.println("SEPARADOR");
+ 	}
+}
+
+TOKEN : /* OPERADORES ARITMETICOS */
+{
+	<tSUMA : "+" >
+ 	{
+    	System.out.println("SUMA");
+ 	}
+| 	<tRESTA : "-" >
+ 	{
+    	System.out.println("RESTA");
+ 	}
+ | 	<tDIV : "/" >
+ 	{
+    	System.out.println("DIVISION");
+ 	}
+ | 	<tMULT : "*" >
+ 	{
+    	System.out.println("MULT");
+ 	}
 }
 
 TOKEN : /* TIPOS DE DATOS */
 {
-  < tENTERO : "entero" >
-  {
-    System.out.println("ENTERO");
-  }
-| < tDECIMAL : "decimal" >
-  {
-    System.out.println("DECIMAL");
-  }
+	<tENTERO : "entero">
+	{
+	  System.out.println("entero");
+	}
+|	<tBOOLEANO : "booleano">
+	{
+	  System.out.println("booleano");
+	}
+|	<tCARACTER : "caracter">
+	{
+	  System.out.println("caracter");
+	}
 }
 
-TOKEN : /* AGRUPACIONES */
+TOKEN : /* OPERADORES BOOLEANOS */
 {
-  <  tLLAVE_IZQ : "{" >
-  {
-    System.out.println("LLAVE_IZQ");
-  }
-| <  tLLAVE_DCHA : "}" >
-  {
-    System.out.println("LLAVE_DCHA");
-  }
+	<tAND : "and">
+	{
+	  System.out.println("and");
+	}
+|	<tOR : "or">
+	{
+	  System.out.println("or");
+	}
+|	<tNOT : "not">
+	{
+	  System.out.println("not");
+	}
+|	<tMAYOR : ">">
+	{
+	  System.out.println(" >");
+	}
+|	<tMENOR : "<">
+	{
+	  System.out.println("<");
+	}
+|	<tIGUAL : "=">
+	{
+	  System.out.println("=");
+	}
+|	<tMAI : ">=">
+	{
+	  System.out.println(">=");
+	}
+|	<tMEI : "<=">
+	{
+	  System.out.println("<=");
+	}
+|	<tNI : "<>">
+	{
+	  System.out.println("<>");
+	}
+|	<tOPAS : ":=">
+	{
+	  System.out.println(":=");
+	}
+|	<tMOD : "mod">
+	{
+	  System.out.println("mod");
+	}
+}
+
+TOKEN: /* OPERADORES ENTRADA/SALIDA */
+{
+	<tESCRIBIR : "escribir">
+	{
+	  System.out.println("escribir");
+	}
+|	<tLEER : "leer">
+	{
+	  System.out.println("leer");
+	}
+}
+
+TOKEN : /* OPERADORES CARACTERES */
+{
+	<tENTACAR : "entacar">
+	{
+	  System.out.println("entacar");
+	}
+|	<tCARAENT : "caraent">
+	{
+	  System.out.println("caraent");
+	}
 }
 
 TOKEN : /* VALORES */
 {
-  < #DIGITO : ["0"-"9"] >
-| < #LETRA : ["a"-"z","_","0"-"9"] >
-| < tVALOR_ENTERO : ("-")?(< DIGITO >)+ >
-  {
-    System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")");
-  }
-| <  tVALOR_DECIMAL : ("-")?(< DIGITO >)+"."(< DIGITO >)+ >
-  {
-    System.out.println("VALOR_DECIMAL (Valor: " + matchedToken + ")");
-  }
-| <  tIDENTIFICADOR : (< LETRA >)+ >
-  {
-    System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
-  }
+  	<#DIGITO : ["0"-"9"]>
+| 	<#LETRA : ["a"-"z"]>
+| 	< tVALOR_ENTERO : ("-")?(< DIGITO >)+ >
+  	{
+    	System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")");
+  	}
+| 	<tVALOR_DECIMAL : ("-")?(< DIGITO >)+"."(< DIGITO >)+ >
+  	{
+   		System.out.println("VALOR_DECIMAL (Valor: " + matchedToken + ")");
+  	}
+|	<tTRUE : "true">
+	{
+	  System.out.println("true");
+	}
+|	<tFALSE : "false">
+	{
+	  System.out.println("false");
+	} 
+| 	<tIDENTIFICADOR : ((< LETRA > | ("_")+(< DIGITO > | < LETRA >))(< DIGITO >)*)+ >
+  	{
+    	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
+  	} 
 }
 
 
-TOKEN : /* OPERADORES */
+TOKEN : /* AGRUPACIONES */
 {
-  <  tASIGNACION : "=" >
+  <tPAR_IZQ : "(">
   {
-    System.out.println("ASIGNACION");
+    System.out.println("PAR_IZQ");
   }
-| <  tFIN_SENTENCIA : ";" >
+| <tPAR_DER : ")">
   {
-    System.out.println("FIN_SENTENCIA");
+    System.out.println("PAR_DCHA");
   }
 }
+// ANALIZADOR SINTACTICO
+
+/**
+*	En la parte superior de cada funcion se ha puesto
+*	la notacion de la regla en BNF por si sirve de ayuda
+*/
 
 
+//programa ::= <tPROGRAMA> <tIDENTIFICADOR> ";"
 void programa():
 {
 }
 {
-  < tCLASE > < tIDENTIFICADOR > < tLLAVE_IZQ > (metodo())+ < tLLAVE_DCHA >
+ 	<tPROGRAMA> <tIDENTIFICADOR> ";" declaracion_variables() declaracion_acciones() bloque_sentencias()
 }
 
+//declaracion_variables ::= ( declaracion ";" )*
+void declaracion_variables():
+{
+}
+{
+	(declaracion() ";")*
+}
+
+//declaracion ::= tipo_variables identificadores
+void declaracion():
+{
+}
+{
+	tipo_variables() identificadores()
+}
+
+//tipo_variables ::= <tENTERO> | <tCARACTER> | <tBOOLEANO>
+void tipo_variables():
+{
+}
+{
+	<tENTERO> | <tCARACTER> | <tBOOLEANO>
+}
+
+//identificadores ::= <tIDENTIFICADOR> ( "," <tIDENTIFICADOR> )*
+void identificadores():
+{
+}
+{
+	<tIDENTIFICADOR> ( "," <tIDENTIFICADOR> )*
+}
+
+//declaracion_acciones ::= ( declaracion_accion )*
+void declaracion_acciones():
+{
+}
+{
+	( declaracion_accion() )*
+}
+
+//declaracion_accion ::= cabecera_accion ";" declaracion_variables declaracion_acciones bloque_sentencias
+void declaracion_accion():
+{
+}
+{
+	cabecera_accion() ";" declaracion_variables() declaracion_acciones() bloque_sentencias()
+}
+
+//cabecera_accion ::= <tACCION> <tIDENTIFICADOR> parametros_formales
+void cabecera_accion():
+{
+}
+{
+	<tACCION> <tIDENTIFICADOR> parametros_formales()
+}
+
+//parametros_formales ::= ...
+void parametros_formales():
+{
+}
+{
+	//FALTA POR RELLENAR 
+}
+
+//lista_parametros ::= ...
+void lista_parameteros():
+{
+}
+{
+	//FALTA POR RELLENAR
+}
+
+//parametros ::= clase_parametros tipo_variables lista_parametros
+void parametros():
+{
+}
+{
+	clase_parametros() tipo_variables() lista_parametros()
+}
+
+//clase_parametros ::= <tVAL> | <tREF>
+void clase_parametros():
+{
+}
+{
+	<tVAL> | <tREF>
+}
+
+//bloque_sentencias ::= <tPRINCIPIO> lista_sentencias <tFIN>
+void bloque_sentencias():
+{
+}
+{
+	<tPRINCIPIO> lista_sentencias() <tFIN>
+}
+
+//lista_sentencias	 ::= ...
+void lista_sentencias():
+{
+}
+{
+	//FALTA POR RELLENAR
+}
+
+//sentencia ::= leer ";" | escribir ";" | asignacion | invocacion_accion | seleccion | mientras_que
 void sentencia():
 {
 }
 {
-  	< tENTERO > < tIDENTIFICADOR > <tASIGNACION > < tVALOR_ENTERO > < tFIN_SENTENCIA >
- | < tDECIMAL > < tIDENTIFICADOR > <tASIGNACION > < tVALOR_DECIMAL > < tFIN_SENTENCIA >
+	leer() ";" | escribir() ";" | asignacion() | invocacion_accion() | seleccion() | mientras_que()
 }
 
-void metodo():
+//leer ::= <tLEER> "(" lista_asignables ")"
+void leer():
 {
 }
 {
-  	< tMETODO > < tIDENTIFICADOR > "{" (sentencia())* "}"
+	<tLEER> "(" lista_asignables() ")"
 }
 
+//lista_asignables ::= ...
+void lista_asignables():
+{
+}
+{
+ 	//FALTA POR RELLENAR
+}
+
+//escribir ::= <tESCRIBIR> "(" lista_escribibles ")"
+void escribir():
+{
+}
+{
+	<tESCRIBIR> "(" lista_escribibles() ")"
+}
+
+//lista_escribibles ::= ...
+void lista_escribibles():
+{
+}
+{
+	//FALTA POR RELLENAR 
+}
+
+//asignacion ::= <tIDENTIFICADOR> <tOPAS> expresion ";"
+void asignacion():
+{
+}
+{
+  	<tIDENTIFICADOR> <tOPAS> expresion() ";"
+}
+
+//invocacion_accion ::= <tIDENTIFICADOR> argumentos ";"
+void invocacion_accion():
+{
+}
+{
+	<tIDENTIFICADOR> argumentos() ";"
+}
+
+//mientras_que ::= <tMQ> expresion lista_sentencias <tFMQ>
+void mientras_que():
+{
+}
+{
+	<tMQ> expresion() lista_sentencias() <tFMQ>
+}
+
+//seleccion ::= ...
+void seleccion():
+{
+}
+{
+	//FALTA RELLENAR
+}
+
+//argumentos ::= "(" ( lista_expresiones )? ")"
+void argumentos():
+{
+}
+{
+	"(" (lista_expresiones())? ")"
+}
+
+//lista_expresiones ::= ...
+void lista_expresiones():
+{
+}
+{
+	//FALTA RELLENAR
+}
+
+//expresion ::= ...
+void expresion():
+{
+}
+{
+	//FALTA RELLENAR
+}
+
+//operador_relacional ::= ...
+void operador_relacional():
+{
+}
+{
+	//FALTA RELLENAR
+}
+
+//expresion_simple ::= ...
+void expresion_simple():
+{
+}
+{
+	//FALTA RELLENAR
+}
+
+//operador_aditivo ::= ...
+void operador_aditivo():
+{
+}
+{
+	//FALTA RELLENAR
+}
+
+//termino ::= ...
+void termino():
+{
+}
+{
+	//FALTA RELLENAR
+}
+
+//operador_multiplicativo ::= ...
+void operador_multiplicativo():
+{
+}
+{
+	//FALTA RELLENAR
+}
+
+/*
+factor ::= "-" factor
+| <tNOT> factor
+| "(" expresion ")"
+| <tENTACAR> "(" expresion ")"
+| <tCARAENT> "(" expresion ")"
+| <tIDENTIFICADOR>
+| <tCONSTENTERA>
+| <tCONSTCHAR>
+| <tCONSTCAD>
+| <tTRUE>
+| <tFALSE>
+*/
+void factor(): 
+{
+}
+{
+	"-" factor
+| <tNOT> factor
+| "(" expresion() ")"
+| <tENTACAR> "(" expresion() ")"
+| <tCARAENT> "(" expresion() ")"
+| <tIDENTIFICADOR>
+| <tCONSTENTERA>
+| <tCONSTCHAR>
+| <tCONSTCAD>
+| <tTRUE>
+| <tFALSE>
+}

@@ -277,7 +277,7 @@ int programa() :
 (
 	< tCOMCORTO >
 | 	< tCOMLARGO >
-| 	< tPROGRAMA >
+| 	< tPROGRAMA > 
 |	< tVAR >
 |	< tAND >
 |	< tOR >
