@@ -1,8 +1,8 @@
 /**
  * Especificacion JavaCC para la Practica 2 (Procesadores de Lenguajes)
  * Pablo Garcia Garcia - 781020@unizar.es
- * Aarin Ibanez Espes - 779088@unizar.es
- * Ultima modificacion: 22/03/2021
+ * Aaron Ibañez Espes - 779088@unizar.es
+ * Ultima modificacion:
  */
 options
 {
