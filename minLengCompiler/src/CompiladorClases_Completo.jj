@@ -121,6 +121,10 @@ TOKEN: /* OPERADORES DE FLUJO */
  	{
     	System.out.println("SEPARADOR");
  	}
+| 	<tCOMILLAS : "\"" >
+ 	{
+    	System.out.println("COMILLAS");
+ 	}
 }
 
 TOKEN : /* OPERADORES ARITMETICOS */
@@ -235,6 +239,7 @@ TOKEN : /* VALORES */
 {
   	<#DIGITO : ["0"-"9"]>
 | 	<#LETRA : ["a"-"z"]>
+| 	<#SIGNO : [":",",","?","¿","(",")",";"]>
 | 	< tVALOR_ENTERO : ("-")?(< DIGITO >)+ >
   	{
     	System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")");
@@ -410,12 +415,13 @@ void leer():
 	<tLEER> "(" lista_asignables() ")"
 }
 
-//lista_asignables ::= ...
+//lista_asignables ::= lista_parameteros()
 void lista_asignables():
 {
 }
 {
- 	//FALTA POR RELLENAR
+ 	//RELLENADO AARON
+ 	lista_parameteros()
 }
 
 //escribir ::= <tESCRIBIR> "(" lista_escribibles ")"
@@ -431,7 +437,8 @@ void lista_escribibles():
 {
 }
 {
-	//FALTA POR RELLENAR 
+	//RELLENADO AARON
+	"\"" (< DIGITO > | < LETRA > | < SIGNO>)* "\""
 }
 
 //asignacion ::= <tIDENTIFICADOR> <tOPAS> expresion ";"
@@ -463,7 +470,8 @@ void seleccion():
 {
 }
 {
-	//FALTA RELLENAR
+	//RELLENADO AARON
+	< tSI > argumentos() lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI >
 }
 
 //argumentos ::= "(" ( lista_expresiones )? ")"
@@ -479,7 +487,9 @@ void lista_expresiones():
 {
 }
 {
-	//FALTA RELLENAR
+	//RELLENADO AARON
+	(expresion())+
+	
 }
 
 //expresion ::= ...
