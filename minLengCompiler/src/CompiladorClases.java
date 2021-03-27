@@ -40,7 +40,6 @@ public class CompiladorClases implements CompiladorClasesConstants {
     declaracion_variables();
     declaracion_acciones();
     bloque_sentencias();
-          System.out.println("Se ha reconocido el programa: " + t.image);
   }
 
 //declaracion_variables ::= ( declaracion ";" )*
