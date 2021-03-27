@@ -346,16 +346,18 @@ void parametros_formales():
 {
 }
 {
-	"(" (parametros())* ")" //FALTA POR RELLENAR 
+  	//RELLENADO AARON
+  	//La ultima interrogacion es por lo que pone en el enunciado
+	("(" ((parametros() ";")* parametros())? ")" )?
 }
 
-//lista_parametros ::= ...
+//lista_parametros ::= (< tIDENTIFICADOR > ",")* < tIDENTIFICADOR >
 void lista_parameteros():
 {
 }
 {
-	//FALTA POR RELLENAR
-	(< tIDENTIFICADOR > | ",")*
+	//RELLENADO AARON
+	(< tIDENTIFICADOR >",")*(< tIDENTIFICADOR >)
 }
 
 //parametros ::= clase_parametros tipo_variables lista_parametros
@@ -382,12 +384,14 @@ void bloque_sentencias():
 	<tPRINCIPIO> lista_sentencias() <tFIN>
 }
 
-//lista_sentencias	 ::= ...
+//lista_sentencias	 ::= (sentencia())+
 void lista_sentencias():
 {
 }
 {
-	//FALTA POR RELLENAR
+	//RELLENADO AARON
+	(sentencia())+
+	
 }
 
 //sentencia ::= leer ";" | escribir ";" | asignacion | invocacion_accion | seleccion | mientras_que

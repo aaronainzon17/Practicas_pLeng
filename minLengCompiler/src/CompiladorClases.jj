@@ -88,7 +88,7 @@ TOKEN : /* PALABRAS RESERVADAS */
 	{
 	  System.out.println("fsi");
 	}
-|	<tMQ : "mq">
+|	<tMQ : "mq"> 
 	{
 	  System.out.println("mq");
 	}
@@ -120,6 +120,10 @@ TOKEN: /* OPERADORES DE FLUJO */
 | 	<tSEPARADOR : "," >
  	{
     	System.out.println("SEPARADOR");
+ 	}
+| 	<tCOMILLAS : "\"" >
+ 	{
+    	System.out.println("COMILLAS");
  	}
 }
 
