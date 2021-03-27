@@ -7,6 +7,7 @@ options
 {
   static = true;
   ignore_case = true;
+  //LOOKAHEAD = 2;
 }
 
 PARSER_BEGIN(CompiladorClases)
@@ -41,6 +42,8 @@ SKIP :
 | "\r"
 | "\t"
 | "\n"
+| <"%" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+| <"%%" (~["%"])* "%%">  
 }
 TOKEN: /* COMENTARIOS*/
 {
@@ -237,9 +240,9 @@ TOKEN : /* OPERADORES CARACTERES */
 
 TOKEN : /* VALORES */
 {
-  	<#DIGITO : ["0"-"9"]>
-| 	<#LETRA : ["a"-"z"]>
-| 	<#SIGNO : [":",",","?","¿","(",")",";"]>
+  	< #DIGITO : ["0"-"9"]>
+| 	< #LETRA : ["a"-"z"]>
+| 	< #SIGNO : [":",",","?","¿","(",")"]>
 | 	< tVALOR_ENTERO : ("-")?(< DIGITO >)+ >
   	{
     	System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")");
@@ -258,8 +261,8 @@ TOKEN : /* VALORES */
 	} 
 | 	<tIDENTIFICADOR : ((< LETRA > | ("_")+(< DIGITO > | < LETRA >))(< DIGITO >)*)+ >
   	{
-    	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
-  	} 
+    	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")"); 
+  	}
 }
 
 
@@ -353,16 +356,16 @@ void parametros_formales():
 {
   	//RELLENADO AARON
   	//La ultima interrogacion es por lo que pone en el enunciado
-	("(" ((parametros() ";")* parametros())? ")" )?
+	("(" ((parametros() ";")* parametros())? ")")? 
 }
 
 //lista_parametros ::= (< tIDENTIFICADOR > ",")* < tIDENTIFICADOR >
-void lista_parameteros():
+void lista_parametros():
 {
 }
 {
 	//RELLENADO AARON
-	(< tIDENTIFICADOR >",")*(< tIDENTIFICADOR >)
+	(< tIDENTIFICADOR >",")*< tIDENTIFICADOR > 
 }
 
 //parametros ::= clase_parametros tipo_variables lista_parametros
@@ -386,7 +389,7 @@ void bloque_sentencias():
 {
 }
 {
-	<tPRINCIPIO> lista_sentencias() <tFIN>
+	<tPRINCIPIO> lista_sentencias() <tFIN>  
 }
 
 //lista_sentencias	 ::= (sentencia())+
@@ -421,7 +424,7 @@ void lista_asignables():
 }
 {
  	//RELLENADO AARON
- 	lista_parameteros()
+ 	lista_parametros()
 }
 
 //escribir ::= <tESCRIBIR> "(" lista_escribibles ")"
@@ -438,7 +441,7 @@ void lista_escribibles():
 }
 {
 	//RELLENADO AARON
-	"\"" (< DIGITO > | < LETRA > | < SIGNO>)* "\""
+	"\"" "\""
 }
 
 //asignacion ::= <tIDENTIFICADOR> <tOPAS> expresion ";"
@@ -507,7 +510,7 @@ void operador_relacional():
 {
 	<tMAYOR>
 |	<tMENOR>
-|	<tIGUAL>
+|	<tIGUAL> 
 |	<tMAI>
 |	<tMEI>
 |	<tNI>
@@ -560,9 +563,9 @@ void factor():
 | 	<tENTACAR> "(" expresion() ")"
 | 	<tCARAENT> "(" expresion() ")"
 | 	<tIDENTIFICADOR>
-| 	<tCONSTENTERA>
-| 	<tCONSTCHAR>
-| 	<tCONSTCAD>
+//| 	<tCONSTENTERA>
+//| 	<tCONSTCHAR>
+//| 	<tCONSTCAD>
 | 	<tTRUE>
 | 	<tFALSE>
 }
