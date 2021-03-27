@@ -7,7 +7,6 @@ options
 {
   static = true;
   ignore_case = true;
-  //LOOKAHEAD = 2;
 }
 
 PARSER_BEGIN(CompiladorClases)
@@ -245,14 +244,14 @@ TOKEN : /* VALORES */
 | 	<#LETRA : ["a"-"z"]>
 | 	<#SIGNO : [":", ",","?","¿","=","[","]","{","}","(",")","<",">", "'","\"","=",",",".",",",";"," ", "/"] >
         
-| 	< tVALOR_ENTERO : ("-")?(< DIGITO >)+ >
+| 	< tVALOR_ENTERO : (< DIGITO >)+ >
   	{
     	System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")");
   	}
-| 	<tVALOR_DECIMAL : ("-")?(< DIGITO >)+"."(< DIGITO >)+ >
+/*| 	<tVALOR_DECIMAL : (< DIGITO >)+"."(< DIGITO >)+ >
   	{
    		System.out.println("VALOR_DECIMAL (Valor: " + matchedToken + ")");
-  	}
+  	}*/
 |	<tTRUE : "true">
 	{
 	  System.out.println("true");
@@ -374,9 +373,7 @@ void parametros_formales():
 {
 }
 {
-  	//RELLENADO AARON
-  	//La ultima interrogacion es por lo que pone en el enunciado
-	("(" ((parametros() ";")* parametros())? ")")? 
+	("(" parametros() (";" parametros())* ")")? 
 }
 
 //lista_parametros ::= (< tIDENTIFICADOR > ",")* < tIDENTIFICADOR >
@@ -384,8 +381,7 @@ void lista_parametros():
 {
 }
 { 
-	//RELLENADO AARON
-	(< tIDENTIFICADOR >",")*< tIDENTIFICADOR > 
+	<tIDENTIFICADOR> ("," <tIDENTIFICADOR>)* 
 }
 
 //parametros ::= clase_parametros tipo_variables lista_parametros
@@ -427,7 +423,11 @@ void sentencia():
 {
 }
 {
-	leer() ";" | escribir() ";" | asignacion() | invocacion_accion() | seleccion() | mientras_que()
+	leer() ";"
+| 	escribir() ";"
+| 	<tIDENTIFICADOR> (asignacion() | invocacion_accion())
+| 	seleccion()
+| 	mientras_que()
 }
 
 //leer ::= <tLEER> "(" lista_asignables ")"
@@ -460,8 +460,8 @@ void lista_escribibles():
 {
 }
 {
-	//RELLENADO AARON
-	"\"" "\""
+	//RELLENADO AARON FALTAN COSAS?????
+	<tCONSTCAD>
 }
 
 //asignacion ::= <tIDENTIFICADOR> <tOPAS> expresion ";"
@@ -469,7 +469,7 @@ void asignacion():
 {
 }
 {
-  	<tIDENTIFICADOR> <tOPAS> expresion() ";"
+  	<tOPAS> expresion() ";"
 }
 
 //invocacion_accion ::= <tIDENTIFICADOR> argumentos ";"
@@ -477,7 +477,7 @@ void invocacion_accion():
 {
 }
 {
-	<tIDENTIFICADOR> argumentos() ";"
+	argumentos() ";"
 }
 
 //mientras_que ::= <tMQ> expresion lista_sentencias <tFMQ>
@@ -541,17 +541,26 @@ void expresion_simple():
 {
 }
 {
-	(<tSUMA>|<tRESTA>)? termino() (operador_aditivo() termino())*
+  	// Por que no va con signo????????
+	(signo())? termino() (operador_aditivo() termino())*
 }
 
 //operador_aditivo ::= ...
+void signo():
+{
+}
+{
+ 	<tSUMA>
+| 	<tRESTA> 	
+}
+
 void operador_aditivo():
 {
 }
 {
-	<tSUMA>
-| 	<tRESTA>
-| 	<tOR>
+  	<tOR>
+| 	<tSUMA>
+| 	<tRESTA> 	
 }
 
 //termino ::= ...
@@ -577,8 +586,7 @@ void factor():
 {
 }
 {
-	"-" factor()
-| 	<tNOT> factor()
+ 	<tNOT> factor()
 | 	"(" expresion() ")"
 | 	<tENTACAR> "(" expresion() ")"
 | 	<tCARAENT> "(" expresion() ")"
