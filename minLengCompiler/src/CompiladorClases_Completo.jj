@@ -42,10 +42,11 @@ SKIP :
 | "\r"
 | "\t"
 | "\n"
-| <"%" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
-| <"%%" (~["%"])* "%%">  
+| <"%" (~["\n"])* ("\n")>
+| <"%%" (~["%"])* "%%"> 
 }
-TOKEN: /* COMENTARIOS*/
+
+/*TOKEN: COMENTARIOS
 {
   	<tCOMCORTO : "%">
 	{
@@ -56,6 +57,7 @@ TOKEN: /* COMENTARIOS*/
 	  System.out.println("COMLARGO");
 	}
 }
+*/
 
 TOKEN : /* PALABRAS RESERVADAS */
 {
@@ -91,7 +93,7 @@ TOKEN : /* PALABRAS RESERVADAS */
 	{
 	  System.out.println("fsi");
 	}
-|	<tMQ : "mq">
+|	<tMQ : "mq"> 
 	{
 	  System.out.println("mq");
 	}
@@ -123,10 +125,6 @@ TOKEN: /* OPERADORES DE FLUJO */
 | 	<tSEPARADOR : "," >
  	{
     	System.out.println("SEPARADOR");
- 	}
-| 	<tCOMILLAS : "\"" >
- 	{
-    	System.out.println("COMILLAS");
  	}
 }
 
@@ -240,9 +238,10 @@ TOKEN : /* OPERADORES CARACTERES */
 
 TOKEN : /* VALORES */
 {
-  	< #DIGITO : ["0"-"9"]>
-| 	< #LETRA : ["a"-"z"]>
-| 	< #SIGNO : [":",",","?","¿","(",")"]>
+  	<#DIGITO : ["0"-"9"]>
+| 	<#LETRA : ["a"-"z"]>
+| 	<#SIGNO : [":", ",","?","¿","=","[","]","{","}","(",")","<",">", "'","\"","=",",",".",",",";"," ", "/"] >
+        
 | 	< tVALOR_ENTERO : ("-")?(< DIGITO >)+ >
   	{
     	System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")");
@@ -261,7 +260,20 @@ TOKEN : /* VALORES */
 	} 
 | 	<tIDENTIFICADOR : ((< LETRA > | ("_")+(< DIGITO > | < LETRA >))(< DIGITO >)*)+ >
   	{
-    	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")"); 
+    	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
+  	}
+/*| 	<tCONSTENTERA : (< DIGITO >)+ "\"">
+  	{
+    	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
+  	}
+*/
+| 	<tCONSTCHAR : "\"" < LETRA > "\"" >
+  	{
+    	System.out.println("CARACTER (Valor: " + matchedToken + ")");
+  	}
+| 	<tCONSTCAD : "\"" (< DIGITO > | < LETRA > | < SIGNO >)+  "\"" >
+  	{
+    	System.out.println("CADENA (Valor: " + matchedToken + ")");
   	}
 }
 
@@ -276,7 +288,7 @@ TOKEN : /* AGRUPACIONES */
   {
     System.out.println("PAR_DCHA");
   }
-}
+} 
 // ANALIZADOR SINTACTICO
 
 /**
@@ -363,7 +375,7 @@ void parametros_formales():
 void lista_parametros():
 {
 }
-{
+{ 
 	//RELLENADO AARON
 	(< tIDENTIFICADOR >",")*< tIDENTIFICADOR > 
 }
@@ -563,9 +575,9 @@ void factor():
 | 	<tENTACAR> "(" expresion() ")"
 | 	<tCARAENT> "(" expresion() ")"
 | 	<tIDENTIFICADOR>
-//| 	<tCONSTENTERA>
-//| 	<tCONSTCHAR>
-//| 	<tCONSTCAD>
+| 	<tVALOR_ENTERO>
+| 	<tCONSTCHAR>
+| 	<tCONSTCAD>
 | 	<tTRUE>
 | 	<tFALSE>
 }

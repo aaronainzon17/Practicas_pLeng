@@ -1,7 +1,7 @@
 /**
  * Especificacion JavaCC para la Practica 2 (Procesadores de Lenguajes)
  * Pablo Garcia Garcia - 781020@unizar.es
- * Aaron Ibaï¿½ez Espes - 779088@unizar.es
+ * Aaron Ibañez Espes - 779088@unizar.es
  * Ultima modificacion:
  */
 options
@@ -41,8 +41,11 @@ SKIP :
 | "\r"
 | "\t"
 | "\n"
+| <"%" (~["\n"])* ("\n")>
+| <"%%" (~["%"])* "%%"> 
 }
-TOKEN: /* COMENTARIOS*/
+
+/*TOKEN: COMENTARIOS
 {
   	<tCOMCORTO : "%">
 	{
@@ -53,6 +56,7 @@ TOKEN: /* COMENTARIOS*/
 	  System.out.println("COMLARGO");
 	}
 }
+*/
 
 TOKEN : /* PALABRAS RESERVADAS */
 {
@@ -120,10 +124,6 @@ TOKEN: /* OPERADORES DE FLUJO */
 | 	<tSEPARADOR : "," >
  	{
     	System.out.println("SEPARADOR");
- 	}
-| 	<tCOMILLAS : "\"" >
- 	{
-    	System.out.println("COMILLAS");
  	}
 }
 
@@ -239,6 +239,8 @@ TOKEN : /* VALORES */
 {
   	<#DIGITO : ["0"-"9"]>
 | 	<#LETRA : ["a"-"z"]>
+| 	<#SIGNO : [":", ",","?","¿","=","[","]","{","}","(",")","<",">", "'","\"","=",",",".",",",";"," ", "/"] >
+        
 | 	< tVALOR_ENTERO : ("-")?(< DIGITO >)+ >
   	{
     	System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")");
@@ -258,7 +260,20 @@ TOKEN : /* VALORES */
 | 	<tIDENTIFICADOR : ((< LETRA > | ("_")+(< DIGITO > | < LETRA >))(< DIGITO >)*)+ >
   	{
     	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
-  	} 
+  	}
+/*| 	<tCONSTENTERA : (< DIGITO >)+ "\"">
+  	{
+    	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
+  	}
+*/
+| 	<tCONSTCHAR : "\"" < LETRA > "\"" >
+  	{
+    	System.out.println("CARACTER (Valor: " + matchedToken + ")");
+  	}
+| 	<tCONSTCAD : "\"" (< DIGITO > | < LETRA > | < SIGNO >)+  "\"" >
+  	{
+    	System.out.println("CADENA (Valor: " + matchedToken + ")");
+  	}
 }
 
 
@@ -279,9 +294,7 @@ int programa() :
 {}
 {
 (
-	< tCOMCORTO >
-| 	< tCOMLARGO >
-| 	< tPROGRAMA > 
+ 	< tPROGRAMA > 
 |	< tVAR >
 |	< tAND >
 |	< tOR >
@@ -325,6 +338,8 @@ int programa() :
 |	< tIDENTIFICADOR >
 | 	< tPAR_IZQ >
 | 	< tPAR_DER >
+| 	< tCONSTCHAR >
+| 	< tCONSTCAD >
 )+
   {
     return 0;

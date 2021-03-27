@@ -287,8 +287,8 @@ public class CompiladorClases implements CompiladorClasesConstants {
 
 //lista_escribibles ::= ...
   static final public void lista_escribibles() throws ParseException {
-    jj_consume_token(tCOMILLAS);
-    jj_consume_token(tCOMILLAS);
+    jj_consume_token(56);
+    jj_consume_token(56);
   }
 
 //asignacion ::= <tIDENTIFICADOR> <tOPAS> expresion ";"
@@ -340,9 +340,12 @@ public class CompiladorClases implements CompiladorClasesConstants {
     case tNOT:
     case tENTACAR:
     case tCARAENT:
+    case tVALOR_ENTERO:
     case tTRUE:
     case tFALSE:
     case tIDENTIFICADOR:
+    case tCONSTCHAR:
+    case tCONSTCAD:
     case tPAR_IZQ:
       lista_expresiones();
       break;
@@ -364,9 +367,12 @@ public class CompiladorClases implements CompiladorClasesConstants {
       case tNOT:
       case tENTACAR:
       case tCARAENT:
+      case tVALOR_ENTERO:
       case tTRUE:
       case tFALSE:
       case tIDENTIFICADOR:
+      case tCONSTCHAR:
+      case tCONSTCAD:
       case tPAR_IZQ:
         ;
         break;
@@ -556,6 +562,15 @@ public class CompiladorClases implements CompiladorClasesConstants {
     case tIDENTIFICADOR:
       jj_consume_token(tIDENTIFICADOR);
       break;
+    case tVALOR_ENTERO:
+      jj_consume_token(tVALOR_ENTERO);
+      break;
+    case tCONSTCHAR:
+      jj_consume_token(tCONSTCHAR);
+      break;
+    case tCONSTCAD:
+      jj_consume_token(tCONSTCAD);
+      break;
     case tTRUE:
       jj_consume_token(tTRUE);
       break;
@@ -587,10 +602,10 @@ public class CompiladorClases implements CompiladorClasesConstants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0xe0000000,0xe0000000,0x800000,0x200000,0x180000,0x180000,0x0,0x0,0x180000,0x22000,0x22000,0x8000,0x6000000,0x6000000,0x0,0x0,0x6000000,0x6000000,0x6000000,0x6000000,0x18000000,0x18000000,0x4000000,};
+      jj_la1_0 = new int[] {0x1c000000,0x1c000000,0x200000,0x80000,0x60000,0x60000,0x0,0x0,0x60000,0x8800,0x8800,0x2000,0x80c00000,0x80c00000,0x0,0x0,0xc00000,0xc00000,0x40c00000,0x40c00000,0x23000000,0x23000000,0x80800000,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x800000,0x400000,0x0,0x401800,0x401800,0x0,0xf06004,0xf06004,0x1f8,0x1f8,0x0,0x0,0x2,0x2,0x401,0x401,0xf06004,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x80000,0x0,0x80300,0x80300,0x0,0x7e8c00,0x7e8c00,0x3f,0x3f,0x0,0x0,0x0,0x0,0x80,0x80,0x7e8c00,};
    }
 
   /** Constructor with InputStream. */
