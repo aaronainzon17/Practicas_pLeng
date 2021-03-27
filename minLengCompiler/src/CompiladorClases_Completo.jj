@@ -22,13 +22,16 @@ public class CompiladorClases
     	CompiladorClases.programa();
     	System.out.println("Analizado correctamente");
     }
-    catch (Exception e) {
-		System.out.println("NOK.");
-        System.out.println(e.getMessage());
-        CompiladorClases.ReInit(System.in);
+    catch (TokenMgrError e) {
+		//Error léxico
+		System.out.println("Error lexico");
 	}
-    catch (Error e) { 
-        System.out.println("Oops.");
+	catch (ParseException e) {
+		//Error sintáctico
+		System.out.println("Error sintactico");
+  	}
+  	catch (Error e) { 
+        System.out.println("Se ha producido un error inesperado");
         System.out.println(e.getMessage());
 	}
   }
@@ -300,9 +303,17 @@ TOKEN : /* AGRUPACIONES */
 //programa ::= <tPROGRAMA> <tIDENTIFICADOR> ";" declaracion_variables declaracion_acciones bloque_sentencias
 void programa():
 {
+  Token t = null;
 }
 {
- 	<tPROGRAMA> <tIDENTIFICADOR> ";" declaracion_variables() declaracion_acciones() bloque_sentencias()
+ 	<tPROGRAMA> t = <tIDENTIFICADOR>
+	{
+	  System.out.println("Identificador del programa: " + t.image);
+	}
+ 	";" declaracion_variables() declaracion_acciones() bloque_sentencias()
+ 	{
+	  System.out.println("Se ha reconocido el programa: " + t.image);
+	}
 }
 
 //declaracion_variables ::= ( declaracion ";" )*

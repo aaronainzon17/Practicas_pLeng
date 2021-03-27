@@ -8,13 +8,16 @@ public class CompiladorClases implements CompiladorClasesConstants {
         CompiladorClases.programa();
         System.out.println("Analizado correctamente");
     }
-    catch (Exception e) {
-                System.out.println("NOK.");
-        System.out.println(e.getMessage());
-        CompiladorClases.ReInit(System.in);
+    catch (TokenMgrError e) {
+                //Error léxico
+                System.out.println("Error lexico");
         }
-    catch (Error e) {
-        System.out.println("Oops.");
+        catch (ParseException e) {
+                //Error sintáctico
+                System.out.println("Error sintactico");
+        }
+        catch (Error e) {
+        System.out.println("Se ha producido un error inesperado");
         System.out.println(e.getMessage());
         }
   }
@@ -29,12 +32,15 @@ public class CompiladorClases implements CompiladorClasesConstants {
 
 //programa ::= <tPROGRAMA> <tIDENTIFICADOR> ";" declaracion_variables declaracion_acciones bloque_sentencias
   static final public void programa() throws ParseException {
+  Token t = null;
     jj_consume_token(tPROGRAMA);
-    jj_consume_token(tIDENTIFICADOR);
+    t = jj_consume_token(tIDENTIFICADOR);
+          System.out.println("Identificador del programa: " + t.image);
     jj_consume_token(tFIN_SENTENCIA);
     declaracion_variables();
     declaracion_acciones();
     bloque_sentencias();
+          System.out.println("Se ha reconocido el programa: " + t.image);
   }
 
 //declaracion_variables ::= ( declaracion ";" )*
