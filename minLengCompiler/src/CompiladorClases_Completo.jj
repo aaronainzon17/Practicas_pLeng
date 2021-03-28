@@ -57,16 +57,16 @@ public class CompiladorClases
   public static void main(String args []) throws ParseException
   {
     CompiladorClases parser = new CompiladorClases(System.in);
-    System.out.println("Leyendo de la entrada est�ndar...");
+    System.out.println("Leyendo de la entrada estandar...");
     try { 
     	CompiladorClases.programa();
     	if(!error) {
-			System.out.println("Analizado correctamente");
+			System.out.println("Analizado correctamente!");
    		}
     }
     catch (TokenMgrError e) {
 		//Error lexico
-		System.out.println("ERROR LEXICO");
+		System.out.println("ERROR LEXICO " + e.getMessage());
 	}
   	catch (Error e) { 
         System.out.println("Se ha producido un error inesperado");
@@ -280,7 +280,7 @@ TOKEN : /* VALORES */
 	}
 |	<tFALSE : "false">
 	{
-	  	//System.out.println("false");
+	  	//System.out.println("FALSE");
 	} 
 | 	<tIDENTIFICADOR : ((< LETRA > | ("_")+(< DIGITO > | < LETRA >))(< DIGITO >)*)+ >
   	{
@@ -416,7 +416,7 @@ void cabecera_accion():
 	catch (ParseException e)
 	{
 		errorSintactico(e);
-	}
+	} 
 }
 
 void parametros_formales():
@@ -546,7 +546,7 @@ void escribir():
 }
 {
   	try {
-	  	<tESCRIBIR> "(" lista_escribibles() ")"
+	  	<tESCRIBIR> "(" lista_escribibles() ")" 
 	}
 	catch (ParseException e)
 	{
@@ -585,7 +585,7 @@ void invocacion_accion():
 }
 {
   	try {
-	  	argumentos() ";"
+	  	(argumentos())? ";"
 	}
 	catch (ParseException e)
 	{
@@ -681,7 +681,7 @@ void expresion_simple():
 }
 {
   	try {
-	  	termino() (operador_aditivo() termino())*
+	  	termino() (operador_aditivo() termino())* 
 	}
 	catch (ParseException e)
 	{
@@ -723,7 +723,7 @@ void termino():
 }
 {
   	try {
-	  	factor() (operador_multiplicativo() factor())*
+	  	factor() (operador_multiplicativo() factor())* 
 	}
 	catch (ParseException e)
 	{
@@ -761,7 +761,7 @@ void factor():
 		| 	<tCONSTCHAR>
 		| 	<tCONSTCAD>
 		| 	<tTRUE>
-		| 	<tFALSE>
+		| 	<tFALSE> 
 	}
 	catch (ParseException e)
 	{
