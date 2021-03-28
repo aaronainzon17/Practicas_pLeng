@@ -137,7 +137,7 @@ TOKEN : /* OPERADORES ARITMETICOS */
  	{
     	System.out.println("RESTA");
  	}
- | 	<tDIV : "/" >
+ | 	<tDIV : "/" | "DIV" >
  	{
     	System.out.println("DIVISION");
  	}
@@ -241,13 +241,9 @@ TOKEN : /* VALORES */
 | 	<#LETRA : ["a"-"z"]>
 | 	<#SIGNO : [":", ",","?","¿","=","[","]","{","}","(",")","<",">", "'","\"","=",",",".",",",";"," ", "/"] >
         
-| 	< tVALOR_ENTERO : ("-")?(< DIGITO >)+ >
+| 	< tVALOR_ENTERO : (< DIGITO >)+ >
   	{
     	System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")");
-  	}
-| 	<tVALOR_DECIMAL : ("-")?(< DIGITO >)+"."(< DIGITO >)+ >
-  	{
-   		System.out.println("VALOR_DECIMAL (Valor: " + matchedToken + ")");
   	}
 |	<tTRUE : "true">
 	{
@@ -261,11 +257,6 @@ TOKEN : /* VALORES */
   	{
     	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
   	}
-/*| 	<tCONSTENTERA : (< DIGITO >)+ "\"">
-  	{
-    	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
-  	}
-*/
 | 	<tCONSTCHAR : "\"" < LETRA > "\"" >
   	{
     	System.out.println("CARACTER (Valor: " + matchedToken + ")");
@@ -334,7 +325,6 @@ int programa() :
 | 	< tFIN_SENTENCIA >
 |  	< tSEPARADOR >
 | 	< tVALOR_ENTERO >
-| 	< tVALOR_DECIMAL >
 |	< tIDENTIFICADOR >
 | 	< tPAR_IZQ >
 | 	< tPAR_DER >

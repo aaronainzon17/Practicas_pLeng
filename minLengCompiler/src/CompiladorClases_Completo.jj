@@ -14,22 +14,51 @@ PARSER_BEGIN(CompiladorClases)
 
 public class CompiladorClases
 {
+  private static boolean error = false;
+
+  private static void errorSintactico(ParseException e)
+  {
+    error = true;
+    System.out.print("ERROR SINTÁCTICO(" + e.currentToken.next.beginLine + ", " + e.currentToken.next.beginColumn + "): ");
+    System.out.print("Se encontro \"" + e.currentToken.next.image + "\" ");
+    String expectedMSG = "";
+    StringBuffer expected = new StringBuffer();
+    int maxSize = 0;
+    for (int i = 0; i < e.expectedTokenSequences.length; i++)
+    {
+      if (maxSize < e.expectedTokenSequences [i].length)
+      {
+        maxSize = e.expectedTokenSequences [i].length;
+      }
+      for (int j = 0; j < e.expectedTokenSequences [i].length; j++)
+      {
+        expected.append(tokenImage [e.expectedTokenSequences [i] [j]]);
+      }
+      if (e.expectedTokenSequences [i] [e.expectedTokenSequences [i].length - 1] != 0)
+      {
+        expected.append("| |");
+      }
+    }
+    expected = expected.deleteCharAt(expected.length() - 1);
+    expected = expected.deleteCharAt(expected.length() - 1);
+    expectedMSG += "y se esperaba:" + expected.toString();
+    System.out.println(expectedMSG);
+  } 
+  
   public static void main(String args []) throws ParseException
   {
     CompiladorClases parser = new CompiladorClases(System.in);
     System.out.println("Leyendo de la entrada estándar...");
     try { 
     	CompiladorClases.programa();
-    	System.out.println("Analizado correctamente");
+    	if(!error) {
+			System.out.println("Analizado correctamente");
+   		}
     }
     catch (TokenMgrError e) {
 		//Error léxico
-		System.out.println("Error lexico");
+		System.out.println("ERROR LÉXICO");
 	}
-	catch (ParseException e) {
-		//Error sintáctico
-		System.out.println("Error sintactico");
-  	}
   	catch (Error e) { 
         System.out.println("Se ha producido un error inesperado");
         System.out.println(e.getMessage());
@@ -238,11 +267,11 @@ TOKEN : /* VALORES */
   	}
 |	<tTRUE : "true">
 	{
-	  System.out.println("true");
+	  	System.out.println("true");
 	}
 |	<tFALSE : "false">
 	{
-	  System.out.println("false");
+	  	System.out.println("false");
 	} 
 | 	<tIDENTIFICADOR : ((< LETRA > | ("_")+(< DIGITO > | < LETRA >))(< DIGITO >)*)+ >
   	{
@@ -275,262 +304,458 @@ TOKEN : /* AGRUPACIONES */
 
 void programa():
 {
-  Token t = null;
+  Token t;
 }
 {
- 	<tPROGRAMA> t = <tIDENTIFICADOR>
-	{
-	  System.out.println("Identificador del programa: " + t.image);
-	}
- 	";" declaracion_variables() declaracion_acciones() bloque_sentencias()
+  	try {
+		<tPROGRAMA> t = <tIDENTIFICADOR>
+ 		";" declaracion_variables() declaracion_acciones() bloque_sentencias()
+ 	}
+ 	catch (ParseException e)
+ 	{
+		errorSintactico(e);
+ 	} 
 }
 
 void declaracion_variables():
 {
 }
 {
-	(declaracion() ";")*
+	try {
+	  	(declaracion() ";")*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void declaracion():
 {
 }
 {
-	tipo_variables() identificadores()
+  	try {
+	  	tipo_variables() identificadores()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void tipo_variables():
 {
 }
 {
-	<tENTERO> | <tCARACTER> | <tBOOLEANO>
+ 	try {
+	  		<tENTERO>
+	  	| 	<tCARACTER>
+	  	| 	<tBOOLEANO>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void identificadores():
 {
 }
 {
-	<tIDENTIFICADOR> ( "," <tIDENTIFICADOR> )*
+  	try {
+	  	<tIDENTIFICADOR> ( "," <tIDENTIFICADOR> )*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void declaracion_acciones():
 {
 }
 {
-	( declaracion_accion() )*
+  	try {
+	  	( declaracion_accion() )*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void declaracion_accion():
 {
 }
 {
-	cabecera_accion() ";" declaracion_variables() declaracion_acciones() bloque_sentencias()
+  	try {
+	  	cabecera_accion() ";" declaracion_variables() declaracion_acciones() bloque_sentencias()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void cabecera_accion():
 {
 }
 {
-	<tACCION> <tIDENTIFICADOR> parametros_formales()
+  	try {
+	  	<tACCION> <tIDENTIFICADOR> parametros_formales()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void parametros_formales():
 {
 }
 {
-	("(" parametros() (";" parametros())* ")")? 
+  	try {
+	  	("(" parametros() (";" parametros())* ")")?
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}	 
 }
 
 void lista_parametros():
 {
 }
-{ 
-	<tIDENTIFICADOR> ("," <tIDENTIFICADOR>)* 
+{
+  	try {
+	  	<tIDENTIFICADOR> ("," <tIDENTIFICADOR>)*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	} 
 }
 
 void parametros():
 {
 }
 {
-	clase_parametros() tipo_variables() lista_parametros()
+  	try {
+	  	clase_parametros() tipo_variables() lista_parametros()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void clase_parametros():
 {
 }
 {
-	<tVAL> | <tREF>
+  	try {
+	  		<tVAL>
+	  	| 	<tREF>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void bloque_sentencias():
 {
 }
 {
-	<tPRINCIPIO> lista_sentencias() <tFIN>  
+  	try {
+	  	<tPRINCIPIO> lista_sentencias() <tFIN>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}  
 }
 
 void lista_sentencias():
 {
 }
 {
-	(sentencia())+
-	
+  	try {
+	  	(sentencia())+
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void sentencia():
 {
 }
 {
-	leer() ";"
-| 	escribir() ";"
-| 	<tIDENTIFICADOR> (asignacion() | invocacion_accion())
-| 	seleccion()
-| 	mientras_que()
+  	try {
+	  		leer() ";"
+		| 	escribir() ";"
+		| 	<tIDENTIFICADOR> (asignacion() | invocacion_accion())
+		| 	seleccion()
+		| 	mientras_que()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void leer():
 {
 }
 {
-	<tLEER> "(" lista_asignables() ")"
+  	try {
+	  	<tLEER> "(" lista_asignables() ")"
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void lista_asignables():
 {
 }
 {
- 	lista_parametros()
+  	try {
+	  	lista_parametros()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void escribir():
 {
 }
 {
-	<tESCRIBIR> "(" lista_escribibles() ")"
+  	try {
+	  	<tESCRIBIR> "(" lista_escribibles() ")"
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void lista_escribibles():
 {
 }
 {
-	factor() (","(factor()))*
+  	try {
+	  	factor() (","(factor()))*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void asignacion():
 {
 }
 {
-  	<tOPAS> expresion() ";"
+  	try {
+	  	<tOPAS> expresion() ";"
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void invocacion_accion():
 {
 }
 {
-	argumentos() ";" 
+  	try {
+	  	argumentos() ";"
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	} 
 }
 
 void mientras_que():
 {
 }
 {
-	<tMQ> expresion() lista_sentencias() <tFMQ>
+  	try {
+	  	<tMQ> expresion() lista_sentencias() <tFMQ>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void seleccion():
 {
 }
 {
-	< tSI > expresion() < tENT > lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI >
+  	try {
+	  	< tSI > expresion() < tENT > lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI >
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void argumentos():
 {
 }
 {
-	( "(" lista_expresiones() ")")
+  	try {
+	  	( "(" lista_expresiones() ")")
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void lista_expresiones():
 {
 }
 {
-	(expresion())+
-	
+  	try {
+	  	expresion() ("," expresion())*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void expresion():
 {
 }
 {
-	expresion_simple() (operador_relacional() expresion_simple())?
+  	try {
+	  	expresion_simple() (operador_relacional() expresion_simple())?
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void operador_relacional():
 {
 }
 {
-	<tMAYOR>
-|	<tMENOR>
-|	<tIGUAL> 
-|	<tMAI>
-|	<tMEI>
-|	<tNI>
+  	try {
+	  		<tMAYOR>
+		|	<tMENOR>
+		|	<tIGUAL> 
+		|	<tMAI>
+		|	<tMEI>
+		|	<tNI>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void expresion_simple():
 {
 }
 {
-  	termino() (operador_aditivo() termino())*
+  	try {
+	  	termino() (operador_aditivo() termino())*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void signo():
 {
 }
 {
- 	<tSUMA>
-| 	<tRESTA> 
+  	try {
+	  	 	<tSUMA>
+		| 	<tRESTA>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	} 
 }
 
 void operador_aditivo():
 {
 }
 {
-  	<tOR>
-| 	<tSUMA>
-| 	<tRESTA> 	
+  	try {
+	  	  	<tOR>
+		| 	<tSUMA>
+		| 	<tRESTA>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	} 	
 }
 
 void termino():
 {
 }
 {
-	factor() (operador_multiplicativo() factor())*
+  	try {
+	  	factor() (operador_multiplicativo() factor())*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void operador_multiplicativo():
 {
 }
 {
-	<tMULT>
-| 	<tDIV>
-| 	<tMOD>
-| 	<tAND>
+  	try {
+	  		<tMULT>
+		| 	<tDIV>
+		| 	<tMOD>
+		| 	<tAND>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
 
 void factor():
 {
 }
 {
- 	<tNOT> factor()
-| 	"(" expresion() ")"
-| 	<tENTACAR> "(" expresion() ")"
-| 	<tCARAENT> "(" expresion() ")"
-| 	<tIDENTIFICADOR>
-| 	<tVALOR_ENTERO>
-| 	<tCONSTCHAR>
-| 	<tCONSTCAD>
-| 	<tTRUE>
-| 	<tFALSE>
+  	try {
+	  	 	<tNOT> factor()
+		| 	"(" expresion() ")"
+		| 	<tENTACAR> "(" expresion() ")"
+		| 	<tCARAENT> "(" expresion() ")"
+		| 	<tIDENTIFICADOR>
+		| 	<tVALOR_ENTERO>
+		| 	<tCONSTCHAR>
+		| 	<tCONSTCAD>
+		| 	<tTRUE>
+		| 	<tFALSE>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
 }
