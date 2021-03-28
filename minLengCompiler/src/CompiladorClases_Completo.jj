@@ -244,14 +244,14 @@ TOKEN : /* VALORES */
 | 	<#LETRA : ["a"-"z"]>
 | 	<#SIGNO : [":", ",","?","¿","=","[","]","{","}","(",")","<",">", "'","\"","=",",",".",",",";"," ", "/"] >
         
-| 	< tVALOR_ENTERO : ("-")?(< DIGITO >)+ >
+| 	< tVALOR_ENTERO : (< DIGITO >)+ >
   	{
     	System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")"); 
   	}
-| 	<tVALOR_DECIMAL : ("-")?(< DIGITO >)+"."(< DIGITO >)+ >
+/*| 	<tVALOR_DECIMAL : ("-")?(< DIGITO >)+"."(< DIGITO >)+ >
   	{
    		System.out.println("VALOR_DECIMAL (Valor: " + matchedToken + ")");
-  	}
+  	}*/
 |	<tTRUE : "true">
 	{
 	  System.out.println("true");
@@ -477,7 +477,7 @@ void invocacion_accion():
 {
 }
 {
-	argumentos() ";"
+	argumentos() ";" 
 }
 
 //mientras_que ::= <tMQ> expresion lista_sentencias <tFMQ>
@@ -494,7 +494,7 @@ void seleccion():
 }
 {
 	//RELLENADO AARON
-	< tSI > argumentos() lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI >
+	< tSI > expresion() lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI >
 }
 
 //argumentos ::= "(" ( lista_expresiones )? ")"
@@ -511,7 +511,7 @@ void lista_expresiones():
 }
 {
 	//RELLENADO AARON
-	(expresion())+ 
+	(expresion())+
 	
 }
 
@@ -541,20 +541,18 @@ void expresion_simple():
 {
 }
 {
-  	// Por que no va con signo????????
-  	//PORQUE EL SIGNO VA CON EL VALOR ENTERO :))))
-	termino() (operador_aditivo() termino())*
+  	(signo())? termino() (operador_aditivo() termino())*
 }
 
 //operador_aditivo ::= ...
-/*void signo():
+void signo():
 {
 }
 {
  	<tSUMA>
 | 	<tRESTA> 	
 }
-*/
+
 void operador_aditivo():
 {
 }
@@ -583,7 +581,7 @@ void operador_multiplicativo():
 | 	<tAND>
 }
 
-void factor():  
+void factor():
 {
 }
 {
@@ -593,7 +591,6 @@ void factor():
 | 	<tCARAENT> "(" expresion() ")"
 | 	<tIDENTIFICADOR>
 | 	<tVALOR_ENTERO>
-| 	< tVALOR_DECIMAL >
 | 	<tCONSTCHAR>
 | 	<tCONSTCAD>
 | 	<tTRUE>
