@@ -1,7 +1,8 @@
 /**
- * Especificación JavaCC para la Práctica 2 (Procesadores de Lenguajes)
- * Javier Fabra - jfabra@unizar.es
- * v1.2 - 2021/03/08
+ * Especificacion JavaCC para la Practica 2 (Procesadores de Lenguajes)
+ * Pablo Garcia Garcia - 781020@unizar.es
+ * Aaron Ibañez Espes - 779088@unizar.es
+ * Ultima modificacion:
  */
 options
 {
@@ -47,19 +48,6 @@ SKIP :
 | <"%" (~["\n"])* ("\n")>
 | <"%%" (~["%"])* "%%"> 
 }
-
-/*TOKEN: COMENTARIOS
-{
-  	<tCOMCORTO : "%">
-	{
-	  System.out.println("COMCORTO");
-	}
-|	<tCOMLARGO : "%%">
-	{
-	  System.out.println("COMLARGO");
-	}
-}
-*/
 
 TOKEN : /* PALABRAS RESERVADAS */
 {
@@ -140,7 +128,7 @@ TOKEN : /* OPERADORES ARITMETICOS */
  	{
     	System.out.println("RESTA");
  	}
- | 	<tDIV : "/" >
+ | 	<tDIV : "/" | "DIV" >
  	{
     	System.out.println("DIVISION");
  	}
@@ -248,10 +236,6 @@ TOKEN : /* VALORES */
   	{
     	System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")"); 
   	}
-/*| 	<tVALOR_DECIMAL : ("-")?(< DIGITO >)+"."(< DIGITO >)+ >
-  	{
-   		System.out.println("VALOR_DECIMAL (Valor: " + matchedToken + ")");
-  	}*/
 |	<tTRUE : "true">
 	{
 	  System.out.println("true");
@@ -264,11 +248,6 @@ TOKEN : /* VALORES */
   	{
     	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
   	}
-/*| 	<tCONSTENTERA : (< DIGITO >)+ "\"">
-  	{
-    	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
-  	}
-*/
 | 	<tCONSTCHAR : "\"" < LETRA > "\"" >
   	{
     	System.out.println("CARACTER (Valor: " + matchedToken + ")");
@@ -291,15 +270,9 @@ TOKEN : /* AGRUPACIONES */
     System.out.println("PAR_DCHA");
   }
 } 
+
 // ANALIZADOR SINTACTICO
 
-/**
-*	En la parte superior de cada funcion se ha puesto
-*	la notacion de la regla en BNF por si sirve de ayuda
-*/
-
-
-//programa ::= <tPROGRAMA> <tIDENTIFICADOR> ";" declaracion_variables declaracion_acciones bloque_sentencias
 void programa():
 {
   Token t = null;
@@ -312,7 +285,6 @@ void programa():
  	";" declaracion_variables() declaracion_acciones() bloque_sentencias()
 }
 
-//declaracion_variables ::= ( declaracion ";" )*
 void declaracion_variables():
 {
 }
@@ -320,7 +292,6 @@ void declaracion_variables():
 	(declaracion() ";")*
 }
 
-//declaracion ::= tipo_variables identificadores
 void declaracion():
 {
 }
@@ -328,7 +299,6 @@ void declaracion():
 	tipo_variables() identificadores()
 }
 
-//tipo_variables ::= <tENTERO> | <tCARACTER> | <tBOOLEANO>
 void tipo_variables():
 {
 }
@@ -336,7 +306,6 @@ void tipo_variables():
 	<tENTERO> | <tCARACTER> | <tBOOLEANO>
 }
 
-//identificadores ::= <tIDENTIFICADOR> ( "," <tIDENTIFICADOR> )*
 void identificadores():
 {
 }
@@ -344,7 +313,6 @@ void identificadores():
 	<tIDENTIFICADOR> ( "," <tIDENTIFICADOR> )*
 }
 
-//declaracion_acciones ::= ( declaracion_accion )*
 void declaracion_acciones():
 {
 }
@@ -352,7 +320,6 @@ void declaracion_acciones():
 	( declaracion_accion() )*
 }
 
-//declaracion_accion ::= cabecera_accion ";" declaracion_variables declaracion_acciones bloque_sentencias
 void declaracion_accion():
 {
 }
@@ -360,7 +327,6 @@ void declaracion_accion():
 	cabecera_accion() ";" declaracion_variables() declaracion_acciones() bloque_sentencias()
 }
 
-//cabecera_accion ::= <tACCION> <tIDENTIFICADOR> parametros_formales
 void cabecera_accion():
 {
 }
@@ -368,7 +334,6 @@ void cabecera_accion():
 	<tACCION> <tIDENTIFICADOR> parametros_formales()
 }
 
-//parametros_formales ::= ...
 void parametros_formales():
 {
 }
@@ -376,7 +341,6 @@ void parametros_formales():
 	("(" parametros() (";" parametros())* ")")? 
 }
 
-//lista_parametros ::= (< tIDENTIFICADOR > ",")* < tIDENTIFICADOR >
 void lista_parametros():
 {
 }
@@ -384,7 +348,6 @@ void lista_parametros():
 	<tIDENTIFICADOR> ("," <tIDENTIFICADOR>)* 
 }
 
-//parametros ::= clase_parametros tipo_variables lista_parametros
 void parametros():
 {
 }
@@ -392,7 +355,6 @@ void parametros():
 	clase_parametros() tipo_variables() lista_parametros()
 }
 
-//clase_parametros ::= <tVAL> | <tREF>
 void clase_parametros():
 {
 }
@@ -400,7 +362,6 @@ void clase_parametros():
 	<tVAL> | <tREF>
 }
 
-//bloque_sentencias ::= <tPRINCIPIO> lista_sentencias <tFIN>
 void bloque_sentencias():
 {
 }
@@ -408,17 +369,14 @@ void bloque_sentencias():
 	<tPRINCIPIO> lista_sentencias() <tFIN>  
 }
 
-//lista_sentencias	 ::= (sentencia())+
 void lista_sentencias():
 {
 }
 {
-	//RELLENADO AARON
 	(sentencia())+
 	
 }
 
-//sentencia ::= leer ";" | escribir ";" | asignacion | invocacion_accion | seleccion | mientras_que
 void sentencia():
 {
 }
@@ -430,7 +388,6 @@ void sentencia():
 | 	mientras_que()
 }
 
-//leer ::= <tLEER> "(" lista_asignables ")"
 void leer():
 {
 }
@@ -438,16 +395,13 @@ void leer():
 	<tLEER> "(" lista_asignables() ")"
 }
 
-//lista_asignables ::= lista_parameteros()
 void lista_asignables():
 {
 }
 {
- 	//RELLENADO AARON
  	lista_parametros()
 }
 
-//escribir ::= <tESCRIBIR> "(" lista_escribibles ")"
 void escribir():
 {
 }
@@ -455,16 +409,13 @@ void escribir():
 	<tESCRIBIR> "(" lista_escribibles() ")"
 }
 
-//lista_escribibles ::= ...
 void lista_escribibles():
 {
 }
 {
-	//RELLENADO AARON
 	factor() (","(factor()))*
 }
 
-//asignacion ::= <tIDENTIFICADOR> <tOPAS> expresion ";"
 void asignacion():
 {
 }
@@ -472,7 +423,6 @@ void asignacion():
   	<tOPAS> expresion() ";"
 }
 
-//invocacion_accion ::= <tIDENTIFICADOR> argumentos ";"
 void invocacion_accion():
 {
 }
@@ -480,7 +430,6 @@ void invocacion_accion():
 	argumentos() ";" 
 }
 
-//mientras_que ::= <tMQ> expresion lista_sentencias <tFMQ>
 void mientras_que():
 {
 }
@@ -488,34 +437,28 @@ void mientras_que():
 	<tMQ> expresion() lista_sentencias() <tFMQ>
 }
 
-//seleccion ::= ...
 void seleccion():
 {
 }
 {
-	//RELLENADO AARON
-	< tSI > expresion() lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI >
+	< tSI > expresion() < tENT > lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI >
 }
 
-//argumentos ::= "(" ( lista_expresiones )? ")"
 void argumentos():
 {
 }
 {
-	"(" (lista_expresiones())? ")"
+	( "(" lista_expresiones() ")")
 }
 
-//lista_expresiones ::= ...
 void lista_expresiones():
 {
 }
 {
-	//RELLENADO AARON
 	(expresion())+
 	
 }
 
-//expresion ::= ...
 void expresion():
 {
 }
@@ -523,7 +466,6 @@ void expresion():
 	expresion_simple() (operador_relacional() expresion_simple())?
 }
 
-//operador_relacional ::= ...
 void operador_relacional():
 {
 }
@@ -536,21 +478,19 @@ void operador_relacional():
 |	<tNI>
 }
 
-//expresion_simple ::= ...
 void expresion_simple():
 {
 }
 {
-  	(signo())? termino() (operador_aditivo() termino())*
+  	termino() (operador_aditivo() termino())*
 }
 
-//operador_aditivo ::= ...
 void signo():
 {
 }
 {
  	<tSUMA>
-| 	<tRESTA> 	
+| 	<tRESTA> 
 }
 
 void operador_aditivo():
@@ -562,7 +502,6 @@ void operador_aditivo():
 | 	<tRESTA> 	
 }
 
-//termino ::= ...
 void termino():
 {
 }
@@ -570,7 +509,6 @@ void termino():
 	factor() (operador_multiplicativo() factor())*
 }
 
-//operador_multiplicativo ::= ...
 void operador_multiplicativo():
 {
 }
