@@ -1,7 +1,7 @@
 /**
  * Especificacion JavaCC para la Practica 2 (Procesadores de Lenguajes)
  * Pablo Garcia Garcia - 781020@unizar.es
- * Aaron Ibañez Espes - 779088@unizar.es
+ * Aaron Ibanez Espes - 779088@unizar.es
  * Ultima modificacion:
  */
 options
@@ -16,10 +16,18 @@ public class CompiladorClases
 {
   private static boolean error = false;
 
+  private static void panicMode()
+  {
+	Token t;
+	do {
+	t = getNextToken();
+	} while (t.kind != tFIN_SENTENCIA && t!=null && t.kind != EOF );
+  }
+
   private static void errorSintactico(ParseException e)
   {
     error = true;
-    System.out.print("ERROR SINTÁCTICO(" + e.currentToken.next.beginLine + ", " + e.currentToken.next.beginColumn + "): ");
+    System.out.print("ERROR SINTACTICO(" + e.currentToken.next.beginLine + ", " + e.currentToken.next.beginColumn + "): ");
     System.out.print("Se encontro \"" + e.currentToken.next.image + "\" ");
     String expectedMSG = "";
     StringBuffer expected = new StringBuffer();
@@ -43,12 +51,13 @@ public class CompiladorClases
     expected = expected.deleteCharAt(expected.length() - 1);
     expectedMSG += "y se esperaba:" + expected.toString();
     System.out.println(expectedMSG);
+    panicMode();
   } 
   
   public static void main(String args []) throws ParseException
   {
     CompiladorClases parser = new CompiladorClases(System.in);
-    System.out.println("Leyendo de la entrada estándar...");
+    System.out.println("Leyendo de la entrada estï¿½ndar...");
     try { 
     	CompiladorClases.programa();
     	if(!error) {
@@ -56,8 +65,8 @@ public class CompiladorClases
    		}
     }
     catch (TokenMgrError e) {
-		//Error léxico
-		System.out.println("ERROR LÉXICO");
+		//Error lexico
+		System.out.println("ERROR LEXICO");
 	}
   	catch (Error e) { 
         System.out.println("Se ha producido un error inesperado");
@@ -82,55 +91,55 @@ TOKEN : /* PALABRAS RESERVADAS */
 {
 	<tPROGRAMA : "programa">
 	{
-	  System.out.println("programa");
+	  //System.out.println("programa");
 	}
 |	<tVAR : "var">
 	{
-	  System.out.println("var");
+	  //System.out.println("var");
 	}
 |	<tPRINCIPIO : "principio">
 	{
-	  System.out.println("principio");
+	  //System.out.println("principio");
 	}
 |	<tFIN : "fin">
 	{
-	  System.out.println("fin");
+	  //System.out.println("fin");
 	}
 |	<tSI : "si">
 	{
-	  System.out.println("si");
+	  //System.out.println("si");
 	}
 |	<tENT : "ent">
 	{
-	  System.out.println("ent");
+	  //System.out.println("ent");
 	}
 |	<tSI_NO : "si_no">
 	{
-	  System.out.println("si_no");
+	  //System.out.println("si_no");
 	}
 |	<tFSI : "fsi">
 	{
-	  System.out.println("fsi");
+	  //System.out.println("fsi");
 	}
 |	<tMQ : "mq"> 
 	{
-	  System.out.println("mq");
+	  //System.out.println("mq");
 	}
 |	<tFMQ : "fmq">
 	{
-	  System.out.println("fmq");
+	  //System.out.println("fmq");
 	}
 |	<tVAL : "val">
 	{
-	  System.out.println("val");
+	  //System.out.println("val");
 	}
 |	<tREF : "ref">
 	{
-	  System.out.println("ref");
+	  //System.out.println("ref");
 	}
 |	<tACCION : "accion">
 	{
-	  System.out.println("accion");
+	  //System.out.println("accion");
 	}
   
 }
@@ -139,11 +148,11 @@ TOKEN: /* OPERADORES DE FLUJO */
 {
 	<tFIN_SENTENCIA : ";" >
  	{
-    	System.out.println("FIN_SENTENCIA");
+    	//System.out.println("FIN_SENTENCIA");
  	}
 | 	<tSEPARADOR : "," >
  	{
-    	System.out.println("SEPARADOR");
+    	//System.out.println("SEPARADOR");
  	}
 }
 
@@ -151,19 +160,19 @@ TOKEN : /* OPERADORES ARITMETICOS */
 {
 	<tSUMA : "+" >
  	{
-    	System.out.println("SUMA");
+    	//System.out.println("SUMA");
  	}
 | 	<tRESTA : "-" >
  	{
-    	System.out.println("RESTA");
+    	//System.out.println("RESTA");
  	}
  | 	<tDIV : "/" | "DIV" >
  	{
-    	System.out.println("DIVISION");
+    	//System.out.println("DIVISION");
  	}
  | 	<tMULT : "*" >
  	{
-    	System.out.println("MULT");
+    	//System.out.println("MULT");
  	}
 }
 
@@ -171,15 +180,15 @@ TOKEN : /* TIPOS DE DATOS */
 {
 	<tENTERO : "entero">
 	{
-	  System.out.println("entero");
+	  //System.out.println("entero");
 	}
 |	<tBOOLEANO : "booleano">
 	{
-	  System.out.println("booleano");
+	  //System.out.println("booleano");
 	}
 |	<tCARACTER : "caracter">
 	{
-	  System.out.println("caracter");
+	  //System.out.println("caracter");
 	}
 }
 
@@ -187,47 +196,47 @@ TOKEN : /* OPERADORES BOOLEANOS */
 {
 	<tAND : "and">
 	{
-	  System.out.println("and");
+	  //System.out.println("and");
 	}
 |	<tOR : "or">
 	{
-	  System.out.println("or");
+	  //System.out.println("or");
 	}
 |	<tNOT : "not">
 	{
-	  System.out.println("not");
+	  //System.out.println("not");
 	}
 |	<tMAYOR : ">">
 	{
-	  System.out.println(" >");
+	  //System.out.println(" >");
 	}
 |	<tMENOR : "<">
 	{
-	  System.out.println("<");
+	  //System.out.println("<");
 	}
 |	<tIGUAL : "=">
 	{
-	  System.out.println("=");
+	  //System.out.println("=");
 	}
 |	<tMAI : ">=">
 	{
-	  System.out.println(">=");
+	  //System.out.println(">=");
 	}
 |	<tMEI : "<=">
 	{
-	  System.out.println("<=");
+	  //System.out.println("<=");
 	}
 |	<tNI : "<>">
 	{
-	  System.out.println("<>");
+	  //System.out.println("<>");
 	}
 |	<tOPAS : ":=">
 	{
-	  System.out.println(":=");
+	  //System.out.println(":=");
 	}
 |	<tMOD : "mod">
 	{
-	  System.out.println("mod");
+	  //System.out.println("mod");
 	}
 }
 
@@ -235,11 +244,11 @@ TOKEN: /* OPERADORES ENTRADA/SALIDA */
 {
 	<tESCRIBIR : "escribir">
 	{
-	  System.out.println("escribir");
+	  //System.out.println("escribir");
 	}
 |	<tLEER : "leer">
 	{
-	  System.out.println("leer");
+	  //System.out.println("leer");
 	}
 }
 
@@ -247,11 +256,11 @@ TOKEN : /* OPERADORES CARACTERES */
 {
 	<tENTACAR : "entacar">
 	{
-	  System.out.println("entacar");
+	  //System.out.println("entacar");
 	}
 |	<tCARAENT : "caraent">
 	{
-	  System.out.println("caraent");
+	  //System.out.println("caraent");
 	}
 }
 
@@ -259,31 +268,31 @@ TOKEN : /* VALORES */
 {
   	<#DIGITO : ["0"-"9"]>
 | 	<#LETRA : ["a"-"z"]>
-| 	<#SIGNO : [":", ",","?","¿","=","[","]","{","}","(",")","<",">", "'","\"","=",",",".",",",";"," ", "/"] >
+| 	<#SIGNO : [":", ",","?","=","[","]","{","}","(",")","<",">", "'","\"","=",",",".",",",";"," ", "/"] >
         
 | 	< tVALOR_ENTERO : (< DIGITO >)+ >
   	{
-    	System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")"); 
+    	//System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")"); 
   	}
 |	<tTRUE : "true">
 	{
-	  	System.out.println("true");
+	  	//System.out.println("true");
 	}
 |	<tFALSE : "false">
 	{
-	  	System.out.println("false");
+	  	//System.out.println("false");
 	} 
 | 	<tIDENTIFICADOR : ((< LETRA > | ("_")+(< DIGITO > | < LETRA >))(< DIGITO >)*)+ >
   	{
-    	System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
+    	//System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
   	}
 | 	<tCONSTCHAR : "\"" < LETRA > "\"" >
   	{
-    	System.out.println("CARACTER (Valor: " + matchedToken + ")");
+    	//System.out.println("CARACTER (Valor: " + matchedToken + ")");
   	}
 | 	<tCONSTCAD : "\"" (< DIGITO > | < LETRA > | < SIGNO >)+  "\"" >
   	{
-    	System.out.println("CADENA (Valor: " + matchedToken + ")");
+    	//System.out.println("CADENA (Valor: " + matchedToken + ")");
   	}
 }
 
@@ -292,11 +301,11 @@ TOKEN : /* AGRUPACIONES */
 {
   <tPAR_IZQ : "(">
   {
-    System.out.println("PAR_IZQ");
+    //System.out.println("PAR_IZQ");
   }
 | <tPAR_DER : ")">
   {
-    System.out.println("PAR_DCHA");
+    //System.out.println("PAR_DCHA");
   }
 } 
 
