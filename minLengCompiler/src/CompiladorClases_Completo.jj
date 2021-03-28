@@ -681,7 +681,7 @@ void expresion_simple():
 }
 {
   	try {
-	  	termino() (operador_aditivo() termino())* 
+	  	(signo())? termino() (operador_aditivo() termino())*
 	}
 	catch (ParseException e)
 	{
