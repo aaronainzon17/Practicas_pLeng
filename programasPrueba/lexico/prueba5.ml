@@ -13,7 +13,7 @@ PRINCIPIO
     bueno := "Se ha portado bien";
     escribir("Como te has portado ?");
     leer(caracter_de_hoy);
-    si (caracter_de_hoy = malo)
+    si (caracter_de_hoy = malo) ent
         escribir("Tienes que mejorar");
     si_no   
     %Se ha introducido el caracter ~ no reconocido por el lenguaje

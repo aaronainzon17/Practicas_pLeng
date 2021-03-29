@@ -46,7 +46,7 @@ public class CompiladorClases
       }
       if (e.expectedTokenSequences [i] [e.expectedTokenSequences [i].length - 1] != 0)
       {
-        expected.append("| |");
+        expected.append(" o ");
       }
     }
     expected = expected.deleteCharAt(expected.length() - 1);
@@ -310,7 +310,7 @@ TOKEN : /* VALORES */
 }
 
 
-TOKEN : /* AGRUPACIONES */
+TOKEN : /* AGRUPACIONES */ 
 {
   <tPAR_IZQ : "(">
   {
@@ -424,7 +424,7 @@ void cabecera_accion():
 }
 {
   	try {
-	  	<tACCION> <tIDENTIFICADOR> parametros_formales()
+	  	<tACCION> <tIDENTIFICADOR> (parametros_formales())?
 	}
 	catch (ParseException e)
 	{
@@ -437,7 +437,7 @@ void parametros_formales():
 }
 {
   	try {
-	  	("(" parametros() (";" parametros())* ")")?
+	  	"(" (parametros() (";" parametros())*)? ")"
 	}
 	catch (ParseException e)
 	{
@@ -624,7 +624,7 @@ void seleccion():
 }
 {
   	try {
-	  	< tSI > expresion() < tENT > lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI >
+	  	< tSI > expresion() < tENT > lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI > 
 	}
 	catch (ParseException e)
 	{
@@ -637,9 +637,10 @@ void argumentos():
 }
 {
   	try {
-	  	( "(" lista_expresiones() ")")
+	  	"(" lista_expresiones() ")"
+	  	
 	}
-	catch (ParseException e)
+	catch (ParseException e) 
 	{
 		errorSintactico(e);
 	}
