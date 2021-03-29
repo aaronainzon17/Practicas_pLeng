@@ -1,3 +1,5 @@
 /.metadata/
 minLengCompiler/.settings/sf.eclipse.javacc.prefs
 *.prefs
+*.java
+minLengCompiler/.settings/sf.eclipse.javacc.prefs

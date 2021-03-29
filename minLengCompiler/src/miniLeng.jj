@@ -1,0 +1,784 @@
+/**
+ * Especificacion JavaCC para la Practica 2 (Procesadores de Lenguajes)
+ * Pablo Garcia Garcia - 781020@unizar.es
+ * Aaron Ibanez Espes - 779088@unizar.es
+ * Ultima modificacion: 29/03/2021
+ */
+options
+{
+  static = true;
+  ignore_case = true;
+}
+
+PARSER_BEGIN(MiniLeng)
+
+import java.io.IOException;
+
+public class MiniLeng
+{
+  private static boolean error = false;
+
+  private static void panicMode()
+  {
+	Token t;
+	do {
+	t = getNextToken();
+	} while (t.kind != tFIN_SENTENCIA && t!=null && t.kind != EOF );
+  }
+
+  private static void errorSintactico(ParseException e)
+  {
+    error = true;
+    System.out.print("ERROR SINTACTICO(" + e.currentToken.next.beginLine + ", " + e.currentToken.next.beginColumn + "): ");
+    System.out.print("Se encontro \"" + e.currentToken.next.image + "\" ");
+    String expectedMSG = "";
+    StringBuffer expected = new StringBuffer();
+    int maxSize = 0;
+    for (int i = 0; i < e.expectedTokenSequences.length; i++)
+    {
+      if (maxSize < e.expectedTokenSequences [i].length)
+      {
+        maxSize = e.expectedTokenSequences [i].length;
+      }
+      for (int j = 0; j < e.expectedTokenSequences [i].length; j++)
+      {
+        expected.append(tokenImage [e.expectedTokenSequences [i] [j]]);
+      }
+      if (e.expectedTokenSequences [i] [e.expectedTokenSequences [i].length - 1] != 0)
+      {
+        expected.append(" o ");
+      }
+    }
+    expected = expected.deleteCharAt(expected.length() - 1);
+    expected = expected.deleteCharAt(expected.length() - 1);
+    expectedMSG += "y se esperaba:" + expected.toString();
+    System.out.println(expectedMSG);
+    panicMode();
+  } 
+  
+  public static void main(String args []) throws ParseException
+  {
+    try {
+      	if(args.length > 0) {
+			MiniLeng parser = new MiniLeng(new java.io.FileInputStream(new java.io.File(args [0])));
+	  	}else {
+		    MiniLeng parser = new MiniLeng(System.in);
+		    System.out.println("Leyendo de la entrada estandar...");
+		} 
+    	MiniLeng.programa();
+    	if(!error) {
+			System.out.println("Analizado correctamente!");
+   		}
+    }
+    catch (TokenMgrError e) {
+		//Error lexico
+		try {
+			System.out.println("ERROR LEXICO(" + SimpleCharStream.getBeginLine() + "," +
+			SimpleCharStream.getBeginColumn() + ")" + " simbolo no reconocido: " + SimpleCharStream.readChar());
+		}
+		catch(Exception err) { }
+	}
+  	catch (Error e) { 
+        System.out.println("Se ha producido un error inesperado");
+        System.out.println(e.getMessage());
+	}
+	catch (IOException e) {
+        System.out.println("Fichero no encontrado, formato de ejecucion \"MiniLeng [nombrefichero].ml\"");
+   	}
+  }
+}
+
+PARSER_END(MiniLeng)
+
+SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+| <"%" (~["\n"])* ("\n")>
+| <"%%" (~["%"])* "%%"> 
+}
+
+TOKEN : /* PALABRAS RESERVADAS */
+{
+	<tPROGRAMA : "programa">
+	{
+	  //System.out.println("programa");
+	}
+|	<tVAR : "var">
+	{
+	  //System.out.println("var");
+	}
+|	<tPRINCIPIO : "principio">
+	{
+	  //System.out.println("principio");
+	}
+|	<tFIN : "fin">
+	{
+	  //System.out.println("fin");
+	}
+|	<tSI : "si">
+	{
+	  //System.out.println("si");
+	}
+|	<tENT : "ent">
+	{
+	  //System.out.println("ent");
+	}
+|	<tSI_NO : "si_no">
+	{
+	  //System.out.println("si_no");
+	}
+|	<tFSI : "fsi">
+	{
+	  //System.out.println("fsi");
+	}
+|	<tMQ : "mq"> 
+	{
+	  //System.out.println("mq");
+	}
+|	<tFMQ : "fmq">
+	{
+	  //System.out.println("fmq");
+	}
+|	<tVAL : "val">
+	{
+	  //System.out.println("val");
+	}
+|	<tREF : "ref">
+	{
+	  //System.out.println("ref");
+	}
+|	<tACCION : "accion">
+	{
+	  //System.out.println("accion");
+	}
+  
+}
+
+TOKEN: /* OPERADORES DE FLUJO */
+{
+	<tFIN_SENTENCIA : ";" >
+ 	{
+    	//System.out.println("FIN_SENTENCIA");
+ 	}
+| 	<tSEPARADOR : "," >
+ 	{
+    	//System.out.println("SEPARADOR");
+ 	}
+}
+
+TOKEN : /* OPERADORES ARITMETICOS */
+{
+	<tSUMA : "+" >
+ 	{
+    	//System.out.println("SUMA");
+ 	}
+| 	<tRESTA : "-" >
+ 	{
+    	//System.out.println("RESTA");
+ 	}
+ | 	<tDIV : "/" | "DIV" >
+ 	{
+    	//System.out.println("DIVISION");
+ 	}
+ | 	<tMULT : "*" >
+ 	{
+    	//System.out.println("MULT");
+ 	}
+}
+
+TOKEN : /* TIPOS DE DATOS */
+{
+	<tENTERO : "entero">
+	{
+	  //System.out.println("entero");
+	}
+|	<tBOOLEANO : "booleano">
+	{
+	  //System.out.println("booleano");
+	}
+|	<tCARACTER : "caracter">
+	{
+	  //System.out.println("caracter");
+	}
+}
+
+TOKEN : /* OPERADORES BOOLEANOS */
+{
+	<tAND : "and">
+	{
+	  //System.out.println("and");
+	}
+|	<tOR : "or">
+	{
+	  //System.out.println("or");
+	}
+|	<tNOT : "not">
+	{
+	  //System.out.println("not");
+	}
+|	<tMAYOR : ">">
+	{
+	  //System.out.println(" >");
+	}
+|	<tMENOR : "<">
+	{
+	  //System.out.println("<");
+	}
+|	<tIGUAL : "=">
+	{
+	  //System.out.println("=");
+	}
+|	<tMAI : ">=">
+	{
+	  //System.out.println(">=");
+	}
+|	<tMEI : "<=">
+	{
+	  //System.out.println("<=");
+	}
+|	<tNI : "<>">
+	{
+	  //System.out.println("<>");
+	}
+|	<tOPAS : ":=">
+	{
+	  //System.out.println(":=");
+	}
+|	<tMOD : "mod">
+	{
+	  //System.out.println("mod");
+	}
+}
+
+TOKEN: /* OPERADORES ENTRADA/SALIDA */
+{
+	<tESCRIBIR : "escribir">
+	{
+	  //System.out.println("escribir");
+	}
+|	<tLEER : "leer">
+	{
+	  //System.out.println("leer");
+	}
+}
+
+TOKEN : /* OPERADORES CARACTERES */
+{
+	<tENTACAR : "entacar">
+	{
+	  //System.out.println("entacar");
+	}
+|	<tCARAENT : "caraent">
+	{
+	  //System.out.println("caraent");
+	}
+}
+
+TOKEN : /* VALORES */
+{
+  	<#DIGITO : ["0"-"9"]>
+| 	<#LETRA : ["a"-"z"]>
+| 	<#SIGNO : [":", ",","?","=","[","]","{","}","(",")","<",">", "'","\"","=",",",".",",",";"," ", "/"] >
+        
+| 	< tVALOR_ENTERO : (< DIGITO >)+ >
+  	{
+    	//System.out.println("VALOR_ENTERO (Valor: " + matchedToken + ")"); 
+  	}
+|	<tTRUE : "true">
+	{
+	  	//System.out.println("true");
+	}
+|	<tFALSE : "false">
+	{
+	  	//System.out.println("FALSE");
+	} 
+| 	<tIDENTIFICADOR : ((< LETRA > | ("_")+(< DIGITO > | < LETRA >))(< DIGITO >)*)+ >
+  	{
+    	//System.out.println("IDENTIFICADOR (Valor: " + matchedToken + ")");
+  	}
+| 	<tCONSTCHAR : "\"" < LETRA > "\"" >
+  	{
+    	//System.out.println("CARACTER (Valor: " + matchedToken + ")");
+  	}
+| 	<tCONSTCAD : "\"" (< DIGITO > | < LETRA > | < SIGNO >)+  "\"" >
+  	{
+    	//System.out.println("CADENA (Valor: " + matchedToken + ")");
+  	}
+}
+
+
+TOKEN : /* AGRUPACIONES */ 
+{
+  <tPAR_IZQ : "(">
+  {
+    //System.out.println("PAR_IZQ");
+  }
+| <tPAR_DER : ")">
+  {
+    //System.out.println("PAR_DCHA");
+  }
+} 
+
+// ANALIZADOR SINTACTICO
+
+void programa():
+{
+  Token t;
+}
+{
+  	try {
+		<tPROGRAMA> t = <tIDENTIFICADOR>
+ 		";" (declaracion_variables())* (declaracion_acciones())* bloque_sentencias() < EOF >
+ 	}
+ 	catch (ParseException e)
+ 	{
+		errorSintactico(e);
+ 	} 
+}
+
+void declaracion_variables():
+{
+}
+{
+	try {
+	  	declaracion() ";"
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void declaracion():
+{
+}
+{
+  	try {
+	  	tipo_variables() identificadores()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void tipo_variables():
+{
+}
+{
+ 	try {
+	  		<tENTERO>
+	  	| 	<tCARACTER>
+	  	| 	<tBOOLEANO>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void identificadores():
+{
+}
+{
+  	try {
+	  	<tIDENTIFICADOR> ( "," <tIDENTIFICADOR> )*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void declaracion_acciones():
+{
+}
+{
+  	try {
+	  	declaracion_accion()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void declaracion_accion():
+{
+}
+{
+  	try {
+	  	cabecera_accion() ";" declaracion_variables() declaracion_acciones() bloque_sentencias()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void cabecera_accion():
+{
+}
+{
+  	try {
+	  	<tACCION> <tIDENTIFICADOR> (parametros_formales())?
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	} 
+}
+
+void parametros_formales():
+{
+}
+{
+  	try {
+	  	"(" (parametros() (";" parametros())*)? ")"
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}	 
+}
+
+void lista_parametros():
+{
+}
+{
+  	try {
+	  	<tIDENTIFICADOR> ("," <tIDENTIFICADOR>)*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	} 
+}
+
+void parametros():
+{
+}
+{
+  	try {
+	  	clase_parametros() tipo_variables() lista_parametros()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void clase_parametros():
+{
+}
+{
+  	try {
+	  		<tVAL>
+	  	| 	<tREF>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void bloque_sentencias():
+{
+}
+{
+  	try {
+	  	<tPRINCIPIO> lista_sentencias() <tFIN>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}  
+}
+
+void lista_sentencias():
+{
+}
+{
+  	try {
+	  	(sentencia())+
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void sentencia():
+{
+}
+{
+  	try {
+	  		leer() ";"
+		| 	escribir() ";"
+		| 	<tIDENTIFICADOR> (asignacion() | invocacion_accion())
+		| 	seleccion()
+		| 	mientras_que()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void leer():
+{
+}
+{
+  	try {
+	  	<tLEER> "(" lista_asignables() ")"
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void lista_asignables():
+{
+}
+{
+  	try {
+	  	lista_parametros()
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void escribir():
+{
+}
+{
+  	try {
+	  	<tESCRIBIR> "(" lista_escribibles() ")" 
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void lista_escribibles():
+{
+}
+{
+  	try {
+	  	factor() (","(factor()))*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void asignacion():
+{
+}
+{
+  	try {
+	  	<tOPAS> expresion() ";"
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void invocacion_accion():
+{
+}
+{
+  	try {
+	  	(argumentos())? ";"
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	} 
+}
+
+void mientras_que():
+{
+}
+{
+  	try {
+	  	<tMQ> expresion() lista_sentencias() <tFMQ>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void seleccion():
+{
+}
+{
+  	try {
+	  	< tSI > expresion() < tENT > lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI > 
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void argumentos():
+{
+}
+{
+  	try {
+	  	"(" lista_expresiones() ")"
+	  	
+	}
+	catch (ParseException e) 
+	{
+		errorSintactico(e);
+	}
+}
+
+void lista_expresiones():
+{
+}
+{
+  	try {
+	  	expresion() ("," expresion())*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void expresion():
+{
+}
+{
+  	try {
+	  	expresion_simple() (operador_relacional() expresion_simple())?
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void operador_relacional():
+{
+}
+{
+  	try {
+	  		<tMAYOR>
+		|	<tMENOR>
+		|	<tIGUAL> 
+		|	<tMAI>
+		|	<tMEI>
+		|	<tNI>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void expresion_simple():
+{
+}
+{
+  	try {
+	  	(signo())? termino() (operador_aditivo() termino())*
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void signo():
+{
+}
+{
+  	try {
+	  	 	<tSUMA>
+		| 	<tRESTA>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	} 
+}
+
+void operador_aditivo():
+{
+}
+{
+  	try {
+	  	  	<tOR>
+		| 	<tSUMA>
+		| 	<tRESTA>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	} 	
+}
+
+void termino():
+{
+}
+{
+  	try {
+	  	factor() (operador_multiplicativo() factor())* 
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void operador_multiplicativo():
+{
+}
+{
+  	try {
+	  		<tMULT>
+		| 	<tDIV>
+		| 	<tMOD>
+		| 	<tAND>
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
+
+void factor():
+{
+}
+{
+  	try {
+	  	 	<tNOT> factor()
+		| 	"(" expresion() ")"
+		| 	<tENTACAR> "(" expresion() ")"
+		| 	<tCARAENT> "(" expresion() ")"
+		| 	<tIDENTIFICADOR>
+		| 	<tVALOR_ENTERO>
+		| 	<tCONSTCHAR>
+		| 	<tCONSTCAD>
+		| 	<tTRUE>
+		| 	<tFALSE> 
+	}
+	catch (ParseException e)
+	{
+		errorSintactico(e);
+	}
+}
