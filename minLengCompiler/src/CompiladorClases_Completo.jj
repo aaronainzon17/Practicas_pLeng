@@ -331,7 +331,7 @@ void programa():
 {
   	try {
 		<tPROGRAMA> t = <tIDENTIFICADOR>
- 		";" declaracion_variables() declaracion_acciones() bloque_sentencias()
+ 		";" declaracion_variables() declaracion_acciones() bloque_sentencias() < EOF >
  	}
  	catch (ParseException e)
  	{
