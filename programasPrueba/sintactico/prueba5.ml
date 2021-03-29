@@ -20,7 +20,7 @@ principio
 fin
 %-------------------------------------------------------------------
 principio
-
+	entero i;
 	escribir("Cuantos ladrillos"quieres poner);
 	leer(ladrillos);
 	ponerLadrillo(ladrillos,hecha);
