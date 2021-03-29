@@ -12,6 +12,8 @@ options
 
 PARSER_BEGIN(CompiladorClases)
 
+import java.io.IOException;
+
 public class CompiladorClases
 {
   private static boolean error = false;
@@ -56,9 +58,13 @@ public class CompiladorClases
   
   public static void main(String args []) throws ParseException
   {
-    CompiladorClases parser = new CompiladorClases(System.in);
-    System.out.println("Leyendo de la entrada estandar...");
-    try { 
+    try {
+      	if(args.length > 0) {
+			CompiladorClases parser = new CompiladorClases(new java.io.FileInputStream(new java.io.File(args [0])));
+	  	}else {
+		    CompiladorClases parser = new CompiladorClases(System.in);
+		    System.out.println("Leyendo de la entrada estandar...");
+		} 
     	CompiladorClases.programa();
     	if(!error) {
 			System.out.println("Analizado correctamente!");
@@ -76,6 +82,9 @@ public class CompiladorClases
         System.out.println("Se ha producido un error inesperado");
         System.out.println(e.getMessage());
 	}
+	catch (IOException e) {
+        System.out.println("Fichero no encontrado, formato de ejecucion \"MiniLeng [nombrefichero].ml\"");
+   	}
   }
 }
 
