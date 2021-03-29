@@ -66,7 +66,11 @@ public class CompiladorClases
     }
     catch (TokenMgrError e) {
 		//Error lexico
-		System.out.println("ERROR LEXICO " + e.getMessage());
+		try {
+			System.out.println("ERROR LEXICO(" + SimpleCharStream.getBeginLine() + "," +
+			SimpleCharStream.getBeginColumn() + ")" + " simbolo no reconocido: " + SimpleCharStream.readChar());
+		}
+		catch(Exception err) { }
 	}
   	catch (Error e) { 
         System.out.println("Se ha producido un error inesperado");
