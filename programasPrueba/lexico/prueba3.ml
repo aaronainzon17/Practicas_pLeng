@@ -1,6 +1,8 @@
 %----------------------    Prueba 3    ----------------------
 %% 
     Creada por: Aaron Ibañez y Pablo Garcia
+	Asigno valor a int1 utilizando : lo que genera un error ya que no perotenece 
+    al lenguaje.
 %%
 
 %Se prueban todas las expresiones definidas en el lenguaje

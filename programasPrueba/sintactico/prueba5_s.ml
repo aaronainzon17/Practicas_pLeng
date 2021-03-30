@@ -1,6 +1,9 @@
 %%
 Programa de prueba 5 para el analizador sintactico 
 Creado por: Aaron y Pablo
+Se produce un error sintactico ya que en la funcion escribir
+no se separan los parametros con comas y en la sentencia condicional 
+se comienza con si_no
 %%
 
 programa hacerLaCasa;

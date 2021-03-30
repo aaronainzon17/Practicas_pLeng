@@ -1,6 +1,9 @@
 %%
 Programa de prueba 4 para el analizador sintactico 
 Creado por: Aaron y Pablo
+Se produce un error sintactico en la declaracion de la accion
+ya que se le pasa un parametro val sin nombre 
+En el si final aparece un si_no pero no fsi
 %%
 
 programa comprobar_palabras;
@@ -8,7 +11,7 @@ programa comprobar_palabras;
 cadena frase;
 caracter char1, char2;
 %-------------------------------------------------------------------
-accion es_palabra(ref palabra1; var);
+accion es_palabra(ref caracter palabra1; var);
 
 principio
 	si (palabra1 = "casa") ent

@@ -1,6 +1,9 @@
 %%
 Programa de prueba 2 para el analizador sintactico 
 Creado por: Aaron y Pablo
+Se produce un error sintactico en el if de la liena 19 ya que falta ent 
+tras la condicion. Tambien estan invertidas las sentecnias de fmq y fin.
+
 %%
 
 programa contar;

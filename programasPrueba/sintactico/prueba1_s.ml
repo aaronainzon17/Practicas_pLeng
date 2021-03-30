@@ -1,6 +1,8 @@
 %%
 Programa de prueba 1 para el analizador sintactico 
 Creado por: Aaron y Pablo
+Se produce un error sintactico tras declarar la variable 
+entero c, ya que despues se declara d sin especificar ningun tipo
 %%
 
 PROGRAMA contarLetras;

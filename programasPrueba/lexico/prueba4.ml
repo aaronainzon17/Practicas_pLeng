@@ -1,6 +1,7 @@
 %%
     Prueba 4
     Creada por: Aaron Ibañez y Pablo Garcia
+	Se produce un error lexico debido a que la ñ no esta en el lenguaje
 %%
 
 PROGRAMA Prueba4;

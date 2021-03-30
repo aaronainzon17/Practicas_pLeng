@@ -1,6 +1,7 @@
 %%
     Prueba 5
     Creada por: Aaron Ibañez y Pablo Garcia
+	Se ha introducido el caracter ~ no reconocido por el lenguaje
 %%
 
 
