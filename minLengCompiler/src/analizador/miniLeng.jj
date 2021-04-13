@@ -10,8 +10,8 @@ options
   ignore_case = true;
 }
 
-PARSER_BEGIN(MiniLeng)
-
+PARSER_BEGIN(MiniLeng) 
+package analizador;
 import java.io.IOException;
 
 public class MiniLeng
