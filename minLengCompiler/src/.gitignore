@@ -1,8 +1,8 @@
-/CompiladorClasesConstants.java
-/ParseException.java
-/SimpleCharStream.java
-/Token.java
-/TokenMgrError.java
-/CompiladorClases.java
-/CompiladorClasesTokenManager.java
-/MiniLengConstants.java
+/analizador/CompiladorClasesConstants.java
+/analizador/ParseException.java
+/analizador/SimpleCharStream.java
+/analizador/Token.java
+/analizador/TokenMgrError.java
+/analizador/CompiladorClases.java
+/analizador/CompiladorClasesTokenManager.java
+/analizador/MiniLengConstants.java
