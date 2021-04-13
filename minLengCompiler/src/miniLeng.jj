@@ -411,7 +411,7 @@ void declaracion_accion():
 }
 {
   	try {
-	  	cabecera_accion() ";" declaracion_variables() declaracion_acciones() bloque_sentencias()
+	  	cabecera_accion() ";" (declaracion_variables())* (declaracion_acciones())* bloque_sentencias()
 	}
 	catch (ParseException e)
 	{
