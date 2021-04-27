@@ -13,10 +13,16 @@ options
 PARSER_BEGIN(MiniLeng) 
 package analizador;
 import java.io.IOException;
+import tabla_simbolos.TablaSimbolos;
+
 
 public class MiniLeng
 {
+  private static int nivel;
+  
   private static boolean error = false;
+
+  private static TablaSimbolos tabla_simbolos;
 
   private static void panicMode()
   {
@@ -64,7 +70,8 @@ public class MiniLeng
 	  	}else {
 		    MiniLeng parser = new MiniLeng(System.in);
 		    System.out.println("Leyendo de la entrada estandar...");
-		} 
+		}
+		tabla_simbolos = new TablaSimbolos(); 
     	MiniLeng.programa();
     	if(!error) {
 			System.out.println("Analizado correctamente!");
@@ -303,7 +310,7 @@ TOKEN : /* VALORES */
   	{
     	//System.out.println("CARACTER (Valor: " + matchedToken + ")");
   	}
-| 	<tCONSTCAD : "\"" (< DIGITO > | < LETRA > | < SIGNO >)+  "\"" >
+| 	<tCONSTCAD : "\"" (~["\""])*  "\"" >
   	{
     	//System.out.println("CADENA (Valor: " + matchedToken + ")");
   	}
@@ -324,19 +331,44 @@ TOKEN : /* AGRUPACIONES */
 
 // ANALIZADOR SINTACTICO
 
-void programa():
+int programa() :
 {
-  Token t;
+	nivel = 0;
+	tabla_simbolos.inicializar_tabla();
+	Token t = null;
+	ListaInstr l = new ListaInstr();
+	ListaInstr lAcciones = null;
+	ListaInstr lSentencias = null;
+	Integer etiq;
 }
 {
-  	try {
-		<tPROGRAMA> t = <tIDENTIFICADOR>
- 		";" (declaracion_variables())* (declaracion_acciones())* bloque_sentencias() < EOF >
- 	}
- 	catch (ParseException e)
- 	{
-		errorSintactico(e);
- 	} 
+	try {
+		<tPROGRAMA>	t = <tIDENTIFICADOR>
+		{
+			tabla_simbolos.introducir_programa(t.image,0);
+		}
+		";"		
+		declaracion_variables()
+		/*lAcciones = */declaracion_acciones()
+		/*lSentencias = */bloque_sentencias() < EOF >
+	}
+	catch (ParseException e) {
+		errorSintactico(e);//(e, "La declaracion del programa es incorrecta");
+	}
+	{
+	// Cerrar el programa y limpiar la tabla de simbolos
+	tabla_simbolos.eliminar_variables(nivel);
+	tabla_simbolos.eliminar_acciones(nivel);
+	tabla_simbolos.eliminar_programa();
+	
+	//Si debug
+	System.out.println("Despues de cerrar programa");
+	tabla_simbolos.imprimirTabla();
+}
+{
+	// Fin del compilador
+	return 0;
+}
 }
 
 void declaracion_variables():
@@ -344,7 +376,7 @@ void declaracion_variables():
 }
 {
 	try {
-	  	declaracion() ";"
+	  	(declaracion() ";")*
 	}
 	catch (ParseException e)
 	{
@@ -398,7 +430,10 @@ void declaracion_acciones():
 }
 {
   	try {
-	  	declaracion_accion()
+  	  	{
+			nivel++;
+  	  	}
+	  	(declaracion_accion())*
 	}
 	catch (ParseException e)
 	{
@@ -411,7 +446,7 @@ void declaracion_accion():
 }
 {
   	try {
-	  	cabecera_accion() ";" (declaracion_variables())* (declaracion_acciones())* bloque_sentencias()
+	  	cabecera_accion() ";" declaracion_variables() declaracion_acciones() bloque_sentencias()
 	}
 	catch (ParseException e)
 	{

@@ -1,10 +1,10 @@
 /*********************************************************************************
- * Clase que define la tabla de simbolos del compilador de MiniLeng.
+ * Clase que define la tabla de simbolos  del compilador de MiniLeng.
  * Se implementa mediante una tabla de dispersion abierta.
  *
  * Fichero:    Tabla_simbolos.java
  * Fecha:      1/4/2021
- * VersiÃ³n:    v1.0
+ * Version:    v1.0
  * Asignatura: Procesadores de Lenguajes, curso 2020-2021
  **********************************************************************************/
 
@@ -24,7 +24,7 @@ import java.util.Iterator;
 
 public class TablaSimbolos {
 	// TODO: Elegir tamano de la tabla y ponerlo en decisiones de diseno
-	private final int M = 256;
+	private final int M = 127;
 
 	// TODO: Elegir funcion de hash. Se debe generar considerando solo el nombre del
 	// simbolo
@@ -73,7 +73,7 @@ public class TablaSimbolos {
 	private void mezclaVector(int[] a) {
 		Random rnd = new Random();
 		for (int i = a.length - 1; i > 0; i--) {
-			// Genera un nÃºmero aleatorio j tal que 0 <= j 0 <= i
+			// Genera un numero aleatorio j tal que 0 <= j 0 <= i
 			int j = rnd.nextInt(i + 1);
 
 			// Intercambia a[j] y a[i]
@@ -143,20 +143,9 @@ public class TablaSimbolos {
 			if (s.getNombre().equals(simbolo.getNombre()) && s.getNivel() == simbolo.getNivel()) {
 				throw new SimboloYaDeclaradoException();
 			}
-			// Si hay un simbolo ya declarado con ese nombre en otro nivel, mostrar un aviso
-			else if (s.getNombre().equals(simbolo.getNombre())) {
-				Token t = MiniLeng.token;
-				if (simbolo.ES_VECTOR()) {
-					// Evitar que el token sea ']'
-					t.image = simbolo.nombre;
-				}
-				Aviso.deteccion("Este sÃ­mbolo, definido en el nivel " + simbolo.nivel +
-						", va a ocultar a otro definido con el mismo nombre en el nivel " + s.nivel + "",
-						t);
-			}
 		}
 
-		// Si no se ha lanzado la excepciÃ³n, se aÃ±ade
+		// Si no se ha lanzado la excepcion, se anade
 		tabla_hash[clave].addFirst(simbolo);
 
 		return simbolo;
