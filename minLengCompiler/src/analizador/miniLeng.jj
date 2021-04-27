@@ -336,9 +336,9 @@ int programa() :
 	nivel = 0;
 	tabla_simbolos.inicializar_tabla();
 	Token t = null;
-	ListaInstr l = new ListaInstr();
-	ListaInstr lAcciones = null;
-	ListaInstr lSentencias = null;
+	//ListaInstr l = new ListaInstr();
+	//ListaInstr lAcciones = null;
+	//ListaInstr lSentencias = null;
 	Integer etiq;
 }
 {
@@ -376,7 +376,13 @@ void declaracion_variables():
 }
 {
 	try {
+	  	{
+			nivel++;
+	  	}
 	  	(declaracion() ";")*
+	  	{
+			nivel--;
+	  	}
 	}
 	catch (ParseException e)
 	{
@@ -386,10 +392,11 @@ void declaracion_variables():
 
 void declaracion():
 {
+  	Token tTipo = null;
 }
 {
   	try {
-	  	tipo_variables() identificadores()
+	  	tTipo=tipo_variables() identificadores(tTipo.image)
 	}
 	catch (ParseException e)
 	{
@@ -412,12 +419,22 @@ void tipo_variables():
 	}
 }
 
-void identificadores():
+void identificadores(String tipo):
 {
+  	Token t;
+  	int dir = 0; // Cambiar
 }
 {
   	try {
-	  	<tIDENTIFICADOR> ( "," <tIDENTIFICADOR> )*
+	  	t = <tIDENTIFICADOR>
+		{
+			tabla_simbolos.introducir_variable(t.image,tipo,nivel,dir);
+		}
+	  	( "," t=<tIDENTIFICADOR>
+	  	{
+			tabla_simbolos.introducir_variable(t.image,tipo,nivel,dir);
+	  	}
+	  	)*
 	}
 	catch (ParseException e)
 	{
@@ -434,6 +451,9 @@ void declaracion_acciones():
 			nivel++;
   	  	}
 	  	(declaracion_accion())*
+	  	{
+			nivel--;
+  	  	}
 	}
 	catch (ParseException e)
 	{
@@ -456,10 +476,16 @@ void declaracion_accion():
 
 void cabecera_accion():
 {
+  	Token t = null;
+  	int dir = 0; // Cambiar
 }
 {
   	try {
-	  	<tACCION> <tIDENTIFICADOR> (parametros_formales())?
+	  	<tACCION> t=<tIDENTIFICADOR>
+		{
+			tabla_simbolos.introducir_accion(t.image,nivel,dir); 
+		}
+	  	(parametros_formales())?
 	}
 	catch (ParseException e)
 	{
