@@ -74,7 +74,7 @@ public class MiniLeng
 		    MiniLeng parser = new MiniLeng(System.in);
 		    System.out.println("Leyendo de la entrada estandar...");
 		}
-		tabla_simbolos = new TablaSimbolos(); 
+		tablaSimbolos = new TablaSimbolos(); 
     	MiniLeng.programa();
     	if(!error) {
 			System.out.println("Analizado correctamente!");
@@ -449,7 +449,7 @@ void identificadores(Simbolo.Tipo_variable tipo):
 	}
 	catch (SimboloYaDeclaradoException e)
 	{
-		errorSintactico(e);
+		//errorSintactico(e);
 	}
 
 }
@@ -495,14 +495,18 @@ void cabecera_accion():
   	try {
 	  	<tACCION> t=<tIDENTIFICADOR>
 		{
-			tabla_simbolos.introducir_accion(t.image,nivel,dir); 
+			tablaSimbolos.introducir_accion(t.image,nivel,dir); 
 		}
 	  	(parametros_formales())?
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
-	} 
+	}
+	catch (SimboloYaDeclaradoException e)
+	{
+	  
+	}
 }
 
 void parametros_formales():
