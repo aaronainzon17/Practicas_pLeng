@@ -14,6 +14,9 @@ PARSER_BEGIN(MiniLeng)
 package analizador;
 import java.io.IOException;
 import tabla_simbolos.TablaSimbolos;
+import tabla_simbolos.Simbolo;
+import tabla_simbolos.SimboloYaDeclaradoException;
+import tabla_simbolos.SimboloNoEncontradoException;
 
 
 public class MiniLeng
@@ -22,7 +25,7 @@ public class MiniLeng
   
   private static boolean error = false;
 
-  private static TablaSimbolos tabla_simbolos;
+  private static TablaSimbolos tablaSimbolos;
 
   private static void panicMode()
   {
@@ -334,7 +337,7 @@ TOKEN : /* AGRUPACIONES */
 int programa() :
 {
 	nivel = 0;
-	tabla_simbolos.inicializar_tabla();
+	tablaSimbolos.inicializar_tabla();
 	Token t = null;
 	//ListaInstr l = new ListaInstr();
 	//ListaInstr lAcciones = null;
@@ -345,7 +348,7 @@ int programa() :
 	try {
 		<tPROGRAMA>	t = <tIDENTIFICADOR>
 		{
-			tabla_simbolos.introducir_programa(t.image,0);
+			tablaSimbolos.introducir_programa(t.image,0);
 		}
 		";"		
 		declaracion_variables()
@@ -357,13 +360,13 @@ int programa() :
 	}
 	{
 	// Cerrar el programa y limpiar la tabla de simbolos
-	tabla_simbolos.eliminar_variables(nivel);
-	tabla_simbolos.eliminar_acciones(nivel);
-	tabla_simbolos.eliminar_programa();
+	tablaSimbolos.eliminar_variables(nivel);
+	tablaSimbolos.eliminar_acciones(nivel);
+	tablaSimbolos.eliminar_programa();
 	
 	//Si debug
 	System.out.println("Despues de cerrar programa");
-	tabla_simbolos.imprimirTabla();
+	tablaSimbolos.imprimirTabla();
 }
 {
 	// Fin del compilador
@@ -392,34 +395,38 @@ void declaracion_variables():
 
 void declaracion():
 {
-  	Token tTipo = null;
+  	Simbolo.Tipo_variable tTipo = Simbolo.Tipo_variable.DESCONOCIDO;
 }
 {
   	try {
-	  	tTipo=tipo_variables() identificadores(tTipo.image)
+	  	tTipo = tipo_variables() identificadores(tTipo)
 	}
 	catch (ParseException e)
 	{
-		errorSintactico(e);
+		errorSintactico(e); 
 	}
 }
 
-void tipo_variables():
+Simbolo.Tipo_variable tipo_variables():
 {
+  Simbolo.Tipo_variable t = Simbolo.Tipo_variable.DESCONOCIDO;
 }
 {
  	try {
-	  		<tENTERO>
-	  	| 	<tCARACTER>
-	  	| 	<tBOOLEANO>
+	  		<tENTERO> { t = Simbolo.Tipo_variable.ENTERO; } 
+	  	|   <tCARACTER> { t = Simbolo.Tipo_variable.CHAR; }
+	  	| 	<tBOOLEANO> { t = Simbolo.Tipo_variable.BOOLEANO; }
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
 	}
+	{
+	  return t;
+	}
 }
 
-void identificadores(String tipo):
+void identificadores(Simbolo.Tipo_variable tipo):
 {
   	Token t;
   	int dir = 0; // Cambiar
@@ -428,11 +435,11 @@ void identificadores(String tipo):
   	try {
 	  	t = <tIDENTIFICADOR>
 		{
-			tabla_simbolos.introducir_variable(t.image,tipo,nivel,dir);
+			tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir);
 		}
 	  	( "," t=<tIDENTIFICADOR>
 	  	{
-			tabla_simbolos.introducir_variable(t.image,tipo,nivel,dir);
+			tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir);
 	  	}
 	  	)*
 	}
@@ -440,6 +447,11 @@ void identificadores(String tipo):
 	{
 		errorSintactico(e);
 	}
+	catch (SimboloYaDeclaradoException e)
+	{
+		errorSintactico(e);
+	}
+
 }
 
 void declaracion_acciones():
