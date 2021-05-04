@@ -550,7 +550,7 @@ void lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTip
 void parametros():
 {
 	Simbolo.Clase_parametro tClase;
-	Simbolo.Tipo_variable tTipo;
+	Simbolo.Tipo_variable tTipo = Simbolo.Tipo_variable.DESCONOCIDO;
 }
 {
   	try {
@@ -763,15 +763,19 @@ void lista_expresiones():
 
 Simbolo.Tipo_variable expresion():
 {
-  
+  	Simbolo.Tipo_variable tTipo = Simbolo.Tipo_variable.DESCONOCIDO;
+  	Simbolo.Tipo_variable tTipoAux = Simbolo.Tipo_variable.DESCONOCIDO;
 }
 {
   	try {
-	  	expresion_simple() (operador_relacional() expresion_simple())?
+	  	tTipo = expresion_simple() (operador_relacional() tTipoAux = expresion_simple())?
 	} 
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+		return tTipo;
 	}
 }
 
@@ -793,16 +797,21 @@ void operador_relacional():
 	}
 }
 
-void expresion_simple():
+Simbolo.Tipo_variable expresion_simple():
 {
+	Simbolo.Tipo_variable tTipo = Simbolo.Tipo_variable.DESCONOCIDO;
+	Simbolo.Tipo_variable tTipoAux = Simbolo.Tipo_variable.DESCONOCIDO;
 }
 {
   	try {
-	  	(signo())? termino() (operador_aditivo() termino())*
+	  	(signo())? tTipo = termino() (operador_aditivo() tTipoAux = termino())*
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+		return tTipo;
 	}
 }
 
@@ -835,16 +844,21 @@ void operador_aditivo():
 	} 	
 }
 
-void termino():
+Simbolo.Tipo_variable termino():
 {
+	Simbolo.Tipo_variable tTipo = Simbolo.Tipo_variable.DESCONOCIDO;
+	Simbolo.Tipo_variable tTipoAux = Simbolo.Tipo_variable.DESCONOCIDO;
 }
 {
   	try {
-	  	factor() (operador_multiplicativo() factor())* 
+	  	tTipo = factor() (operador_multiplicativo() tTipoAux = factor())* 
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+		return tTipo;
 	}
 }
 
@@ -864,20 +878,20 @@ void operador_multiplicativo():
 	}
 }
 
-void factor():
+Simbolo.Tipo_variable factor():
 {
-	Simbolo.Tipo_variable tTipo;
-	Simbolo.Tipo_variable tTipoAux;
+	Simbolo.Tipo_variable tTipo = Simbolo.Tipo_variable.DESCONOCIDO;
+	Simbolo.Tipo_variable tTipoAux = Simbolo.Tipo_variable.DESCONOCIDO;
 	Token t;
 }
 {
   	try {
-	  	 	<tNOT> factor()
-		| 	"(" expresion() ")"
-		| 	<tENTACAR> "(" expresion() ")"
-		| 	<tCARAENT> "(" expresion() ")"
-		| 	t = <tIDENTIFICADOR> { Simbolo S = TablaSimbolos.buscar_simbolo(t.image);
-								   tTipo = S.getTipo();
+	  	 	<tNOT> tTipo = factor()
+		| 	"(" tTipo = expresion() ")"
+		| 	<tENTACAR> "(" tTipoAux = expresion() ")" { tTipo = Simbolo.Tipo_variable.CHAR; }
+		| 	<tCARAENT> "(" tTipoAux = expresion() ")" { tTipo = Simbolo.Tipo_variable.ENTERO; }
+		| 	t = <tIDENTIFICADOR> { Simbolo S = tablaSimbolos.buscar_simbolo(t.image);
+								   tTipo = S.getVariable();
 								 }
 		| 	<tVALOR_ENTERO> { tTipo = Simbolo.Tipo_variable.ENTERO; }
 		| 	<tCONSTCHAR>	{ tTipo = Simbolo.Tipo_variable.CHAR; }
@@ -888,5 +902,8 @@ void factor():
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+		return tTipo;
 	}
 }
