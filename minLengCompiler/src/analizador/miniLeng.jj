@@ -413,7 +413,7 @@ Simbolo.Tipo_variable tipo_variables():
 }
 {
  	try {
-	  		<tENTERO> { t = Simbolo.Tipo_variable.ENTERO; } 
+	  		<tENTERO>   { t = Simbolo.Tipo_variable.ENTERO; } 
 	  	|   <tCARACTER> { t = Simbolo.Tipo_variable.CHAR; }
 	  	| 	<tBOOLEANO> { t = Simbolo.Tipo_variable.BOOLEANO; }
 	}
@@ -426,7 +426,7 @@ Simbolo.Tipo_variable tipo_variables():
 	}
 }
 
-void identificadores(Simbolo.Tipo_variable tipo):
+void identificadores(Simbolo.Tipo_variable tipo): 
 {
   	Token t;
   	int dir = 0; // Cambiar
@@ -493,7 +493,7 @@ void cabecera_accion():
 }
 {
   	try {
-	  	<tACCION> t=<tIDENTIFICADOR>
+	  	<tACCION> t = <tIDENTIFICADOR>
 		{
 			tablaSimbolos.introducir_accion(t.image,nivel,dir); 
 		}
@@ -522,25 +522,39 @@ void parametros_formales():
 	}	 
 }
 
-void lista_parametros():
+void lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTipo):
 {
+	Token t = null;
+	int dir = 0;
 }
 {
   	try {
-	  	<tIDENTIFICADOR> ("," <tIDENTIFICADOR>)*
+	  	 t = <tIDENTIFICADOR>
+	  	{
+	  		tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir);
+  	  	}
+  	  	("," t = <tIDENTIFICADOR>
+  	  	{
+			tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir);
+  	  	})*
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
-	} 
+	}
+	catch (SimboloYaDeclaradoException e)
+	{
+	}
 }
 
 void parametros():
 {
+	Simbolo.Clase_parametro tClase;
+	Simbolo.Tipo_variable tTipo;
 }
 {
   	try {
-	  	clase_parametros() tipo_variables() lista_parametros()
+	  	tClase = clase_parametros() tTipo = tipo_variables() lista_parametros(tClase,tTipo)
 	}
 	catch (ParseException e)
 	{
@@ -548,17 +562,21 @@ void parametros():
 	}
 }
 
-void clase_parametros():
+Simbolo.Clase_parametro clase_parametros():
 {
+	Simbolo.Clase_parametro t = null; 
 }
 {
   	try {
-	  		<tVAL>
-	  	| 	<tREF>
+	  		<tVAL> { t = Simbolo.Clase_parametro.VAL; }
+	  	| 	<tREF> { t = Simbolo.Clase_parametro.REF; }
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+  		return t;
 	}
 }
 
@@ -566,8 +584,14 @@ void bloque_sentencias():
 {
 }
 {
-  	try {
+	try {
+		{
+			nivel++;
+		}
 	  	<tPRINCIPIO> lista_sentencias() <tFIN>
+		{
+		  nivel--;
+		}
 	}
 	catch (ParseException e)
 	{
@@ -618,12 +642,12 @@ void leer():
 	}
 }
 
-void lista_asignables():
+void lista_asignables(): // Esta funcion antes llamaba a lista_asignables POR SI ERROR
 {
 }
 {
   	try {
-	  	lista_parametros()
+  	  <tIDENTIFICADOR> ("," <tIDENTIFICADOR>)*
 	}
 	catch (ParseException e)
 	{
@@ -659,10 +683,11 @@ void lista_escribibles():
 
 void asignacion():
 {
+  Simbolo.Tipo_variable tTipoExpresion;
 }
 {
   	try {
-	  	<tOPAS> expresion() ";"
+	  	<tOPAS>  tTipoExpresion = expresion() ";"
 	}
 	catch (ParseException e)
 	{
@@ -736,13 +761,14 @@ void lista_expresiones():
 	}
 }
 
-void expresion():
+Simbolo.Tipo_variable expresion():
 {
+  
 }
 {
   	try {
 	  	expresion_simple() (operador_relacional() expresion_simple())?
-	}
+	} 
 	catch (ParseException e)
 	{
 		errorSintactico(e);
@@ -840,6 +866,9 @@ void operador_multiplicativo():
 
 void factor():
 {
+	Simbolo.Tipo_variable tTipo;
+	Simbolo.Tipo_variable tTipoAux;
+	Token t;
 }
 {
   	try {
@@ -847,12 +876,14 @@ void factor():
 		| 	"(" expresion() ")"
 		| 	<tENTACAR> "(" expresion() ")"
 		| 	<tCARAENT> "(" expresion() ")"
-		| 	<tIDENTIFICADOR>
-		| 	<tVALOR_ENTERO>
-		| 	<tCONSTCHAR>
-		| 	<tCONSTCAD>
-		| 	<tTRUE>
-		| 	<tFALSE> 
+		| 	t = <tIDENTIFICADOR> { Simbolo S = TablaSimbolos.buscar_simbolo(t.image);
+								   tTipo = S.getTipo();
+								 }
+		| 	<tVALOR_ENTERO> { tTipo = Simbolo.Tipo_variable.ENTERO; }
+		| 	<tCONSTCHAR>	{ tTipo = Simbolo.Tipo_variable.CHAR; }
+		| 	<tCONSTCAD>		{ tTipo = Simbolo.Tipo_variable.CADENA; }
+		| 	<tTRUE>			{ tTipo = Simbolo.Tipo_variable.BOOLEANO; }
+		| 	<tFALSE> 		{ tTipo = Simbolo.Tipo_variable.BOOLEANO; }
 	}
 	catch (ParseException e)
 	{
