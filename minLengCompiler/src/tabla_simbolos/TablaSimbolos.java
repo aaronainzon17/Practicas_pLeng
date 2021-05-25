@@ -24,7 +24,7 @@ import java.util.Iterator;
 
 public class TablaSimbolos {
 	// TODO: Elegir tamano de la tabla y ponerlo en decisiones de diseno
-	private final int M = 127;
+	private final int M = 257;
 
 	// TODO: Elegir funcion de hash. Se debe generar considerando solo el nombre del
 	// simbolo
@@ -89,9 +89,9 @@ public class TablaSimbolos {
 	private int h(String cadena) {
 		int h = 0;
 		for (int i = 0; i < cadena.length(); i++) {
-			h = T[h ^ cadena.charAt(i)];
+			h = T[h ^ cadena.charAt(i)%M];
 		}
-		return h;
+		return h%M;
 	}
 
 	/*
@@ -288,7 +288,7 @@ public class TablaSimbolos {
 	 */
 	public void imprimirTabla() {
 		System.out.println("+" + new String(new char[59]).replace("\0", "-") + "+");
-		System.out.println("| Tabla de sÃ­mbolos                                         |");
+		System.out.println("| Tabla de simbolos                                         |");
 		System.out.println("+" + new String(new char[59]).replace("\0", "-") + "+");
 
 		for (int i = 0; i < tabla_hash.length; i++) {

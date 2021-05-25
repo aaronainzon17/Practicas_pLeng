@@ -343,12 +343,13 @@ int programa() :
 	//ListaInstr lAcciones = null;
 	//ListaInstr lSentencias = null;
 	Integer etiq;
+	int dir = 0;
 }
 {
 	try {
 		<tPROGRAMA>	t = <tIDENTIFICADOR>
 		{
-			tablaSimbolos.introducir_programa(t.image,0);
+			tablaSimbolos.introducir_programa(t.image,dir);
 		}
 		";"		
 		declaracion_variables()
@@ -358,12 +359,14 @@ int programa() :
 	catch (ParseException e) {
 		errorSintactico(e);//(e, "La declaracion del programa es incorrecta");
 	}
-	{
+{
+	System.out.println("ANTES de cerrar programa");
+	tablaSimbolos.imprimirTabla();
 	// Cerrar el programa y limpiar la tabla de simbolos
 	tablaSimbolos.eliminar_variables(nivel);
 	tablaSimbolos.eliminar_acciones(nivel);
 	tablaSimbolos.eliminar_programa();
-	
+
 	//Si debug
 	System.out.println("Despues de cerrar programa");
 	tablaSimbolos.imprimirTabla();
@@ -379,13 +382,7 @@ void declaracion_variables():
 }
 {
 	try {
-	  	{
-			nivel++;
-	  	}
 	  	(declaracion() ";")*
-	  	{
-			nivel--;
-	  	}
 	}
 	catch (ParseException e)
 	{
@@ -423,23 +420,23 @@ Simbolo.Tipo_variable tipo_variables():
 	}
 	{
 	  return t;
-	}
+	} 
 }
 
 void identificadores(Simbolo.Tipo_variable tipo): 
 {
-  	Token t;
+  	Token t, t2 = null;
   	int dir = 0; // Cambiar
 }
 {
   	try {
-	  	t = <tIDENTIFICADOR>
+	  	t = <tIDENTIFICADOR> 
 		{
 			tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir);
 		}
-	  	( "," t=<tIDENTIFICADOR>
+	  	( "," t2 = <tIDENTIFICADOR>
 	  	{
-			tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir);
+			tablaSimbolos.introducir_variable(t2.image,tipo,nivel,dir);
 	  	}
 	  	)*
 	}
@@ -450,6 +447,7 @@ void identificadores(Simbolo.Tipo_variable tipo):
 	catch (SimboloYaDeclaradoException e)
 	{
 		//errorSintactico(e);
+		 System.out.println("SE HA CREADO UNA VARIABLE CON EL MISMO NOMBRE " + e);
 	}
 
 }
@@ -459,16 +457,26 @@ void declaracion_acciones():
 }
 {
   	try {
-  	  	{
-			nivel++;
-  	  	}
 	  	(declaracion_accion())*
 	  	{
-			nivel--;
+	  	  	System.out.println("NIVEL: " + nivel);
+	  	  	
+			//ME DA ERROR AL ELIMINAR LAS VARIABLES DE CADA NIVEL
+	  	  	//HAY QUE HACERLO PARA ASI PODER DECLARAR CON EL MISMO NOMBRE
+	  	  	//VARIABLES EN DIFERENTES ACCIONES
+	  	  	
+			if (nivel > 0) {
+				//tablaSimbolos.eliminar_variables(nivel);
+				tablaSimbolos.eliminar_parametros(nivel);
+				tablaSimbolos.eliminar_acciones(nivel);
+				nivel--;
+			}
+			System.out.println("NIVEL: " + nivel);
+
   	  	}
 	}
 	catch (ParseException e)
-	{
+	{ 
 		errorSintactico(e);
 	}
 }
@@ -486,6 +494,8 @@ void declaracion_accion():
 	}
 }
 
+
+//<tACCION> <tIDENTIFICADOR> (parametros_formales())?
 void cabecera_accion():
 {
   	Token t = null;
@@ -495,9 +505,10 @@ void cabecera_accion():
   	try {
 	  	<tACCION> t = <tIDENTIFICADOR>
 		{
-			tablaSimbolos.introducir_accion(t.image,nivel,dir); 
+			Simbolo accion = tablaSimbolos.introducir_accion(t.image,nivel,dir); 
+			nivel ++;
 		}
-	  	(parametros_formales())?
+	  	(parametros_formales(accion))?
 	}
 	catch (ParseException e)
 	{
@@ -505,16 +516,16 @@ void cabecera_accion():
 	}
 	catch (SimboloYaDeclaradoException e)
 	{
-	  
+	  System.out.println("SE HA CREADO UNA ACCION CON EL MISMO NOMBRE " + e);
 	}
 }
 
-void parametros_formales():
+void parametros_formales(Simbolo accion):
 {
 }
 {
   	try {
-	  	"(" (parametros() (";" parametros())*)? ")"
+	  	"(" (parametros(accion) (";" parametros(accion))*)? ")"
 	}
 	catch (ParseException e)
 	{
@@ -522,7 +533,8 @@ void parametros_formales():
 	}	 
 }
 
-void lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTipo):
+// <tIDENTIFICADOR> ("," <tIDENTIFICADOR>)*
+void lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTipo, Simbolo accion):
 {
 	Token t = null;
 	int dir = 0;
@@ -531,11 +543,14 @@ void lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTip
   	try {
 	  	 t = <tIDENTIFICADOR>
 	  	{
-	  		tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir);
+	  		Simbolo param = tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir);
+	  		accion.addParametro(param);
+	  		//tablaSimbolos.introducir_variable(t.image,tTipo,nivel,dir);
   	  	}
   	  	("," t = <tIDENTIFICADOR>
   	  	{
-			tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir);
+			Simbolo param1 = tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir);
+			accion.addParametro(param1);
   	  	})*
 	}
 	catch (ParseException e)
@@ -544,19 +559,20 @@ void lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTip
 	}
 	catch (SimboloYaDeclaradoException e)
 	{
+	  System.out.println("SE HA CREADO UN PARAMETRO CON EL MISMO NOMBRE " + e);
 	}
 }
 
-void parametros():
+void parametros(Simbolo accion):
 {
 	Simbolo.Clase_parametro tClase;
 	Simbolo.Tipo_variable tTipo = Simbolo.Tipo_variable.DESCONOCIDO;
 }
 {
   	try {
-	  	tClase = clase_parametros() tTipo = tipo_variables() lista_parametros(tClase,tTipo)
+	  	tClase = clase_parametros() tTipo = tipo_variables() lista_parametros(tClase,tTipo,accion)
 	}
-	catch (ParseException e)
+	catch (ParseException e) 
 	{
 		errorSintactico(e);
 	}
@@ -585,12 +601,14 @@ void bloque_sentencias():
 }
 {
 	try {
+	  // SI EL BLOQUE DE SENTENCIAS ES UN NIVEL MAYOR QUE LA DECLARACION DE LAS VARIABLES DE ESE
+	  //BLOQUE NO VA A PODER ACCEDER A ELLAS, LO PUSISTE TU POR ESO LO DEJO COMENTADO
 		{
-			nivel++;
+			//nivel++;
 		}
 	  	<tPRINCIPIO> lista_sentencias() <tFIN>
 		{
-		  nivel--;
+		  //nivel--;
 		}
 	}
 	catch (ParseException e)
