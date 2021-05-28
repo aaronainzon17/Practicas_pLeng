@@ -14,6 +14,7 @@ PARSER_BEGIN(MiniLeng)
 package analizador;
 import java.io.IOException;
 import java.lang.*;
+import java.util.ArrayList;
 import tabla_simbolos.TablaSimbolos;
 import tabla_simbolos.Simbolo;
 import tabla_simbolos.SimboloYaDeclaradoException;
@@ -543,24 +544,28 @@ void declaracion_accion():
 void cabecera_accion():
 {
   	Token t = null;
+  	Simbolo accion = null;
 }
 {
   	try {
 	  	<tACCION> t = <tIDENTIFICADOR>
 		{
-			Simbolo accion = tablaSimbolos.introducir_accion(t.image,nivel,dir); 
+		  	try { 
+				accion = tablaSimbolos.introducir_accion(t.image,nivel,dir);
+			}
+			catch (SimboloYaDeclaradoException e)
+			{
+			  	error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya existe");
+			}			
 			nivel++;
 			dir = DIR_INICIAL;
+			
 		}
 	  	(parametros_formales(accion))? ";"
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
-	}
-	catch (SimboloYaDeclaradoException e)
-	{
-	  error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya existe");
 	}
 }
 
@@ -593,7 +598,9 @@ void lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTip
 	  	{
 	  	  	try {
 	  			Simbolo param = tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir);
-	  			accion.addParametro(param);
+				if(accion != null) { 
+	  				accion.addParametro(param);
+	  			}
 			}
 			catch (SimboloYaDeclaradoException e) {
 				error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya existe");
@@ -861,10 +868,49 @@ Valor asignacion(Token t):
 */
 void invocacion_accion(Token t):
 {
+  	Simbolo S = null;
+  	ArrayList<Valor> args = new ArrayList<Valor>();
 }
 {
   	try {
-	  	(argumentos())? ";"
+	  	(args = argumentos())?
+		{
+			try { 
+				S = tablaSimbolos.buscar_simbolo(t.image);
+				if(S.getTipo() != Simbolo.Tipo_simbolo.ACCION) {
+					error_semantico(t.beginLine, t.beginColumn, "\'" + t.image + "\' no es una accion");
+				}else {
+				  	Boolean match = true;
+					if(args.size() != S.getListaParametros().size()) {
+					  	match = false;
+					}else {
+				        for (int i = 0; i < args.size(); i++) {  
+							if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
+							   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
+								match = false;
+							}
+						}
+					}
+					if (!match) {
+						String params = "(";
+					  	for (Simbolo param : S.getListaParametros()) {
+							params += param.getVariable() + ","; 
+					 	}
+					 	params += ")";
+					 	String inv = "(";
+					  	for (Valor i : args) {
+							inv += i.tipoVariable + ","; 
+					 	}
+					 	inv += ")";
+						error_semantico(t.beginLine, t.beginColumn, "Invocacion a \'" + t.image + params + "\' con \'" + t.image + inv + "\'");
+					}
+				} 
+			}
+			catch (SimboloNoEncontradoException e) {
+				error_semantico(t.beginLine, t.beginColumn, "\'" + t.image + "\' accion no declarada");
+			}	
+		}
+	  	";"
 	}
 	catch (ParseException e)
 	{
@@ -877,10 +923,18 @@ void invocacion_accion(Token t):
 */
 void mientras_que():
 {
+  	Token t = null;
+  	Valor v = null;
 }
 {
   	try {
-	  	<tMQ> expresion() lista_sentencias() <tFMQ>
+	  	t = <tMQ> v = expresion()
+		{
+			if (v.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO && v.tipoVariable != Simbolo.Tipo_variable.BOOLEANO) {
+				error_semantico(t.endLine, t.endColumn, "Se esperaba booleano y se encontro " + v.tipoVariable);
+			}
+		}
+	  	lista_sentencias() <tFMQ>
 	}
 	catch (ParseException e)
 	{
@@ -893,10 +947,18 @@ void mientras_que():
 */
 void seleccion():
 {
+  	Token t = null;
+  	Valor v = null;
 }
 {
   	try {
-	  	< tSI > expresion() < tENT > lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI > 
+	  	t = < tSI > v = expresion()
+		{
+			if (v.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO && v.tipoVariable != Simbolo.Tipo_variable.BOOLEANO) {
+				error_semantico(t.endLine, t.endColumn, "Se esperaba booleano y se encontro " + v.tipoVariable);
+			}
+		}
+	  	< tENT > lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI > 
 	}
 	catch (ParseException e)
 	{
@@ -907,33 +969,49 @@ void seleccion():
 /*
 	"(" lista_expresiones() ")"
 */
-void argumentos():
+ArrayList<Valor> argumentos():
 {
+  ArrayList<Valor> res = null;
 }
 {
   	try {
-	  	"(" lista_expresiones() ")"
+	  	"(" res = lista_expresiones() ")"
 	  	
 	}
 	catch (ParseException e) 
 	{
 		errorSintactico(e);
 	}
+	{
+		return res;
+	}
 }
 
 /*
 	expresion() ("," expresion())*
 */
-void lista_expresiones():
+ArrayList<Valor> lista_expresiones():
 {
+  	ArrayList<Valor> res = new ArrayList<Valor>();
+  	Valor v = null;
 }
 {
   	try {
-	  	expresion() ("," expresion())*
+	  	v = expresion()
+	  	{
+			res.add(v);
+	 	}
+	  	("," v = expresion()
+	  	{
+			res.add(v);
+	 	})*
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+		return res;
 	}
 }
 
@@ -950,7 +1028,35 @@ Valor expresion():
 }
 {
   	try {
-	  	v = expresion_simple() (operador = operador_relacional() vAux = expresion_simple())*
+	  	v = expresion_simple() (operador = operador_relacional() vAux = expresion_simple()
+	  	{
+			if((vAux.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO || v.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) && v.tipoVariable != vAux.tipoVariable) {
+				vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
+				error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible entre " + v.tipoVariable + " y " + vAux.tipoVariable);
+			}else if(vAux.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
+		 	   	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
+		 	}else if(v.tipoVariable != Simbolo.Tipo_variable.ENTERO) {
+				error_semantico(operador.beginLine, operador.beginColumn, "Operador relacion \'" + operador.image + "\' no aplicable para " + v.tipoVariable);
+			}else {
+			  	// Revisar tipos para los que se permite comparacion ej: igualdad para Booleanos
+			  	if(v.valorEnt != null || v.valorEnt != null) {
+			  	  	warning(operador.beginLine, operador.beginColumn, "Expresion constante");
+					if(operador.kind == tMAYOR) {
+						vRes.valorBool = v.valorEnt > vAux.valorEnt;
+					}else if(operador.kind == tMENOR) {
+						vRes.valorBool = v.valorEnt < vAux.valorEnt;
+					}else if(operador.kind == tIGUAL) {
+						vRes.valorBool = v.valorEnt == vAux.valorEnt;
+					}else if(operador.kind == tMAI) {
+						vRes.valorBool = v.valorEnt >= vAux.valorEnt;
+					}else if(operador.kind == tMEI) {
+						vRes.valorBool = v.valorEnt <= vAux.valorEnt;
+					}else {
+						vRes.valorBool = v.valorEnt != vAux.valorEnt;
+					}
+				}
+			}
+	 	})*
 	} 
 	catch (ParseException e)
 	{
@@ -970,12 +1076,12 @@ Token operador_relacional():
 }
 {
   	try {
-	  		<tMAYOR>
-		|	<tMENOR>
-		|	<tIGUAL> 
-		|	<tMAI>
-		|	<tMEI>
-		|	<tNI>
+	  		t = <tMAYOR>
+		|	t = <tMENOR>
+		|	t = <tIGUAL> 
+		|	t = <tMAI>
+		|	t = <tMEI>
+		|	t = <tNI>
 	}
 	catch (ParseException e)
 	{
@@ -994,6 +1100,7 @@ Valor expresion_simple():
 	Valor v = null;
 	Valor vAux = null;
 	Valor vRes = new Valor();
+	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO;
 	Token operador = null;
 }
 {
@@ -1023,7 +1130,7 @@ Valor expresion_simple():
 					}
 				}else {
 					vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-					error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' no aplicable para " + v.tipoVariable);  	
+					error_semantico(operador.beginLine, operador.beginColumn, "Operador aditivo \'" + operador.image + "\' no aplicable para " + v.tipoVariable);  	
 				}
 			}else if(operador.kind == tOR) {
 				if(v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO && vAux.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
@@ -1033,7 +1140,7 @@ Valor expresion_simple():
 					}
 				}else {
 				  	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-					error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' no aplicable para " + v.tipoVariable);
+					error_semantico(operador.beginLine, operador.beginColumn, "Operador aditivo \'" + operador.image + "\' no aplicable para " + v.tipoVariable);
 				}
 			}
 	 	})*
@@ -1114,7 +1221,7 @@ Valor termino():
 					}
 				}else {
 					vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-					error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' no aplicable para " + v.tipoVariable);  	
+					error_semantico(operador.beginLine, operador.beginColumn, "Operador multiplicativo \'" + operador.image + "\' no aplicable para " + v.tipoVariable);  	
 				}
 			}else if(operador.kind == tAND) {
 				if(v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO && vAux.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
@@ -1124,7 +1231,7 @@ Valor termino():
 					}
 				}else {
 				  	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-					error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' no aplicable para " + v.tipoVariable);
+					error_semantico(operador.beginLine, operador.beginColumn, "Operador multiplicativo \'" + operador.image + "\' no aplicable para " + v.tipoVariable);
 				}
 			}
 	 	})* 
@@ -1283,10 +1390,10 @@ Valor factor():
 	  	tablaSimbolos.introducir_variable(t.image, Simbolo.Tipo_variable.DESCONOCIDO, nivel, dir);
 	  }
 	  catch(SimboloYaDeclaradoException e1) {
-	  	error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya declarado");  
+	  	error_semantico(t.beginLine, t.beginColumn, "\'" + t.image + "\' ya declarado");  
 	  }
 	  vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO;
-	  error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" no declarado");	  
+	  error_semantico(t.beginLine, t.beginColumn, "\'" + t.image + "\' no declarado");	  
 	}
 	{
 		return vRes;
