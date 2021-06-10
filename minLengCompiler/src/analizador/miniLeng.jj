@@ -15,6 +15,10 @@ package analizador;
 import java.io.IOException;
 import java.lang.*;
 import java.util.ArrayList;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import tabla_simbolos.TablaSimbolos;
 import tabla_simbolos.Simbolo;
 import tabla_simbolos.SimboloYaDeclaradoException;
@@ -25,9 +29,50 @@ class Valor
   Integer valorEnt;
   Boolean valorBool;
   Character valorChar;
-  String code;
+  String codigo;
   Simbolo.Clase_parametro claseParametro;
   Simbolo.Tipo_variable tipoVariable;
+}
+
+class Tag
+{
+	public int tagVal;
+	public String tagName;
+
+	public Tag(int _tagVal, String _tagName) {
+		tagVal=_tagVal;
+		tagName=_tagName;
+	}
+
+	public String toString() {
+		return "L" + tagVal;
+	}
+
+	public String code() {
+		return "";
+	}
+}
+
+class TagProgram extends Tag {
+	public TagProgram(int _tagVal, String _tagName) {
+		super(_tagVal,_tagName);
+	}
+
+	public String code() {
+		return "; Programa " + tagName + "\n" + 
+				"\tENP\t" + "L" + tagVal + "\n";
+	}	
+} 
+
+class TagAction extends Tag {
+	public TagAction(int _tagVal, String _tagName) {
+		super(_tagVal,_tagName);
+	}
+
+	public String code() {
+		return "; Declaracion accion " + tagName + "\n" + 
+				"L" + tagVal + ":\n";
+	}	
 }
 
 public class MiniLeng
@@ -35,6 +80,8 @@ public class MiniLeng
   private static int DIR_INICIAL = 3;
 
   private static int nivel;
+
+  private static int tagNum = 0;
 
   private static int dir = 3;
   
@@ -95,15 +142,29 @@ public class MiniLeng
   {
     try {
       	if(args.length > 0) {
-			MiniLeng parser = new MiniLeng(new java.io.FileInputStream(new java.io.File(args [0])));
+			MiniLeng parser = new MiniLeng(new java.io.FileInputStream(new java.io.File(args [0].concat(".ml"))));
 	  	}else {
 		    MiniLeng parser = new MiniLeng(System.in);
 		    System.out.println("Leyendo de la entrada estandar...");
 		}
 		tablaSimbolos = new TablaSimbolos(); 
-    	MiniLeng.programa();
+    	String codigo = MiniLeng.programa();
     	if(!error) {
-			System.out.println("Analizado correctamente!");
+    	  	try
+    	  	{
+				OutputStream fichero = new FileOutputStream(new String(args [0].concat(".code")));
+				OutputStreamWriter osw = new OutputStreamWriter(fichero);
+				BufferedWriter bw = new BufferedWriter(osw);
+				bw.write(codigo);
+				bw.close();
+				osw.close();
+				fichero.close();
+				System.out.println("Analizado correctamente! Se ha generado el fichero de codigo " + args [0] + ".code");
+    	 	}
+			catch (IOException e)
+	        {
+	        	System.out.println("Analizado correctamente! No se ha podido generar el fichero de codigo " + args [0] + ".code");
+	        }
    		}
     }
     catch (TokenMgrError e) {
@@ -119,7 +180,7 @@ public class MiniLeng
         System.out.println(e);
 	}
 	catch (IOException e) {
-        System.out.println("Fichero no encontrado, formato de ejecucion \"MiniLeng [nombrefichero].ml\"");
+        System.out.println("Fichero no encontrado, formato de ejecucion \"MiniLeng [nombrefichero]\"");
    	}
   }
 }
@@ -363,14 +424,16 @@ TOKEN : /* AGRUPACIONES */
 /*
 	<tPROGRAMA>	<tIDENTIFICADOR> ";" declaracion_variables() declaracion_acciones() bloque_sentencias() <EOF>
 */
-int programa() :
+String programa() :
 {
 	nivel = 0;
+	String codigo = "";
+	String codigoVariables = "";
+	String codigoAcciones = "";
+	String codigoSentencias = "";
 	tablaSimbolos.inicializar_tabla();
 	Token t = null;
-	//ListaInstr l = new ListaInstr();
-	//ListaInstr lAcciones = null;
-	//ListaInstr lSentencias = null;
+	TagProgram program = null;
 	Integer etiq;
 }
 {
@@ -378,18 +441,33 @@ int programa() :
 		<tPROGRAMA>	t = <tIDENTIFICADOR>
 		{
 			tablaSimbolos.introducir_programa(t.image,dir);
+			if(!error) {
+			  	program = new TagProgram(tagNum,t.image);
+			  	tagNum++;
+				codigo = program.code();
+			}
 		}
 		";"
-		declaracion_variables()
-		/*lAcciones = */declaracion_acciones()
-		/*lSentencias = */bloque_sentencias() < EOF >
+		codigoVariables = declaracion_variables() // El codigo de las variables que??
+		codigoAcciones = declaracion_acciones()
+		codigoSentencias = bloque_sentencias() < EOF >
+		{
+			if(!error) {
+				codigo += codigoAcciones +
+						"; Inicio " + t.image + "\n" +
+						program.toString() + ":\n" +
+						codigoSentencias +
+						"; Final " + t.image + "\n" +
+						"\tLVP";
+			}
+		}
 	}
 	catch (ParseException e) {
 		errorSintactico(e);//(e, "La declaracion del programa es incorrecta");
 	}
 {
-	System.out.println("ANTES de cerrar programa");
-	tablaSimbolos.imprimirTabla();
+	/*System.out.println("ANTES de cerrar programa");
+	tablaSimbolos.imprimirTabla();*/
 	// Cerrar el programa y limpiar la tabla de simbolos
 	tablaSimbolos.eliminar_variables(nivel);
 	tablaSimbolos.eliminar_acciones(nivel);
@@ -397,20 +475,21 @@ int programa() :
 	tablaSimbolos.eliminar_programa();
 
 	//Si debug
-	System.out.println("Despues de cerrar programa");
-	tablaSimbolos.imprimirTabla();
+	/*System.out.println("Despues de cerrar programa");
+	tablaSimbolos.imprimirTabla();*/
 }
 {
 	// Fin del compilador
-	return 0;
+	return codigo;
 }
 }
 
 /*
 	(declaracion() ";")*
 */
-void declaracion_variables():
+String declaracion_variables():
 {
+  	String codigo = "";
 }
 {
 	try {
@@ -420,6 +499,9 @@ void declaracion_variables():
 	{
 		errorSintactico(e);
 	}
+	{
+	return codigo;
+	}	
 }
 
 /*
@@ -503,29 +585,59 @@ void identificadores(Simbolo.Tipo_variable tipo):
 /*
 	(declaracion_accion())*
 */
-void declaracion_acciones():
+String declaracion_acciones():
 {
+  	String codigo = "";
+  	String c = "";
 }
 {
   	try {
-	  	(declaracion_accion())*
+	  	(c=declaracion_accion()
+	  	{
+	  	  	if(!error) {
+				codigo += c;
+			} 
+	  	})*
 	}
 	catch (ParseException e)
 	{ 
 		errorSintactico(e);
+	}
+	{
+		return codigo;
 	}
 }
 
 /*
 	cabecera_accion() ";" declaracion_variables() declaracion_acciones() bloque_sentencias()
 */
-void declaracion_accion():
+String declaracion_accion():
 {
+	String codigo = "";
+  	String codigoParams = "";
+  	String codigoVariables = "";
+  	String codigoAcciones = "";
+  	String codigoSentencias = "";
+  	TagAction accion = new TagAction(tagNum,"");
 }
 {
   	try {
-	  	cabecera_accion() declaracion_variables() declaracion_acciones() bloque_sentencias()
+	  	codigoParams = cabecera_accion(accion)
 	  	{
+	  	  	
+	 	}
+	  	codigoVariables = declaracion_variables() // Esto que pues con el codigo de las variables
+	  	codigoAcciones = declaracion_acciones()
+	  	codigoSentencias = bloque_sentencias()
+	  	{
+	  	  		if(codigoAcciones != "") {
+					codigoParams+="\tJMP\t" + accion.toString() + "\n";
+	  	  		}
+	  	  		codigo = codigoParams +
+	  	  				 codigoAcciones + // Revosar porque es codigo inaccesible
+						 codigoSentencias +
+						 "; Fin accion " + accion.tagName + "\n" +
+						 "\tCFS\n";
 				tablaSimbolos.eliminar_variables(nivel);
 				tablaSimbolos.eliminar_acciones(nivel);
 				tablaSimbolos.eliminar_parametros(nivel+1);
@@ -536,13 +648,18 @@ void declaracion_accion():
 	{
 		errorSintactico(e);
 	}
+	{
+		return codigo;
+	}
 }
 
 /*
 	<tACCION> <tIDENTIFICADOR> (parametros_formales())?
 */
-void cabecera_accion():
+String cabecera_accion(TagAction etiq):
 {
+  	String codigo = "";
+  	String codigoParams = "";
   	Token t = null;
   	Simbolo accion = null;
 }
@@ -552,6 +669,8 @@ void cabecera_accion():
 		{
 		  	try { 
 				accion = tablaSimbolos.introducir_accion(t.image,nivel,dir);
+				etiq.tagName = t.image;
+				codigo = etiq.code();
 			}
 			catch (SimboloYaDeclaradoException e)
 			{
@@ -561,36 +680,51 @@ void cabecera_accion():
 			dir = DIR_INICIAL;
 			
 		}
-	  	(parametros_formales(accion))? ";"
+	  	(codigoParams = parametros_formales(accion)
+	  	{
+			codigo += codigoParams;
+	  	})? ";"
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+		return codigo;
 	}
 }
 
 /*
 	"(" (parametros() (";" parametros())*)? ")"
 */
-void parametros_formales(Simbolo accion):
+String parametros_formales(Simbolo accion):
 {
+  	String codigo = "";
+  	String codigoParam = "";
 }
 {
   	try {
-	  	"(" (parametros(accion) (";" parametros(accion))*)? ")"
+	  	"(" (codigo=parametros(accion) (";" codigoParam=parametros(accion)
+	  	{
+			codigo+=codigoParam;
+	 	})*)? ")"
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
-	}	 
+	}
+	{
+		return codigo;
+	}
 }
 
 /*
 	<tIDENTIFICADOR> ("," <tIDENTIFICADOR>)*
 */
-void lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTipo, Simbolo accion):
+String lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTipo, Simbolo accion):
 {
 	Token t = null;
+	String codigo = "";
 }
 {
   	try {
@@ -601,6 +735,9 @@ void lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTip
 				if(accion != null) { 
 	  				accion.addParametro(param);
 	  			}
+	  			codigo = "; Recuperacion del parametro " + t.image + "\n" +
+	  					 "\tSRG\t0\t" + dir + "\n" +
+	  					 "\tASGI\n";
 			}
 			catch (SimboloYaDeclaradoException e) {
 				error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya existe");
@@ -613,6 +750,9 @@ void lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTip
   	  	  	try {
 				Simbolo param1 = tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir);
 				accion.addParametro(param1);
+				codigo += "; Parametro " + t.image + "\n" +
+	  					 "\tSRG\t0\t" + dir + "\n" +
+	  					 "\tASGI\n";
 			}
 			catch (SimboloYaDeclaradoException e) {
 				error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya existe");
@@ -624,23 +764,30 @@ void lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tTip
 	{
 		errorSintactico(e);
 	}
+	{
+		return codigo;
+	}
 }
 
 /*
 	clase_parametros() tipo_variables() lista_parametros()
 */
-void parametros(Simbolo accion):
+String parametros(Simbolo accion):
 {
+  	String codigo = "";
 	Simbolo.Clase_parametro tClase;
 	Simbolo.Tipo_variable tTipo = Simbolo.Tipo_variable.DESCONOCIDO;
 }
 {
   	try {
-	  	tClase = clase_parametros() tTipo = tipo_variables() lista_parametros(tClase,tTipo,accion)
+	  	tClase = clase_parametros() tTipo = tipo_variables() codigo=lista_parametros(tClase,tTipo,accion)
 	}
 	catch (ParseException e) 
 	{
 		errorSintactico(e);
+	}
+	{
+		return codigo;
 	}
 }
 
@@ -668,32 +815,44 @@ Simbolo.Clase_parametro clase_parametros():
 /*
 	<tPRINCIPIO> lista_sentencias() <tFIN>
 */
-void bloque_sentencias():
+String bloque_sentencias():
 {
+	String codigo = "";
 }
 {
 	try {
-	  	<tPRINCIPIO> lista_sentencias() <tFIN>
+	  	<tPRINCIPIO> codigo=lista_sentencias() <tFIN>
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
-	}  
+	}
+	{
+		return codigo;
+	}
 }
 
 /*
 	(sentencia())+
 */
-void lista_sentencias():
+String lista_sentencias():
 {
+	String codigo = "";
+	String codigoSentencia = "";
 }
 {
   	try {
-	  	(sentencia())+
+	  	(codigoSentencia=sentencia()
+	  	{
+	  		codigo += codigoSentencia;
+	 	})+
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+		return codigo;
 	}
 }
 
@@ -704,45 +863,58 @@ void lista_sentencias():
 	| 	seleccion()
 	| 	mientras_que()
 */
-void sentencia():
+String sentencia():
 {
+  	String codigo = "";
+  	Simbolo S = null;
   	Token t = null;
 }
 {
   	try {
-	  		leer() ";"
-		| 	escribir() ";"
-		| 	t=<tIDENTIFICADOR> (asignacion(t) | invocacion_accion(t))
-		| 	seleccion()
-		| 	mientras_que()
+	  		codigo = leer() ";"
+		| 	codigo = escribir() ";"
+		| 	t=<tIDENTIFICADOR> (codigo = asignacion(t) | invocacion_accion(t))
+		| 	codigo = seleccion()
+		| 	codigo = mientras_que()
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+		return codigo;
 	}
 }
 
 /*
 	<tLEER> "(" lista_asignables() ")"
 */
-void leer():
+String leer():
 {
+  	String codigo = "";
 }
 {
   	try {
-	  	<tLEER> "(" lista_asignables() ")"
+	  	<tLEER> "(" codigo=lista_asignables() ")"
+	  	{
+			codigo = "; Leer\n" + codigo;
+	 	}
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+  		return codigo;
 	}
 }
 
 /*
 	<tIDENTIFICADOR> ("," <tIDENTIFICADOR>)*
 */
-void lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR SI ERROR
+String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR SI ERROR
 {
+  	String codigo = "";
   	Token t = null;
   	Simbolo S = null;
 }
@@ -752,11 +924,26 @@ void lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR SI
   	  	{
   	  	  	try { 
 				S = tablaSimbolos.buscar_simbolo(t.image);
-				if(S.getTipo() == Simbolo.Tipo_simbolo.PROGRAMA || S.getTipo() == Simbolo.Tipo_simbolo.ACCION) {
-					error_semantico(t.beginLine, t.beginColumn, "Operacion no valida para simbolo de tipo "+S.getTipo());	
+				if(!(S.getTipo() == Simbolo.Tipo_simbolo.VARIABLE || 
+				  (S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF))) {
+					error_semantico(t.beginLine, t.beginColumn, "Se esperaba variable o parametro por referencia y se obtuvo "+S.getTipo());	
 				}else if(S.getVariable() == Simbolo.Tipo_variable.BOOLEANO) {
-					error_semantico(t.beginLine, t.beginColumn, "Operacion no valida para el tipo "+S.getVariable());	
-				}
+					error_semantico(t.beginLine, t.beginColumn, "Operacion lectura no valida para el tipo "+S.getVariable());	
+				}else if (S.getVariable() == Simbolo.Tipo_variable.ENTERO){
+				  	codigo += "; Acceder a " + S.getTipo() + " " + S.getNombre() + "\n";
+		        	codigo += "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+		        	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO) {
+						codigo += "\tDRF\n";
+		       		}
+		       		codigo += "\tRD\t1\n";
+		      	}else if (S.getVariable() == Simbolo.Tipo_variable.CHAR){
+		      	  	codigo += "; Acceder a " + S.getTipo() + " " + S.getNombre() + "\n";
+		        	codigo += "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+		        	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO) {
+						codigo += "\tDRF\n";
+		       		}
+		       		codigo += "\tRD\t0\n";
+		      	}
 			}
 			catch (SimboloNoEncontradoException e) { 
 				try{  
@@ -772,11 +959,26 @@ void lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR SI
   	  	{
 			try { 
 				S = tablaSimbolos.buscar_simbolo(t.image);
-				if(S.getTipo() == Simbolo.Tipo_simbolo.PROGRAMA || S.getTipo() == Simbolo.Tipo_simbolo.ACCION) {
-					error_semantico(t.beginLine, t.beginColumn, "Operacion no valida para simbolo de tipo "+S.getTipo());	
+				if(!(S.getTipo() == Simbolo.Tipo_simbolo.VARIABLE || 
+				  (S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF))) {
+					error_semantico(t.beginLine, t.beginColumn, "Se esperaba variable o parametro por referencia y se obtuvo "+S.getTipo());	
 				}else if(S.getVariable() == Simbolo.Tipo_variable.BOOLEANO) {
-					error_semantico(t.beginLine, t.beginColumn, "Operacion no valida para el tipo "+S.getVariable());	
-				}
+					error_semantico(t.beginLine, t.beginColumn, "Operacion lectura no valida para el tipo "+S.getVariable());	
+				}else if (S.getVariable() == Simbolo.Tipo_variable.ENTERO){
+				  	codigo += "; Acceder a " + S.getTipo() + " " + S.getNombre() + "\n";
+		        	codigo += "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+		        	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO) {
+						codigo += "\tDRF\n";
+		       		}
+		       		codigo += "\tRD\t1\n";
+		      	}else if (S.getVariable() == Simbolo.Tipo_variable.CHAR){
+		      	  	codigo += "; Acceder a " + S.getTipo() + " " + S.getNombre() + "\n";
+		        	codigo += "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+		        	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO) {
+						codigo += "\tDRF\n";
+		       		}
+		       		codigo += "\tRD\t0\n";
+		      	}
 			}
 			catch (SimboloNoEncontradoException e) { 
 				try{
@@ -793,45 +995,55 @@ void lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR SI
 	{
 		errorSintactico(e);
 	}
+	{
+		return codigo;
+	}
 }
 
 /*
 	<tESCRIBIR> "(" lista_escribibles() ")"
 */
-void escribir():
+String escribir():
 {
+  	String codigo = "";
 }
 {
   	try {
-	  	<tESCRIBIR> "(" lista_escribibles() ")" 
+	  	<tESCRIBIR> "(" codigo = lista_escribibles() ")"
+	  	{
+			codigo = "; Escribir\n" + codigo;
+	 	} 
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+  		return codigo;
 	}
 }
 
 /*
 	factor() (","(factor()))*
 */
-void lista_escribibles():
+String lista_escribibles():
 {
+  	String codigo = "";
   	Valor v = null;
   	Simbolo S = null;
 }
 {
   	try {
+  	  	// Hacer al acabar factor
 	  	v = factor()
 	  	{
 			if(v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
-			  	// Revisar token... (SI NO SABES A QUE SE REFIERE PREGUNTA A PABLO)
 				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo "+v.tipoVariable);
 			}
 	 	}
 	  	(","(v = factor())
 		{
 			if(v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
-			  	// Revisar token... (SI NO SABES A QUE SE REFIERE PREGUNTA A PABLO)
 				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo "+v.tipoVariable);
 			}
   		}
@@ -841,33 +1053,79 @@ void lista_escribibles():
 	{
 		errorSintactico(e);
 	}
+	{
+		return codigo;
+	}
 }
 
 /*
 	<tOPAS> expresion() ";"
 */
-Valor asignacion(Token t):
+String asignacion(Token t):
 {
-  Valor v = null;
+	String codigo = "";
+	Simbolo S = null;
+	Valor v = null;
 }
-{
+{	
   	try {
-	  	<tOPAS>  v = expresion() ";"
-	  	{
-			return v;
-	 	}
+	  	 {
+		 	try { 
+				S = tablaSimbolos.buscar_simbolo(t.image);
+				if(S.getTipo() != Simbolo.Tipo_simbolo.VARIABLE && S.getTipo() != Simbolo.Tipo_simbolo.PARAMETRO) {
+					error_semantico(t.beginLine, t.beginColumn, "No se pueden realizar asignaciones sobre " + S.getTipo());
+				}else if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.VAL) {
+					error_semantico(t.beginLine, t.beginColumn, "No se pueden realizar asignaciones sobre parametros por valor");
+				}else if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
+					codigo =  "; Direccion del parametro " + S.getNombre() + "\n" +
+							  "\tSRF\t0\t" + S.getDir() + "\n" +
+							  "; Direccion de la referencia " + S.getNombre() + "\n" +
+							  "\tDRF\n";
+				}else if(S.getTipo() == Simbolo.Tipo_simbolo.VARIABLE) {
+					codigo = "; Direccion de la variable " + S.getNombre() + "\n" +
+							 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+				}
+			}
+			catch (SimboloNoEncontradoException e) {
+				try{  
+				  	tablaSimbolos.introducir_variable(t.image, Simbolo.Tipo_variable.DESCONOCIDO, nivel, dir);
+				  	S = tablaSimbolos.buscar_simbolo(t.image);
+				}
+				catch(SimboloYaDeclaradoException e1) {
+				  	error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya declarado");  
+				}
+				error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" no declarado");	  
+			} 
+		}  
+	  	<tOPAS>  v = expresion()
+		{
+			if (S.getVariable() !=v.tipoVariable && v.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO 
+	      	&& S.getVariable() != Simbolo.Tipo_variable.DESCONOCIDO) {  
+	      		error_semantico(t.endLine, t.endColumn, "Asignacion imposible entre:" + S.getVariable() + " y " + v.tipoVariable);
+	     	}
+	      {
+	        codigo += 	v.codigo +
+	        			"; Asignacion\n" +
+	        			"\tASG\n";
+	      }
+		}
+	  	";"
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+		return codigo;
 	}
 }
 
 /*
 	(argumentos())? ";"
 */
-void invocacion_accion(Token t):
+String invocacion_accion(Token t):
 {
+	String codigo = "";
   	Simbolo S = null;
   	ArrayList<Valor> args = new ArrayList<Valor>();
 }
@@ -884,10 +1142,24 @@ void invocacion_accion(Token t):
 					if(args.size() != S.getListaParametros().size()) {
 					  	match = false;
 					}else {
-				        for (int i = 0; i < args.size(); i++) {  
-							if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
-							   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
-								match = false;
+				        for (int i = 0; i < args.size(); i++) {
+				          	if(S.getListaParametros().get(i).getParametro() == Simbolo.Clase_parametro.VAL) {   
+								if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
+								   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
+									match = false;
+								}
+								if (args.get(i).claseParametro == Simbolo.Clase_parametro.REF) {
+									error_semantico(t.endLine, t.endColumn, "Se esta pasando un parametro REF y se espera VAL");
+								}
+							}else {
+								if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
+								   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
+									match = false;
+								}
+								else if (args.get(i).claseParametro != Simbolo.Clase_parametro.REF) {
+									error_semantico(t.endLine, t.endColumn, "Se esta pasando un parametro VAL y se espera REF");
+								}
+								// REVISAR LAS CONSTANTES COMO REF
 							}
 						}
 					}
@@ -903,6 +1175,10 @@ void invocacion_accion(Token t):
 					 	}
 					 	inv += ")";
 						error_semantico(t.beginLine, t.beginColumn, "Invocacion a \'" + t.image + params + "\' con \'" + t.image + inv + "\'");
+					}else {
+					  	// Anadir codigo de args
+						codigo = "; Invocacion a " + S.getNombre() + "\n" +
+								 "\tOSF\t" + /*tablaSimbolos.size(nivel) +*/ "\t" + (nivel - S.getNivel()) + "\tL" + S.getDir() + "\n";
 					}
 				} 
 			}
@@ -915,14 +1191,19 @@ void invocacion_accion(Token t):
 	catch (ParseException e)
 	{
 		errorSintactico(e);
-	} 
+	}
+	{
+		return codigo;
+	}
 }
 
 /*
 	<tMQ> expresion() lista_sentencias() <tFMQ>
 */
-void mientras_que():
+String mientras_que():
 {
+	String codigo = "";
+	String codigoSentencias = "";
   	Token t = null;
   	Valor v = null;
 }
@@ -934,19 +1215,43 @@ void mientras_que():
 				error_semantico(t.endLine, t.endColumn, "Se esperaba booleano y se encontro " + v.tipoVariable);
 			}
 		}
-	  	lista_sentencias() <tFMQ>
+	  	codigoSentencias = lista_sentencias() <tFMQ>
+	  	{
+			if(v.valorBool == null || v.valorBool != false) {
+				Tag tagMq = new Tag(tagNum,"mq");
+				tagNum++;
+				Tag tagFmq = new Tag(tagNum,"fmq");
+				tagNum++;
+				codigo = "; Principio MQ\n" +
+						 "; Expresion\n" +
+						 tagMq.toString() + ":\n" +
+						 v.codigo + "\tJMF\t" + tagFmq.toString() + "\n" +
+						 "; Si true\n" + codigoSentencias +
+						 "\tJMP\t" + tagMq.toString() + "\n" +
+						 "; Fin MQ\n" +
+						 tagFmq.toString() + ":\n";
+			}else {
+			  	codigo = "; MQ (Optimizacion, codigo de bucle no alcanzable)";
+			}
+	 	}
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+  		return codigo;
 	}
 }
 
 /*
 	< tSI > expresion() < tENT > lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI >
 */
-void seleccion():
+String seleccion():
 {
+  	String codigo = "";
+  	String codigoV = "";
+  	String codigoF = "";
   	Token t = null;
   	Valor v = null;
 }
@@ -958,11 +1263,36 @@ void seleccion():
 				error_semantico(t.endLine, t.endColumn, "Se esperaba booleano y se encontro " + v.tipoVariable);
 			}
 		}
-	  	< tENT > lista_sentencias() (< tSI_NO > lista_sentencias())? < tFSI > 
+		/*Revisar regexp lista_sentencias()*/
+	  	< tENT > codigoV=lista_sentencias() (< tSI_NO > codigoF=lista_sentencias())? < tFSI >
+	  	{
+			if(v.valorBool != null && v.valorBool == true) {
+				codigo = "; IF (Optimizacion siempre true)\n" + codigoV;
+			}else if (v.valorBool != null && v.valorBool == false) {
+			  	codigo = "; IF (Optimizacion siempre false)\n" + codigoF;
+			}else {
+				Tag tagFsi = new Tag(tagNum, "fsi");
+				tagNum++;
+				Tag tagSino = new Tag(tagNum,"sino");
+				tagNum++;
+				codigo = "; Principio IF\n" +
+						 "; Expresion\n" + v.codigo +
+						 "\tJMF\t" + tagSino.toString() + "\n" +
+						 "; Si true\n" + codigoV +
+						 "\tJMP\t" + tagFsi.toString() + "\n" +
+						 tagSino.toString() + ":\n" +
+						 "; Si false\n" + codigoF +
+						 "; Fin IF\n" +
+						 tagFsi.toString() + ":\n";
+			}
+	 	} 
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+  		return codigo;
 	}
 }
 
@@ -1020,39 +1350,84 @@ ArrayList<Valor> lista_expresiones():
 */
 Valor expresion():
 {
-  	Valor v = null;
   	Valor vAux = null;
   	Valor vRes = new Valor();
-  	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO;
   	Token operador = null;
 }
 {
   	try {
-	  	v = expresion_simple() (operador = operador_relacional() vAux = expresion_simple()
+	  	vRes = expresion_simple()
+	  	(operador = operador_relacional() vAux = expresion_simple()
 	  	{
-			if((vAux.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO || v.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) && v.tipoVariable != vAux.tipoVariable) {
+			if((vAux.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO || vRes.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) && vRes.tipoVariable != vAux.tipoVariable) {
 				vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-				error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible entre " + v.tipoVariable + " y " + vAux.tipoVariable);
-			}else if(vAux.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
+				error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible entre " + vRes.tipoVariable + " y " + vAux.tipoVariable);
+			}else if(vAux.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO || vRes.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 		 	   	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-		 	}else if(v.tipoVariable != Simbolo.Tipo_variable.ENTERO) {
-				error_semantico(operador.beginLine, operador.beginColumn, "Operador relacion \'" + operador.image + "\' no aplicable para " + v.tipoVariable);
+			}else if(vRes.tipoVariable == Simbolo.Tipo_variable.BOOLEANO && (operador.kind == tIGUAL || operador.kind == tNI)) {
+				vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO; 
+			  	vRes.codigo += vAux.codigo;
+				if(operador.kind == tIGUAL) {
+					vRes.codigo += "\tEQ\n";
+				}else {
+					vRes.codigo += "\tNEQ\n";
+				}
+			  	if(vAux.valorBool != null && vRes.valorBool != null) {
+			  	  	warning(operador.beginLine, operador.beginColumn, "Expresion constante");
+					if(operador.kind == tIGUAL) {
+						vRes.valorBool = vRes.valorBool == vAux.valorBool;
+					}else {
+						vRes.valorBool = vRes.valorBool != vAux.valorBool;
+					}
+				}  
+		 	}else if(vRes.tipoVariable != Simbolo.Tipo_variable.ENTERO && vRes.tipoVariable != Simbolo.Tipo_variable.CHAR) {
+				error_semantico(operador.beginLine, operador.beginColumn, "Operador relacion \'" + operador.image + "\' no aplicable para " + vRes.tipoVariable);
 			}else {
 			  	// Revisar tipos para los que se permite comparacion ej: igualdad para Booleanos
-			  	if(v.valorEnt != null || v.valorEnt != null) {
+			  	vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO; 
+			  	vRes.codigo += vAux.codigo;
+			  	if(operador.kind == tMAYOR) {
+					vRes.codigo += "\tGT\n";
+				}else if(operador.kind == tMENOR) {
+					vRes.codigo += "\tLT\n";
+				}else if(operador.kind == tIGUAL) {
+					vRes.codigo += "\tEQ\n";
+				}else if(operador.kind == tMAI) {
+					vRes.codigo += "\tGTE\n";
+				}else if(operador.kind == tMEI) {
+					vRes.codigo += "\tLTE\n";
+				}else {
+					vRes.codigo += "\tNEQ\n";
+				}
+			  	if(vRes.tipoVariable == Simbolo.Tipo_variable.ENTERO && vAux.valorEnt != null && vRes.valorEnt != null) {
 			  	  	warning(operador.beginLine, operador.beginColumn, "Expresion constante");
 					if(operador.kind == tMAYOR) {
-						vRes.valorBool = v.valorEnt > vAux.valorEnt;
+						vRes.valorBool = vRes.valorEnt > vAux.valorEnt;
 					}else if(operador.kind == tMENOR) {
-						vRes.valorBool = v.valorEnt < vAux.valorEnt;
+						vRes.valorBool = vRes.valorEnt < vAux.valorEnt;
 					}else if(operador.kind == tIGUAL) {
-						vRes.valorBool = v.valorEnt == vAux.valorEnt;
+						vRes.valorBool = vRes.valorEnt == vAux.valorEnt;
 					}else if(operador.kind == tMAI) {
-						vRes.valorBool = v.valorEnt >= vAux.valorEnt;
+						vRes.valorBool = vRes.valorEnt >= vAux.valorEnt;
 					}else if(operador.kind == tMEI) {
-						vRes.valorBool = v.valorEnt <= vAux.valorEnt;
+						vRes.valorBool = vRes.valorEnt <= vAux.valorEnt;
 					}else {
-						vRes.valorBool = v.valorEnt != vAux.valorEnt;
+						vRes.valorBool = vRes.valorEnt != vAux.valorEnt;
+					}
+				}else if(vRes.tipoVariable == Simbolo.Tipo_variable.CHAR && vAux.valorEnt != null && vRes.valorEnt != null) {
+			  	  	warning(operador.beginLine, operador.beginColumn, "Expresion constante");
+					if(operador.kind == tMAYOR) {
+						vRes.valorBool = vRes.valorChar > vAux.valorChar;
+					}else if(operador.kind == tMENOR) {
+						vRes.valorBool = vRes.valorChar < vAux.valorChar;
+					}else if(operador.kind == tIGUAL) {
+						vRes.valorBool = vRes.valorChar == vAux.valorChar;
+					}else if(operador.kind == tMAI) {
+						vRes.valorBool = vRes.valorChar >= vAux.valorChar;
+					}else if(operador.kind == tMEI) {
+						vRes.valorBool = vRes.valorChar <= vAux.valorChar;
+					}else {
+						vRes.valorBool = vRes.valorChar != vAux.valorChar;
 					}
 				}
 			}
@@ -1097,50 +1472,56 @@ Token operador_relacional():
 */
 Valor expresion_simple():
 {
-	Valor v = null;
 	Valor vAux = null;
 	Valor vRes = new Valor();
-	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO;
 	Token operador = null;
 }
 {
   	try {
-	  	v = termino() (operador = operador_aditivo() vAux = termino()
+	  	vRes = termino()
+	  	(operador = operador_aditivo() vAux = termino()
 	  	{
-			if((vAux.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO || v.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) && v.tipoVariable != vAux.tipoVariable) {
+			if((vAux.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO || vRes.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) && vRes.tipoVariable != vAux.tipoVariable) {
 				vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-				error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible entre " + v.tipoVariable + " y " + vAux.tipoVariable);
-		 	}else if(vAux.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
+				error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible entre " + vRes.tipoVariable + " y " + vAux.tipoVariable);
+		 	}else if(vAux.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO || vRes.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 		 	   	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
 		 	}else if(operador.kind == tSUMA || operador.kind == tRESTA) {
-				if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO && vAux.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
+				if(vRes.tipoVariable == Simbolo.Tipo_variable.ENTERO && vAux.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
+				  	vRes.codigo += vAux.codigo;
+				  	if(operador.kind == tSUMA) {
+						vRes.codigo += "\tPLUS\n";
+				 	}else {
+						vRes.codigo += "\tSBT\n";
+					}
 					vRes.tipoVariable = Simbolo.Tipo_variable.ENTERO;
-					if(v.valorEnt != null && vAux.valorEnt != null) {
+					if(vRes.valorEnt != null && vAux.valorEnt != null) {
 					  	long res;
 					  	if(operador.kind == tSUMA) {
-							res = v.valorEnt + vAux.valorEnt;
+							res = vRes.valorEnt + vAux.valorEnt;
 					 	}else {
-							res = v.valorEnt - vAux.valorEnt;
+							res = vRes.valorEnt - vAux.valorEnt;
 					 	}
 					 	if(res > 32767 || res < -32766) { 
-							error_semantico(operador.beginLine, operador.beginColumn, "Desbordamiento en la operacion " + v.valorEnt + operador.image + vAux.valorEnt);
+							error_semantico(operador.beginLine, operador.beginColumn, "Desbordamiento en la operacion " + vRes.valorEnt + operador.image + vAux.valorEnt);
 						}else {
 							vRes.valorEnt = (int) res;
 						}
 					}
 				}else {
 					vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-					error_semantico(operador.beginLine, operador.beginColumn, "Operador aditivo \'" + operador.image + "\' no aplicable para " + v.tipoVariable);  	
+					error_semantico(operador.beginLine, operador.beginColumn, "Operador aditivo \'" + operador.image + "\' no aplicable para " + vRes.tipoVariable);  	
 				}
 			}else if(operador.kind == tOR) {
-				if(v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO && vAux.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
+				if(vRes.tipoVariable == Simbolo.Tipo_variable.BOOLEANO && vAux.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
+					vRes.codigo += vAux.codigo + "\tOR\n";
 					vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO;
-					if(v.valorBool != null && vAux.valorBool != null) {
-						vRes.valorBool = v.valorBool || vAux.valorBool;
+					if(vRes.valorBool != null && vAux.valorBool != null) {
+						vRes.valorBool = vRes.valorBool || vAux.valorBool;
 					}
 				}else {
 				  	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-					error_semantico(operador.beginLine, operador.beginColumn, "Operador aditivo \'" + operador.image + "\' no aplicable para " + v.tipoVariable);
+					error_semantico(operador.beginLine, operador.beginColumn, "Operador aditivo \'" + operador.image + "\' no aplicable para " + vRes.tipoVariable);
 				}
 			}
 	 	})*
@@ -1181,57 +1562,64 @@ Token operador_aditivo():
 */
 Valor termino():
 {
-	Valor v = null;
 	Valor vAux = null;
 	Valor vRes = new Valor();
-	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO;
 	Token operador = null;
 }
 {
   	try {
-	  	v = factor()
+	  	vRes = factor()
 	  	(operador=operador_multiplicativo() vAux = factor()
 	  	{
-		  	if(vAux.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO && v.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO && v.tipoVariable != vAux.tipoVariable) {
+		  	if(vAux.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO && vRes.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO && vRes.tipoVariable != vAux.tipoVariable) {
 				vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-				error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible entre " + v.tipoVariable + " y " + vAux.tipoVariable);
-		 	}else if(vAux.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
+				error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible entre " + vRes.tipoVariable + " y " + vAux.tipoVariable);
+		 	}else if(vAux.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO || vRes.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 		 	   	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
 		 	}else if(operador.kind == tMULT || operador.kind == tDIV || operador.kind == tMOD) {
-				if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO && vAux.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
+				if(vRes.tipoVariable == Simbolo.Tipo_variable.ENTERO && vAux.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
+				  	vRes.codigo += vAux.codigo;
+				  	if(operador.kind == tMULT) {
+						vRes.codigo += "\tTMS\n";
+				 	}else if(operador.kind == tDIV) {
+						vRes.codigo += "\tDIV\n";
+					}else {
+						vRes.codigo += "\tMOD\n";
+					}
 					vRes.tipoVariable = Simbolo.Tipo_variable.ENTERO;
 					if((operador.kind == tDIV || operador.kind == tMOD) && vAux.valorEnt != null && vAux.valorEnt == 0) {
 						error_semantico(operador.beginLine, operador.beginColumn, "Division por 0");
-					}else if(operador.kind == tMULT && (vAux.valorEnt != null && vAux.valorEnt == 0 || v.valorEnt != null && v.valorEnt == 0)) {
+					}else if(operador.kind == tMULT && (vAux.valorEnt != null && vAux.valorEnt == 0 || vRes.valorEnt != null && vRes.valorEnt == 0)) {
 					 	vRes.valorEnt = 0;
-					}else if(v.valorEnt != null && vAux.valorEnt != null) {
+					}else if(vRes.valorEnt != null && vAux.valorEnt != null) {
 					  	long res;
 					  	if(operador.kind == tMULT) {
-							res = v.valorEnt * vAux.valorEnt;
+							res = vRes.valorEnt * vAux.valorEnt;
 					 	}else if(operador.kind == tDIV) {
-							res = v.valorEnt / vAux.valorEnt;
+							res = vRes.valorEnt / vAux.valorEnt;
 					 	}else{
-							res = v.valorEnt % vAux.valorEnt;
+							res = vRes.valorEnt % vAux.valorEnt;
 					 	}
 					 	if(res > 32767 || res < -32766) { 
-							error_semantico(operador.beginLine, operador.beginColumn, "Desbordamiento en la operacion " + v.valorEnt + operador.image + vAux.valorEnt);
+							error_semantico(operador.beginLine, operador.beginColumn, "Desbordamiento en la operacion " + vRes.valorEnt + operador.image + vAux.valorEnt);
 						}else {
 							vRes.valorEnt = (int) res;
 						}
 					}
 				}else {
 					vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-					error_semantico(operador.beginLine, operador.beginColumn, "Operador multiplicativo \'" + operador.image + "\' no aplicable para " + v.tipoVariable);  	
+					error_semantico(operador.beginLine, operador.beginColumn, "Operador multiplicativo \'" + operador.image + "\' no aplicable para " + vRes.tipoVariable);  	
 				}
 			}else if(operador.kind == tAND) {
-				if(v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO && vAux.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
+				if(vRes.tipoVariable == Simbolo.Tipo_variable.BOOLEANO && vAux.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
+					vRes.codigo += vAux.codigo + "\tAND\n";
 					vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO;
-					if(v.valorBool != null && vAux.valorBool != null) {
-						vRes.valorBool = v.valorBool && vAux.valorBool;
+					if(vRes.valorBool != null && vAux.valorBool != null) {
+						vRes.valorBool = vRes.valorBool && vAux.valorBool;
 					}
 				}else {
 				  	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-					error_semantico(operador.beginLine, operador.beginColumn, "Operador multiplicativo \'" + operador.image + "\' no aplicable para " + v.tipoVariable);
+					error_semantico(operador.beginLine, operador.beginColumn, "Operador multiplicativo \'" + operador.image + "\' no aplicable para " + vRes.tipoVariable);
 				}
 			}
 	 	})* 
@@ -1295,19 +1683,21 @@ Valor factor():
 	  	 	  	vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO;
 				if (v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 					if (v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO && v.valorBool != null) {
-						vRes.valorBool = !v.valorBool; 
+						vRes.valorBool = !v.valorBool;
 					}
+					vRes.codigo = v.codigo + "\tNGB\n";
 				}else {
 					error_semantico(t.beginLine, t.beginColumn, "Operador \'" + t.image + "\' no aplicable para " + v.tipoVariable);
 				} 
 	  		}
-	 	| 	t="-" v = factor()
+	 	| 	t = "-" v = factor()
 	 		{
 	 		  	vRes.tipoVariable = Simbolo.Tipo_variable.ENTERO;
 				if (v.tipoVariable == Simbolo.Tipo_variable.ENTERO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 					if (v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.valorEnt != null) {
 						vRes.valorEnt = -v.valorEnt;
 					}
+					vRes.codigo = v.codigo + "\tNGI\n";
 				}else {
 					error_semantico(t.beginLine, t.beginColumn, "Operador \'" + t.image + "\' no aplicable para " + v.tipoVariable);
 				} 
@@ -1323,7 +1713,7 @@ Valor factor():
 							vRes.valorChar = (char)valEnt;
 						}
 						else {
-							error_semantico(t.beginLine, t.beginColumn, "Desbordamiento con el operador \'" + t.image + "\' no aplicable para " + v.valorEnt);
+							error_semantico(t.beginLine, t.beginColumn, "Desbordamiento con el operador \'" + t.image + "\', " + v.valorEnt + " no representa un caracter ASCII");
 						}
 					}
 				}else {
@@ -1348,6 +1738,13 @@ Valor factor():
 					error_semantico(t.beginLine, t.beginColumn, t.image + " es un simbolo de tipo " + S.getTipo());
 			 	}else {
 					vRes.tipoVariable = S.getVariable();
+					vRes.claseParametro = S.getParametro();
+					vRes.codigo = "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  "\tDRF\n";
+					if(S.getParametro() == Simbolo.Clase_parametro.REF) {
+						vRes.codigo += "\tDRF\n";
+					}
 				} 
 			}
 		| 	t = <tVALOR_ENTERO>
@@ -1355,6 +1752,7 @@ Valor factor():
 				vRes.tipoVariable = Simbolo.Tipo_variable.ENTERO;
 				if(t.image.length() < 10 && Long.parseLong(t.image) < 32767 && Long.parseLong(t.image) > -32766) {
 					vRes.valorEnt = Integer.parseInt(t.image);
+					vRes.codigo = "\tSTC\t" + vRes.valorEnt + "\n";
 				}else {
 					error_semantico(t.beginLine, t.beginColumn, "Desboradmiento en la constante entera " + t.image);
 				}
@@ -1363,7 +1761,7 @@ Valor factor():
 			{
 				vRes.tipoVariable = Simbolo.Tipo_variable.CHAR;
 				vRes.valorChar = t.image.charAt(1);
-				
+				vRes.codigo = "\tSTC\t" + (int)vRes.valorChar + "\n";
 			}
 		| 	<tCONSTCAD>
 			{
@@ -1373,11 +1771,13 @@ Valor factor():
 			{
 				vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO;
 				vRes.valorBool = true;
+				vRes.codigo = "\tSTC\t1\n";
 			}
 		| 	<tFALSE>
 			{
 				vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO;
 				vRes.valorBool = false;
+				vRes.codigo = "\tSTC\t0\n";
 			}
 	}
 	catch (ParseException e)
