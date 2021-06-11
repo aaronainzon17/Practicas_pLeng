@@ -306,4 +306,18 @@ public class TablaSimbolos {
 
 		System.out.println("+" + new String(new char[59]).replace("\0", "-") + "+");
 	}
+	
+	public int tamano_bloque_nivel(int nivel) {
+		int tamano = 3;
+		for (int i = 0; i < M; i++) {
+			Iterator<Simbolo> iter = tabla_hash[i].iterator();
+			while (iter.hasNext()) {
+				Simbolo s = iter.next();
+				if (s.nivel == nivel && ( s.tipo == Simbolo.Tipo_simbolo.VARIABLE || s.tipo == Simbolo.Tipo_simbolo.PARAMETRO)) {
+					tamano++;
+				}
+			}
+		}
+		return tamano;
+	}
 }

@@ -619,6 +619,7 @@ String declaracion_accion():
   	String codigoAcciones = "";
   	String codigoSentencias = "";
   	TagAction accion = new TagAction(tagNum,"");
+	tagNum++;
 }
 {
   	try {
@@ -637,7 +638,7 @@ String declaracion_accion():
 	  	  				 codigoAcciones + // Revosar porque es codigo inaccesible
 						 codigoSentencias +
 						 "; Fin accion " + accion.tagName + "\n" +
-						 "\tCFS\n";
+						 "\tCSF\n";
 				tablaSimbolos.eliminar_variables(nivel);
 				tablaSimbolos.eliminar_acciones(nivel);
 				tablaSimbolos.eliminar_parametros(nivel+1);
@@ -668,7 +669,7 @@ String cabecera_accion(TagAction etiq):
 	  	<tACCION> t = <tIDENTIFICADOR>
 		{
 		  	try { 
-				accion = tablaSimbolos.introducir_accion(t.image,nivel,dir);
+				accion = tablaSimbolos.introducir_accion(t.image,nivel,tagNum-1);
 				etiq.tagName = t.image;
 				codigo = etiq.code();
 			}
@@ -873,7 +874,7 @@ String sentencia():
   	try {
 	  		codigo = leer() ";"
 		| 	codigo = escribir() ";"
-		| 	t=<tIDENTIFICADOR> (codigo = asignacion(t) | invocacion_accion(t))
+		| 	t=<tIDENTIFICADOR> (codigo = asignacion(t) | codigo=invocacion_accion(t))
 		| 	codigo = seleccion()
 		| 	codigo = mientras_que()
 	}
@@ -1035,16 +1036,20 @@ String lista_escribibles():
 {
   	try {
   	  	// Hacer al acabar factor
-	  	v = factor()
+	  	v = factor(true)
 	  	{
 			if(v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
 				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo "+v.tipoVariable);
-			}
+			}else {
+				codigo = v.codigo;
+			}					
 	 	}
-	  	(","(v = factor())
+	  	(","(v = factor(true))
 		{
 			if(v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
 				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo "+v.tipoVariable);
+			}else {
+				codigo += v.codigo;
 			}
   		}
 	  	)*
@@ -1178,7 +1183,7 @@ String invocacion_accion(Token t):
 					}else {
 					  	// Anadir codigo de args
 						codigo = "; Invocacion a " + S.getNombre() + "\n" +
-								 "\tOSF\t" + /*tablaSimbolos.size(nivel) +*/ "\t" + (nivel - S.getNivel()) + "\tL" + S.getDir() + "\n";
+								 "\tOSF\t" + (tablaSimbolos.tamano_bloque_nivel(nivel)-1) + "\t" + (nivel - S.getNivel()) + "\tL" + S.getDir() + "\n";
 					}
 				} 
 			}
@@ -1225,8 +1230,11 @@ String mientras_que():
 				codigo = "; Principio MQ\n" +
 						 "; Expresion\n" +
 						 tagMq.toString() + ":\n" +
-						 v.codigo + "\tJMF\t" + tagFmq.toString() + "\n" +
+						 v.codigo +
+						 "; Salir del bucle si la guarda se evalua a falso\n" +
+						 "\tJMF\t" + tagFmq.toString() + "\n" +
 						 "; Si true\n" + codigoSentencias +
+						 "; Fin de la iteracion. Saltar a la cabecera del bucle.\n"+
 						 "\tJMP\t" + tagMq.toString() + "\n" +
 						 "; Fin MQ\n" +
 						 tagFmq.toString() + ":\n";
@@ -1273,17 +1281,22 @@ String seleccion():
 			}else {
 				Tag tagFsi = new Tag(tagNum, "fsi");
 				tagNum++;
-				Tag tagSino = new Tag(tagNum,"sino");
-				tagNum++;
 				codigo = "; Principio IF\n" +
-						 "; Expresion\n" + v.codigo +
-						 "\tJMF\t" + tagSino.toString() + "\n" +
-						 "; Si true\n" + codigoV +
-						 "\tJMP\t" + tagFsi.toString() + "\n" +
-						 tagSino.toString() + ":\n" +
-						 "; Si false\n" + codigoF +
-						 "; Fin IF\n" +
-						 tagFsi.toString() + ":\n";
+						 "; Expresion\n" + v.codigo;
+				if(codigoF != "") {
+					Tag tagSino = new Tag(tagNum,"sino");
+					tagNum++;
+					codigo += "\tJMF\t" + tagSino.toString() + "\n" +
+						 	  "; Si true\n" + codigoV +
+						 	  "\tJMP\t" + tagFsi.toString() + "\n" +
+							  tagSino.toString() + ":\n" +
+						 	  "; Si false\n" + codigoF;
+				}else {
+					codigo += "\tJMF\t" + tagFsi.toString() + "\n" +
+						 	  "; Si true\n" + codigoV;
+				}
+				codigo += "; Fin IF\n" +
+						  tagFsi.toString() + ":\n";
 			}
 	 	} 
 	}
@@ -1568,8 +1581,8 @@ Valor termino():
 }
 {
   	try {
-	  	vRes = factor()
-	  	(operador=operador_multiplicativo() vAux = factor()
+	  	vRes = factor(false)
+	  	(operador=operador_multiplicativo() vAux = factor(false)
 	  	{
 		  	if(vAux.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO && vRes.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO && vRes.tipoVariable != vAux.tipoVariable) {
 				vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
@@ -1669,7 +1682,7 @@ Token operador_multiplicativo():
 	|<tTRUE>
 	|<tFALSE>
 */
-Valor factor():
+Valor factor(Boolean escritura):
 {
 	Valor v = null;
 	Valor vRes = new Valor();
@@ -1678,7 +1691,7 @@ Valor factor():
 }
 {
   	try {
-	  	 	t = <tNOT> v = factor()
+	  	 	t = <tNOT> v = factor(false)
 	  	 	{
 	  	 	  	vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO;
 				if (v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
@@ -1690,7 +1703,7 @@ Valor factor():
 					error_semantico(t.beginLine, t.beginColumn, "Operador \'" + t.image + "\' no aplicable para " + v.tipoVariable);
 				} 
 	  		}
-	 	| 	t = "-" v = factor()
+	 	| 	t = "-" v = factor(false)
 	 		{
 	 		  	vRes.tipoVariable = Simbolo.Tipo_variable.ENTERO;
 				if (v.tipoVariable == Simbolo.Tipo_variable.ENTERO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
@@ -1706,6 +1719,10 @@ Valor factor():
 		| 	t=<tENTACAR> "(" v = expresion() ")"
 			{
 			  	vRes.tipoVariable = Simbolo.Tipo_variable.CHAR;
+			  	vRes.codigo = v.codigo;
+			  	if(escritura) {
+					vRes.codigo += "\tWRT\t0\n";
+			 	}
 				if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 					if (v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.valorEnt != null) {
 						if(v.valorEnt <= 255 && v.valorEnt > 0) {
@@ -1723,6 +1740,10 @@ Valor factor():
 		| 	<tCARAENT> "(" v = expresion() ")"
 			{
 				vRes.tipoVariable = Simbolo.Tipo_variable.ENTERO;
+				vRes.codigo = v.codigo;
+				if(escritura) {
+					vRes.codigo += "\tWRT\t1\n";
+			 	}
 				if(v.tipoVariable == Simbolo.Tipo_variable.CHAR || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 					if (v.tipoVariable == Simbolo.Tipo_variable.CHAR && v.valorChar != null) {
 						vRes.valorEnt = (int)v.valorChar;
@@ -1745,6 +1766,13 @@ Valor factor():
 					if(S.getParametro() == Simbolo.Clase_parametro.REF) {
 						vRes.codigo += "\tDRF\n";
 					}
+					if(escritura) {
+						if(S.getVariable() != Simbolo.Tipo_variable.CHAR) {
+							vRes.codigo += "\tWRT\t1\n";
+						}else if(S.getVariable() != Simbolo.Tipo_variable.ENTERO) {
+							vRes.codigo += "\tWRT\t1\n";
+						}
+					}
 				} 
 			}
 		| 	t = <tVALOR_ENTERO>
@@ -1753,6 +1781,9 @@ Valor factor():
 				if(t.image.length() < 10 && Long.parseLong(t.image) < 32767 && Long.parseLong(t.image) > -32766) {
 					vRes.valorEnt = Integer.parseInt(t.image);
 					vRes.codigo = "\tSTC\t" + vRes.valorEnt + "\n";
+					if(escritura) {
+						vRes.codigo += "\tWRT\t1\n";
+			 		}
 				}else {
 					error_semantico(t.beginLine, t.beginColumn, "Desboradmiento en la constante entera " + t.image);
 				}
@@ -1762,9 +1793,23 @@ Valor factor():
 				vRes.tipoVariable = Simbolo.Tipo_variable.CHAR;
 				vRes.valorChar = t.image.charAt(1);
 				vRes.codigo = "\tSTC\t" + (int)vRes.valorChar + "\n";
+				if(escritura) {
+					vRes.codigo += "\tWRT\t0\n";
+			 	}
 			}
-		| 	<tCONSTCAD>
+		| 	t = <tCONSTCAD>
 			{
+			  	if (escritura) { 
+				    vRes.codigo = "; cadena \'" + t.image + "\'\n";
+				    char[] cad = t.image.toCharArray();
+				    int j = 0;
+				    for (char i : cad) {
+				    	if (j != 0 && j != t.image.length() - 1) {
+				        	vRes.codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
+				       	}
+				    	j++;
+				    }
+			    }
 				vRes.tipoVariable = Simbolo.Tipo_variable.CADENA;
 			}
 		| 	<tTRUE>
