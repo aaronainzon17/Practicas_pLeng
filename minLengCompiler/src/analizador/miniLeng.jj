@@ -1,8 +1,8 @@
 /**
- * Especificacion JavaCC para la Practica 2 (Procesadores de Lenguajes)
+ * Especificacion JavaCC para la Practica 8 (Procesadores de Lenguajes)
  * Pablo Garcia Garcia - 781020@unizar.es
  * Aaron Ibanez Espes - 779088@unizar.es
- * Ultima modificacion: 29/03/2021
+ * Ultima modificacion: 11/06/2021
  */
 options
 {
@@ -635,7 +635,7 @@ String declaracion_accion():
 					codigoParams+="\tJMP\t" + accion.toString() + "\n";
 	  	  		}
 	  	  		codigo = codigoParams +
-	  	  				 codigoAcciones + // Revosar porque es codigo inaccesible
+	  	  				 codigoAcciones +
 						 codigoSentencias +
 						 "; Fin accion " + accion.tagName + "\n" +
 						 "\tCSF\n";
@@ -744,7 +744,6 @@ String lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tT
 				error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya existe");
 			}
 	  		dir++;
-	  		//tablaSimbolos.introducir_variable(t.image,tTipo,nivel,dir);
   	  	}
   	  	("," t = <tIDENTIFICADOR>
   	  	{
@@ -1035,7 +1034,6 @@ String lista_escribibles():
 }
 {
   	try {
-  	  	// Hacer al acabar factor
 	  	v = factor(true)
 	  	{
 			if(v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
@@ -1396,7 +1394,6 @@ Valor expresion():
 		 	}else if(vRes.tipoVariable != Simbolo.Tipo_variable.ENTERO && vRes.tipoVariable != Simbolo.Tipo_variable.CHAR) {
 				error_semantico(operador.beginLine, operador.beginColumn, "Operador relacion \'" + operador.image + "\' no aplicable para " + vRes.tipoVariable);
 			}else {
-			  	// Revisar tipos para los que se permite comparacion ej: igualdad para Booleanos
 			  	vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO; 
 			  	vRes.codigo += vAux.codigo;
 			  	if(operador.kind == tMAYOR) {
