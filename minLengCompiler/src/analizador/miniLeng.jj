@@ -1212,7 +1212,6 @@ String invocacion_accion(Token t):
 					 	inv += ")";
 						error_semantico(t.beginLine, t.beginColumn, "Invocacion a \'" + t.image + params + "\' con \'" + t.image + inv + "\'");
 					}else {
-					  	// Anadir codigo de args
 						codigo += "; Invocacion a " + S.getNombre() + "\n" +
 								 "\tOSF\t" + (tablaSimbolos.tamano_bloque_nivel(nivel)-1) + "\t" + (nivel - S.getNivel()) + "\tL" + S.getDir() + "\n";
 					}
