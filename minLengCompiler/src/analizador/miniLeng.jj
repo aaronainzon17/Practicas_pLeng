@@ -756,7 +756,7 @@ String lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tT
 		  				accion.addParametro(param);
 		  			}
 		  			codigo = "; Recuperacion del parametro " + t.image + "\n" +
-		  					 "\tSRG\t0\t" + dir + "\n" +
+		  					 "\tSRF\t0\t" + dir + "\n" +
 		  					 "\tASGI\n";
 		  			if(tSize != null && tClase == Simbolo.Clase_parametro.VAL) {
 						dir+=tamano;
@@ -777,7 +777,7 @@ String lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tT
 				Simbolo param1 = tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir,0);
 				accion.addParametro(param1);
 				codigo += "; Parametro " + t.image + "\n" +
-	  					 "\tSRG\t0\t" + dir + "\n" +
+	  					 "\tSRF\t0\t" + dir + "\n" +
 	  					 "\tASGI\n";
 	  			if(tSize != null) {
 					dir+=tamano;
@@ -1176,9 +1176,7 @@ String invocacion_accion(Token t):
 					  	match = false;
 					}else {
 				        for (int i = 0; i < args.size(); i++) {
-				          	System.out.println(S.getListaParametros().get(i).toString());
 				          	if(S.getListaParametros().get(i).getParametro() == Simbolo.Clase_parametro.VAL) {
-				          	  	System.out.println("ES VAL");
 				          	  	codigo += args.get(i).codigo;   
 								if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
 								   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
@@ -1188,7 +1186,6 @@ String invocacion_accion(Token t):
 									error_semantico(t.endLine, t.endColumn, "Se esta pasando un parametro REF y se espera VAL");
 								}
 							}else {
-							  	System.out.println("ES REF");
 							  	codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n"));
                   				codigo += "; Instruccion eliminada DRF\n";
 								if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
