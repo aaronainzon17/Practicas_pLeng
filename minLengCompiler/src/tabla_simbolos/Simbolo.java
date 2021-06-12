@@ -35,18 +35,13 @@ public class Simbolo {
 	String nombre;
 	Integer nivel; // Nivel en el que se ha declarado el simbolo (primer nivel = 0)
 	Integer dir; // Direccion del simbolo
+	Integer tamano; // 0 si no es vector, sino tamano del vector
 
 	Tipo_simbolo tipo;
 	Tipo_variable variable;
 	Clase_parametro parametro;
 
 	ArrayList<Simbolo> lista_parametros; // Lista de simbolos que representan los parametros de una accion
-
-	Boolean vector = false; // Vale true si el simbolo es una variable o parametro vector
-	Integer longitud; // Longitud para los vectores
-
-	// Boolean inicializado = false; // Vale true si el simbolo es una variable o parametro y ha sido inicializado
-
 
 	// Getters y setters
 
@@ -109,29 +104,14 @@ public class Simbolo {
 	public void setDir(Integer dir) {
 		this.dir = dir;
 	}
-
-	public void setVector(Boolean vector) {
-		this.vector = vector;
+	
+	public void setTamano(Integer tamano) {
+		this.tamano = tamano;
 	}
-
-	public void setLongitud(Integer longitud) {
-		this.longitud = longitud;
+	
+	public Integer getTamano() {
+		return tamano;
 	}
-
-	public Integer getLongitud() {
-		return longitud;
-	}
-
-	/*
-	public void setInicializado(Boolean inicializado) {
-		this.inicializado = inicializado;
-	}
-
-	public Boolean INICIALIZADO() {
-		return inicializado;
-	}
-	*/
-
 
 	// Metodos para construir los tipos de imbolos
 
@@ -143,12 +123,13 @@ public class Simbolo {
 	}
 
 	// Configura los campos del simbolo correspondiente a una variable
-	public void introducir_variable(String nombre, Tipo_variable tipo_var, int nivel, int dir) {
+	public void introducir_variable(String nombre, Tipo_variable tipo_var, int nivel, int dir, int tamano) {
 		this.nombre = nombre;
 		this.tipo = Tipo_simbolo.VARIABLE;
 		this.variable = tipo_var;
 		this.nivel = nivel;
 		this.dir = dir;
+		this.tamano = tamano;
 	}
 
 	// Configura los campos del simbolo correspondiente a una accion
@@ -162,36 +143,14 @@ public class Simbolo {
 
 	// Configura los campos del simbolo correspondiente a un parametro
 	public void introducir_parametro(String nombre, Tipo_variable tipo_var, Clase_parametro clase_param, int nivel,
-			int dir) {
+			int dir, int tamano) {
 		this.nombre = nombre;
 		this.tipo = Tipo_simbolo.PARAMETRO;
 		this.variable = tipo_var;
 		this.parametro = clase_param;
 		this.nivel = nivel;
 		this.dir = dir;
-	}
-
-	// Configura los campos del simbolo correspondiente a un vector
-	public void introducir_variable_vector(String nombre, Tipo_variable tipo_var, int longitud, int nivel, int dir) {
-		this.nombre = nombre;
-		this.tipo = Tipo_simbolo.VARIABLE;
-		this.variable = tipo_var;
-		this.vector = true;
-		this.longitud = longitud;
-		this.nivel = nivel;
-		this.dir = dir;
-	}
-
-	public void introducir_parametro_vector(String nombre, Tipo_variable tipo_var, Clase_parametro clase_param,
-			int longitud, int nivel, int dir) {
-		this.nombre = nombre;
-		this.tipo = Tipo_simbolo.PARAMETRO;
-		this.variable = tipo_var;
-		this.parametro = clase_param;
-		this.vector = true;
-		this.longitud = longitud;
-		this.nivel = nivel;
-		this.dir = dir;
+		this.tamano = tamano;
 	}
 
 	// Comprobadores del tipo de simbolo
@@ -218,10 +177,6 @@ public class Simbolo {
 
 	public Boolean ES_REFERENCIA() {
 		return (tipo == Tipo_simbolo.PARAMETRO) && (parametro == Clase_parametro.REF);
-	}
-
-	public Boolean ES_VECTOR() {
-		return vector;
 	}
 
 	public Boolean es_asignable() {
@@ -270,8 +225,8 @@ public class Simbolo {
 		String res;
 
 		String nombre = this.nombre;
-		if (vector) {
-			nombre += "[" + longitud + "]";
+		if (tamano != null && tamano>0) {
+			nombre += "[" + tamano + "]";
 		}
 
 		switch (tipo) {

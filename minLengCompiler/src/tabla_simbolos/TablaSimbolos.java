@@ -159,10 +159,10 @@ public class TablaSimbolos {
 	 * una excepcion. De lo contrario, introduce un simbolo VARIABLE (simple) con
 	 * los datos de los argumentos.
 	 */
-	public Simbolo introducir_variable(String nombre, Tipo_variable variable, int nivel, int dir)
+	public Simbolo introducir_variable(String nombre, Tipo_variable variable, int nivel, int dir,int tamano)
 			throws SimboloYaDeclaradoException {
 		Simbolo simbolo = new Simbolo();
-		simbolo.introducir_variable(nombre, variable, nivel, dir);
+		simbolo.introducir_variable(nombre, variable, nivel, dir, tamano);
 		return introducir_simbolo(simbolo);
 	}
 
@@ -183,35 +183,9 @@ public class TablaSimbolos {
 	 * de los argumentos.
 	 */
 	public Simbolo introducir_parametro(String nombre, Tipo_variable variable, Clase_parametro parametro, int nivel,
-			int dir) throws SimboloYaDeclaradoException {
+			int dir, int tamano) throws SimboloYaDeclaradoException {
 		Simbolo simbolo = new Simbolo();
-		simbolo.introducir_parametro(nombre, variable, parametro, nivel, dir);
-
-		return introducir_simbolo(simbolo);
-	}
-
-	/*
-	 * Si existe un simbolo en la tabla del mismo nivel y con el mismo nombre, lanza
-	 * una excepcion. De lo contrario, introduce un simbolo VARIABLE vector con los datos
-	 * de los argumentos.
-	 */
-	public Simbolo introducir_variable_vector(String nombre, Tipo_variable variable, int longitud, int nivel,
-			int dir) throws SimboloYaDeclaradoException {
-		Simbolo simbolo = new Simbolo();
-		simbolo.introducir_variable_vector(nombre, variable, longitud, nivel, dir);
-
-		return introducir_simbolo(simbolo);
-	}
-
-	/*
-	 * Si existe un simbolo en la tabla del mismo nivel y con el mismo nombre, lanza
-	 * una excepcion. De lo contrario, introduce un sÃ­mbolo PARAMETRO vector con los datos
-	 * de los argumentos.
-	 */
-	public Simbolo introducir_parametro_vector(String nombre, Tipo_variable variable, Clase_parametro clase, int longitud, int nivel,
-			int dir) throws SimboloYaDeclaradoException {
-		Simbolo simbolo = new Simbolo();
-		simbolo.introducir_parametro_vector(nombre, variable, clase, longitud, nivel, dir);
+		simbolo.introducir_parametro(nombre, variable, parametro, nivel, dir, tamano);
 
 		return introducir_simbolo(simbolo);
 	}

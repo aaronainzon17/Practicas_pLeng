@@ -1,0 +1,216 @@
+; Programa noventa_y_nueve
+	ENP	L0
+; Inicio noventa_y_nueve
+L0:
+; Direccion de la variable n
+	SRF	0	5
+	STC	0
+; Asignacion
+	ASG
+; Principio MQ
+; Expresion
+L1:
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	STC	0
+	LTE
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	STC	100
+	GTE
+	OR
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	STC	10
+	DIV
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	STC	10
+	MOD
+	EQ
+	OR
+; Salir del bucle si la guarda se evalua a falso
+	JMF	L2
+; Si true
+; Escribir
+; cadena '"n: "'
+	STC	110
+	WRT	0
+	STC	58
+	WRT	0
+	STC	32
+	WRT	0
+; Leer
+; Acceder a VARIABLE n
+	SRF	0	5
+	RD	1
+; Fin de la iteracion. Saltar a la cabecera del bucle.
+	JMP	L1
+; Fin MQ
+L2:
+; Escribir
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	WRT	0
+; cadena '" se convierte en "'
+	STC	32
+	WRT	0
+	STC	115
+	WRT	0
+	STC	101
+	WRT	0
+	STC	32
+	WRT	0
+	STC	99
+	WRT	0
+	STC	111
+	WRT	0
+	STC	110
+	WRT	0
+	STC	118
+	WRT	0
+	STC	105
+	WRT	0
+	STC	101
+	WRT	0
+	STC	114
+	WRT	0
+	STC	116
+	WRT	0
+	STC	101
+	WRT	0
+	STC	32
+	WRT	0
+	STC	101
+	WRT	0
+	STC	110
+	WRT	0
+	STC	32
+	WRT	0
+; Direccion de la variable x
+	SRF	0	3
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	STC	10
+	DIV
+; Asignacion
+	ASG
+; Direccion de la variable y
+	SRF	0	4
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	STC	10
+	MOD
+; Asignacion
+	ASG
+; Direccion de la variable m
+	SRF	0	6
+	STC	10
+; Accediendo a VARIABLE y
+	SRF	0	4
+	DRF
+	TMS
+; Accediendo a VARIABLE x
+	SRF	0	3
+	DRF
+	PLUS
+; Asignacion
+	ASG
+; Principio IF
+; Expresion
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+; Accediendo a VARIABLE m
+	SRF	0	6
+	DRF
+	GT
+	JMF	L4
+; Si true
+; Direccion de la variable n
+	SRF	0	5
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+; Accediendo a VARIABLE m
+	SRF	0	6
+	DRF
+	SBT
+; Asignacion
+	ASG
+	JMP	L3
+L4:
+; Si false
+; Direccion de la variable n
+	SRF	0	5
+; Accediendo a VARIABLE m
+	SRF	0	6
+	DRF
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	SBT
+; Asignacion
+	ASG
+; Fin IF
+L3:
+; Direccion de la variable x
+	SRF	0	3
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	STC	10
+	DIV
+; Asignacion
+	ASG
+; Direccion de la variable y
+	SRF	0	4
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	STC	10
+	MOD
+; Asignacion
+	ASG
+; Direccion de la variable m
+	SRF	0	6
+	STC	10
+; Accediendo a VARIABLE y
+	SRF	0	4
+	DRF
+	TMS
+; Accediendo a VARIABLE x
+	SRF	0	3
+	DRF
+	PLUS
+; Asignacion
+	ASG
+; Direccion de la variable n
+	SRF	0	5
+; Accediendo a VARIABLE m
+	SRF	0	6
+	DRF
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	PLUS
+; Asignacion
+	ASG
+; Escribir
+; Accediendo a VARIABLE n
+	SRF	0	5
+	DRF
+	WRT	0
+	STC	13
+	WRT	0
+	STC	10
+	WRT	0
+; Final noventa_y_nueve
+	LVP

@@ -1,0 +1,541 @@
+; Programa fibbonaci
+	ENP L0
+L1:
+; Accion cambiar_de_linea
+; Escribir
+	STC 13
+	WRT 0
+; Escribir
+	STC 10
+	WRT 0
+; Fin de laL1:
+	CSF
+L3:
+; Accion pedir_dato
+; Escribir 'Escribe un numero: '
+	STC 69
+	WRT 0
+	STC 115
+	WRT 0
+	STC 99
+	WRT 0
+	STC 114
+	WRT 0
+	STC 105
+	WRT 0
+	STC 98
+	WRT 0
+	STC 101
+	WRT 0
+	STC 32
+	WRT 0
+	STC 117
+	WRT 0
+	STC 110
+	WRT 0
+	STC 32
+	WRT 0
+	STC 110
+	WRT 0
+	STC 117
+	WRT 0
+	STC 109
+	WRT 0
+	STC 101
+	WRT 0
+	STC 114
+	WRT 0
+	STC 111
+	WRT 0
+	STC 58
+	WRT 0
+	STC 32
+	WRT 0
+; Leer
+	SRF 1 3
+	DRF
+	RD 1
+; Fin de laL3:
+	CSF
+L2:
+; Accion dato
+; Recuperar args dato
+; Recuperar dato
+	SRF 0 3
+	ASGI
+; Direccion de la variable dato
+	SRF 0 3
+	DRF
+	STC 0
+; Asignación
+	ASG
+; Direccion de la variable correcto
+	SRF 0 4
+	STC 0
+; Asignación
+	ASG
+; MQ
+L5:
+; Acceso a la variable correcto
+	SRF 0 4
+	DRF
+	NGB
+	JMF L6
+	OSF 5 0 L3
+; Escribir 'Dato: '
+	STC 68
+	WRT 0
+	STC 97
+	WRT 0
+	STC 116
+	WRT 0
+	STC 111
+	WRT 0
+	STC 58
+	WRT 0
+	STC 32
+	WRT 0
+; Escribir
+; Acceso a la variable dato
+	SRF 0 3
+	DRF
+	DRF
+	WRT 1
+; Direccion de la variable correcto
+	SRF 0 4
+; Acceso a la variable dato
+	SRF 0 3
+	DRF
+	DRF
+	STC 0
+	GT
+; Asignación
+	ASG
+; SI
+; Acceso a la variable correcto
+	SRF 0 4
+	DRF
+	NGB
+	JMF L4
+; ENT
+; Escribir 'El numero debe ser postivo.'
+	STC 69
+	WRT 0
+	STC 108
+	WRT 0
+	STC 32
+	WRT 0
+	STC 110
+	WRT 0
+	STC 117
+	WRT 0
+	STC 109
+	WRT 0
+	STC 101
+	WRT 0
+	STC 114
+	WRT 0
+	STC 111
+	WRT 0
+	STC 32
+	WRT 0
+	STC 100
+	WRT 0
+	STC 101
+	WRT 0
+	STC 98
+	WRT 0
+	STC 101
+	WRT 0
+	STC 32
+	WRT 0
+	STC 115
+	WRT 0
+	STC 101
+	WRT 0
+	STC 114
+	WRT 0
+	STC 32
+	WRT 0
+	STC 112
+	WRT 0
+	STC 111
+	WRT 0
+	STC 115
+	WRT 0
+	STC 116
+	WRT 0
+	STC 105
+	WRT 0
+	STC 118
+	WRT 0
+	STC 111
+	WRT 0
+	STC 46
+	WRT 0
+	OSF 5 1 L1
+L4:
+; Fin SI
+	JMP L5
+; Final del MQ
+L6:
+; Fin de laL2:
+	CSF
+L7:
+; Accion fib
+; Recuperar args fib
+; Recuperar n
+	SRF 0 3
+	ASGI
+; Recuperar r
+	SRF 0 4
+	ASGI
+; Escribir 'Dentro de Fib: '
+	STC 68
+	WRT 0
+	STC 101
+	WRT 0
+	STC 110
+	WRT 0
+	STC 116
+	WRT 0
+	STC 114
+	WRT 0
+	STC 111
+	WRT 0
+	STC 32
+	WRT 0
+	STC 100
+	WRT 0
+	STC 101
+	WRT 0
+	STC 32
+	WRT 0
+	STC 70
+	WRT 0
+	STC 105
+	WRT 0
+	STC 98
+	WRT 0
+	STC 58
+	WRT 0
+	STC 32
+	WRT 0
+; Escribir
+; Acceso a la variable n
+	SRF 0 3
+	DRF
+	WRT 1
+; Escribir
+; Acceso a la variable r
+	SRF 0 4
+	DRF
+	DRF
+	WRT 1
+; SI
+; Acceso a la variable n
+	SRF 0 3
+	DRF
+	STC 1
+	GT
+	JMF L9
+; ENT
+; Acceso a la variable r1
+	SRF 0 5
+; Acceso a la variable n
+	SRF 0 3
+	DRF
+	STC 1
+	SBT
+	OSF 7 1 L7
+; Acceso a la variable r2
+	SRF 0 6
+; Acceso a la variable n
+	SRF 0 3
+	DRF
+	STC 2
+	SBT
+	OSF 7 1 L7
+; Direccion de la variable r
+	SRF 0 4
+	DRF
+; Acceso a la variable r1
+	SRF 0 5
+	DRF
+; Acceso a la variable r2
+	SRF 0 6
+	DRF
+	PLUS
+; Asignación
+	ASG
+	JMP L8
+; SINO
+L9:
+; Direccion de la variable r
+	SRF 0 4
+	DRF
+; Acceso a la variable n
+	SRF 0 3
+	DRF
+; Asignación
+	ASG
+L8:
+; Fin SI
+; Fin de laL7:
+	CSF
+; Comienzo del programa fibbonaci
+L0:
+; Acceso a la variable n
+	SRF 0 3
+	OSF 5 0 L2
+; Escribir 'despues de Dato (n) '
+	STC 100
+	WRT 0
+	STC 101
+	WRT 0
+	STC 115
+	WRT 0
+	STC 112
+	WRT 0
+	STC 117
+	WRT 0
+	STC 101
+	WRT 0
+	STC 115
+	WRT 0
+	STC 32
+	WRT 0
+	STC 100
+	WRT 0
+	STC 101
+	WRT 0
+	STC 32
+	WRT 0
+	STC 68
+	WRT 0
+	STC 97
+	WRT 0
+	STC 116
+	WRT 0
+	STC 111
+	WRT 0
+	STC 32
+	WRT 0
+	STC 40
+	WRT 0
+	STC 110
+	WRT 0
+	STC 41
+	WRT 0
+	STC 32
+	WRT 0
+; Escribir
+; Acceso a la variable n
+	SRF 0 3
+	DRF
+	WRT 1
+; Escribir 'despues de Dato (r) '
+	STC 100
+	WRT 0
+	STC 101
+	WRT 0
+	STC 115
+	WRT 0
+	STC 112
+	WRT 0
+	STC 117
+	WRT 0
+	STC 101
+	WRT 0
+	STC 115
+	WRT 0
+	STC 32
+	WRT 0
+	STC 100
+	WRT 0
+	STC 101
+	WRT 0
+	STC 32
+	WRT 0
+	STC 68
+	WRT 0
+	STC 97
+	WRT 0
+	STC 116
+	WRT 0
+	STC 111
+	WRT 0
+	STC 32
+	WRT 0
+	STC 40
+	WRT 0
+	STC 114
+	WRT 0
+	STC 41
+	WRT 0
+	STC 32
+	WRT 0
+; Escribir
+; Acceso a la variable r
+	SRF 0 4
+	DRF
+	WRT 1
+; Acceso a la variable r
+	SRF 0 4
+; Acceso a la variable n
+	SRF 0 3
+	DRF
+	OSF 5 0 L7
+; Escribir 'Fibbonaci('
+	STC 70
+	WRT 0
+	STC 105
+	WRT 0
+	STC 98
+	WRT 0
+	STC 98
+	WRT 0
+	STC 111
+	WRT 0
+	STC 110
+	WRT 0
+	STC 97
+	WRT 0
+	STC 99
+	WRT 0
+	STC 105
+	WRT 0
+	STC 40
+	WRT 0
+; Escribir
+; Acceso a la variable n
+	SRF 0 3
+	DRF
+	WRT 1
+; Escribir ') es: '
+	STC 41
+	WRT 0
+	STC 32
+	WRT 0
+	STC 101
+	WRT 0
+	STC 115
+	WRT 0
+	STC 58
+	WRT 0
+	STC 32
+	WRT 0
+; Escribir
+; Acceso a la variable r
+	SRF 0 4
+	DRF
+	WRT 1
+	OSF 5 0 L1
+JMP Fin_Programa
+error_inicializada:
+; Escribir 'Error en runtime: acceso a variable no inicializada'
+	STC 69
+	WRT 0
+	STC 114
+	WRT 0
+	STC 114
+	WRT 0
+	STC 111
+	WRT 0
+	STC 114
+	WRT 0
+	STC 32
+	WRT 0
+	STC 101
+	WRT 0
+	STC 110
+	WRT 0
+	STC 32
+	WRT 0
+	STC 114
+	WRT 0
+	STC 117
+	WRT 0
+	STC 110
+	WRT 0
+	STC 116
+	WRT 0
+	STC 105
+	WRT 0
+	STC 109
+	WRT 0
+	STC 101
+	WRT 0
+	STC 58
+	WRT 0
+	STC 32
+	WRT 0
+	STC 97
+	WRT 0
+	STC 99
+	WRT 0
+	STC 99
+	WRT 0
+	STC 101
+	WRT 0
+	STC 115
+	WRT 0
+	STC 111
+	WRT 0
+	STC 32
+	WRT 0
+	STC 97
+	WRT 0
+	STC 32
+	WRT 0
+	STC 118
+	WRT 0
+	STC 97
+	WRT 0
+	STC 114
+	WRT 0
+	STC 105
+	WRT 0
+	STC 97
+	WRT 0
+	STC 98
+	WRT 0
+	STC 108
+	WRT 0
+	STC 101
+	WRT 0
+	STC 32
+	WRT 0
+	STC 110
+	WRT 0
+	STC 111
+	WRT 0
+	STC 32
+	WRT 0
+	STC 105
+	WRT 0
+	STC 110
+	WRT 0
+	STC 105
+	WRT 0
+	STC 99
+	WRT 0
+	STC 105
+	WRT 0
+	STC 97
+	WRT 0
+	STC 108
+	WRT 0
+	STC 105
+	WRT 0
+	STC 122
+	WRT 0
+	STC 97
+	WRT 0
+	STC 100
+	WRT 0
+	STC 97
+	WRT 0
+; Fin del programa fibbonaci
+Fin_Programa:
+	LVP
