@@ -2,7 +2,7 @@
  * Especificacion JavaCC para la Practica 8 (Procesadores de Lenguajes)
  * Pablo Garcia Garcia - 781020@unizar.es
  * Aaron Ibanez Espes - 779088@unizar.es
- * Ultima modificacion: 11/06/2021
+ * Ultima modificacion: 12/06/2021
  */
 options
 {
@@ -161,11 +161,11 @@ public class MiniLeng
 				bw.close();
 				osw.close();
 				fichero.close();
-				System.out.println("Analizado correctamente! Se ha generado el fichero de codigo " + args [0] + ".code");
+				System.out.println("Compilacion finalizada. Se ha generado el fichero " + args [0] + ".code");
     	 	}
 			catch (IOException e)
 	        {
-	        	System.out.println("Analizado correctamente! No se ha podido generar el fichero de codigo " + args [0] + ".code");
+	        	System.out.println("Compilacion finalizada. No se ha podido generar el fichero " + args [0] + ".code");
 	        }
    		}
     }
@@ -436,6 +436,7 @@ String programa() :
 	tablaSimbolos.inicializar_tabla();
 	Token t = null;
 	TagProgram program = null;
+	Tag programEnd = null;
 	Integer etiq;
 }
 {
@@ -443,25 +444,52 @@ String programa() :
 		<tPROGRAMA>	t = <tIDENTIFICADOR>
 		{
 			tablaSimbolos.introducir_programa(t.image,dir);
-			if(!error) {
-			  	program = new TagProgram(tagNum,t.image);
-			  	tagNum++;
-				codigo = program.code();
-			}
+		  	program = new TagProgram(tagNum,t.image);
+		  	tagNum++;
+		  	programEnd = new Tag(tagNum,t.image);
+		  	tagNum++;
+			codigo = program.code();
 		}
 		";"
 		codigoVariables = declaracion_variables() // El codigo de las variables que??
 		codigoAcciones = declaracion_acciones()
 		codigoSentencias = bloque_sentencias() < EOF >
-		{
-			if(!error) {
-				codigo += codigoAcciones +
-						"; Inicio " + t.image + "\n" +
-						program.toString() + ":\n" +
-						codigoSentencias +
-						"; Final " + t.image + "\n" +
-						"\tLVP";
-			}
+		{		  	
+			String err = "Error en runtime: acceso a variable no inicializada";
+		  	codigo += 	"error_inicializada:\n"+
+		  				"; escribir\n" +
+		  				"; cadena \'" + err + "\'\n";
+		    char[] cad = err.toCharArray();
+		    int j = 0;
+		    for (char i : cad) {
+		    	if (j != 0 && j != err.length() - 1) {
+		        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
+		       	}
+		    	j++;
+		    }
+			codigo += "\tJMP\tL1\n";
+			
+		    err = "Error en runtime: indice de acceso a vector fuera de rango";
+		  	codigo += 	"error_out_of_bounds:\n"+
+		  				"; escribir\n" +
+		  				"; cadena \'" + err + "\'\n";
+		    cad = err.toCharArray();
+		    j = 0;
+		    for (char i : cad) {
+		    	if (j != 0 && j != err.length() - 1) {
+		        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
+		       	}
+		    	j++;
+		    }
+		    codigo += "\tJMP\tL1\n";
+		    
+			codigo += codigoAcciones +
+					"; Inicio " + t.image + "\n" +
+					program.toString() + ":\n" +
+					codigoSentencias +
+					"; Final " + t.image + "\n" +
+					programEnd.toString() + ":\n" +
+					"\tLVP";
 		}
 	}
 	catch (ParseException e) {
@@ -602,7 +630,7 @@ void identificadores(Simbolo.Tipo_variable tipo):
 */
 String declaracion_acciones():
 {
-  	String codigo = "";
+	String codigo = "";
   	String c = "";
 }
 {
@@ -1301,7 +1329,6 @@ String seleccion():
 				error_semantico(t.endLine, t.endColumn, "Se esperaba booleano y se encontro " + v.tipoVariable);
 			}
 		}
-		/*Revisar regexp lista_sentencias()*/
 	  	< tENT > codigoV=lista_sentencias() (< tSI_NO > codigoF=lista_sentencias())? < tFSI >
 	  	{
 			if(v.valorBool != null && v.valorBool == true) {
@@ -1756,7 +1783,7 @@ Valor factor(Boolean escritura):
 			 	}
 				if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 					if (v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.valorEnt != null) {
-						if(v.valorEnt <= 255 && v.valorEnt > 0) {
+						if(v.valorEnt <= 255 && v.valorEnt >= 0) {
 						  	int valEnt = v.valorEnt;
 							vRes.valorChar = (char)valEnt;
 						}
