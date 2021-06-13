@@ -451,14 +451,14 @@ String programa() :
 			codigo = program.code();
 		}
 		";"
-		codigoVariables = declaracion_variables() // El codigo de las variables que??
+		codigoVariables = declaracion_variables()
 		codigoAcciones = declaracion_acciones()
 		codigoSentencias = bloque_sentencias() < EOF >
 		{		  	
-			String err = "Error en runtime: acceso a variable no inicializada";
+			String err = "\"Error en runtime: acceso a variable no inicializada\"";
 		  	codigo += 	"error_inicializada:\n"+
 		  				"; escribir\n" +
-		  				"; cadena \'" + err + "\'\n";
+		  				"; cadena " + err + "\n";
 		    char[] cad = err.toCharArray();
 		    int j = 0;
 		    for (char i : cad) {
@@ -469,10 +469,10 @@ String programa() :
 		    }
 			codigo += "\tJMP\tL1\n";
 			
-		    err = "Error en runtime: indice de acceso a vector fuera de rango";
+		    err = "\"Error en runtime: indice de acceso a vector fuera de rango\"";
 		  	codigo += 	"error_out_of_bounds:\n"+
 		  				"; escribir\n" +
-		  				"; cadena \'" + err + "\'\n";
+		  				"; cadena " + err + "\n";
 		    cad = err.toCharArray();
 		    j = 0;
 		    for (char i : cad) {
@@ -486,6 +486,7 @@ String programa() :
 			codigo += codigoAcciones +
 					"; Inicio " + t.image + "\n" +
 					program.toString() + ":\n" +
+					codigoVariables +
 					codigoSentencias +
 					"; Final " + t.image + "\n" +
 					programEnd.toString() + ":\n" +
@@ -520,34 +521,42 @@ String programa() :
 String declaracion_variables():
 {
   	String codigo = "";
+  	String c = "";
 }
 {
 	try {
-	  	(declaracion() ";")*
+	  	(c=declaracion() ";"
+	  	{
+			codigo += c;
+	  	})*
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e);
 	}
 	{
-	return codigo;
+		return codigo;
 	}	
 }
 
 /*
 	tipo_variables() identificadores()
 */
-void declaracion():
+String declaracion():
 {
   	Simbolo.Tipo_variable tTipo = null;
+  	String codigo = "";
 }
 {
   	try {
-	  	tTipo = tipo_variables() identificadores(tTipo)
+	  	tTipo = tipo_variables() codigo=identificadores(tTipo)
 	}
 	catch (ParseException e)
 	{
 		errorSintactico(e); 
+	}
+	{
+		return codigo;
 	}
 }
 
@@ -576,11 +585,13 @@ Simbolo.Tipo_variable tipo_variables():
 /*
 	<tIDENTIFICADOR> ( "," <tIDENTIFICADOR> )*
 */
-void identificadores(Simbolo.Tipo_variable tipo): 
+String identificadores(Simbolo.Tipo_variable tipo): 
 {
   	Token t = null;
   	Token tSize = null;
   	int tamano = 0;
+  	String codigo = "";
+  	Simbolo S = null;
 }
 {
   	try {
@@ -591,12 +602,17 @@ void identificadores(Simbolo.Tipo_variable tipo):
 					tamano = Integer.parseInt(tSize.image);
 	  	  	 	}
 		  	  	if(tSize == null || tamano > 0) { 
-					tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir,tamano);
+					S = tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir,tamano);
 					if(tSize != null) {
 						dir+=tamano;
 					}else {
 						dir++;
 					}
+					codigo += "; Reservamos la direccion e inicializamos con valor centinela\n" +
+							 "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+							 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+							 "\tSTC\t32768\n" +
+							 "\tASG\n";
 				}else {
 					error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "[" + tSize.image + "]\" el tamaño debe de ser positivo");
 				}
@@ -609,8 +625,24 @@ void identificadores(Simbolo.Tipo_variable tipo):
 	  	( "," t = <tIDENTIFICADOR> ("[" tSize=<tVALOR_ENTERO>"]")? 
 	  	{
 			try { 
-				tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir,0);
-				dir++;
+				if(tSize != null) {
+					tamano = Integer.parseInt(tSize.image);
+	  	  	 	}
+		  	  	if(tSize == null || tamano > 0) { 
+					S = tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir,tamano);
+					if(tSize != null) {
+						dir+=tamano;
+					}else {
+						dir++;
+					}
+					codigo += "; Reservamos la direccion e inicializamos con valor centinela\n" +
+							 "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+							 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+							 "\tSTC\t32768\n" +
+							 "\tASG\n";
+				}else {
+					error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "[" + tSize.image + "]\" el tamaño debe de ser positivo");
+				}
 			}
 			catch (SimboloYaDeclaradoException e)
 			{
@@ -622,6 +654,9 @@ void identificadores(Simbolo.Tipo_variable tipo):
 	catch (ParseException e)
 	{
 		errorSintactico(e);
+	}
+	{
+		return codigo;
 	}
 }
 
@@ -670,12 +705,13 @@ String declaracion_accion():
 	  	{
 	  	  	
 	 	}
-	  	codigoVariables = declaracion_variables() // Esto que pues con el codigo de las variables
+	  	codigoVariables = declaracion_variables()
 	  	codigoAcciones = declaracion_acciones()
 	  	codigoSentencias = bloque_sentencias()
 	  	{
 	  	  		codigo = codigoAcciones +
 	  	  				 codigoParams +
+	  	  				 codigoVariables +
 						 codigoSentencias +
 						 "; Fin accion " + accion.tagName + "\n" +
 						 "\tCSF\n";
@@ -1857,6 +1893,11 @@ Valor factor(Boolean escritura):
 							  			  v.codigo + "\tPLUS\n" + "\tDRF\n";
 						}
 					}
+					vRes.codigo += 	"; comprobamos si i está inicializada\n" +
+									"\tDUP\n" +
+									"\tSTC\t32768\n" +
+									"\tEQ\n" +
+									"\tJMT\terror_inicializada\n";
 				} 
 			}
 		| 	t = <tVALOR_ENTERO>
