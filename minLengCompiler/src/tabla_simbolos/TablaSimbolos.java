@@ -288,7 +288,11 @@ public class TablaSimbolos {
 			while (iter.hasNext()) {
 				Simbolo s = iter.next();
 				if (s.nivel == nivel && ( s.tipo == Simbolo.Tipo_simbolo.VARIABLE || s.tipo == Simbolo.Tipo_simbolo.PARAMETRO)) {
-					tamano++;
+					if(s.tamano > 0) {
+						tamano+=s.tamano+1;
+					}else {
+						tamano++;
+					}
 				}
 			}
 		}

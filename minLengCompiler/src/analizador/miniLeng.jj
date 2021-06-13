@@ -30,6 +30,7 @@ class Valor
   Boolean valorBool;
   Character valorChar;
   String codigo;
+  Integer tamano;
   Simbolo.Clase_parametro claseParametro;
   Simbolo.Tipo_variable tipoVariable;
   Simbolo.Tipo_simbolo tipoSimbolo;
@@ -87,6 +88,10 @@ public class MiniLeng
   private static int dir = 3;
   
   private static boolean error = false;
+
+  private static boolean necesariaErrorInicializada = false;
+
+  private static boolean necesariaErrorIndice = false;
 
   private static TablaSimbolos tablaSimbolos;
 
@@ -455,6 +460,7 @@ String programa() :
 		codigoAcciones = declaracion_acciones()
 		codigoSentencias = bloque_sentencias() < EOF >
 		{		  	
+			necesariaErrorInicializada = true;
 			String err = "\"Error en runtime: acceso a variable no inicializada\"";
 		  	codigo += 	"error_inicializada:\n"+
 		  				"; escribir\n" +
@@ -470,6 +476,7 @@ String programa() :
 			codigo += "\tJMP\tL1\n";
 			
 		    err = "\"Error en runtime: indice de acceso a vector fuera de rango\"";
+			necesariaErrorIndice = true;
 		  	codigo += 	"error_out_of_bounds:\n"+
 		  				"; escribir\n" +
 		  				"; cadena " + err + "\n";
@@ -601,26 +608,39 @@ String identificadores(Simbolo.Tipo_variable tipo):
 		  	  	if(tSize != null) {
 					tamano = Integer.parseInt(tSize.image);
 	  	  	 	}
-		  	  	if(tSize == null || tamano > 0) { 
+		  	  	if(tSize == null || tamano > 0) {
 					S = tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir,tamano);
 					if(tSize != null) {
-						dir+=tamano;
+						codigo += 	"; Tamano del vector\n" +
+									"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+							 		"\tSTC\t"+tamano+"\n" +
+							 		"\tASG\n";
+						for (int i = 1; i <= tamano ; i++) {	 		
+							codigo += 	"; Reservamos la direccion e inicializamos con valor centinela\n" +
+								 		"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "["+(i-1)+"]" + "\n" +
+								 		"\tSRF\t" + (nivel - S.getNivel()) + "\t" + (S.getDir()+i) + "\n" +
+								 		"\tSTC\t32768\n" +
+								 		"\tASG\n";
+						}
+						dir+=tamano+1;
 					}else {
-						dir++;
-					}
-					codigo += "; Reservamos la direccion e inicializamos con valor centinela\n" +
+					  	codigo += "; Reservamos la direccion e inicializamos con valor centinela\n" +
 							 "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
 							 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
 							 "\tSTC\t32768\n" +
 							 "\tASG\n";
+						dir++;
+					}
 				}else {
-					error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "[" + tSize.image + "]\" el tamaño debe de ser positivo");
+					error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "[" + tSize.image + "]\" el tamaï¿½o debe de ser positivo");
 				}
 			}
 			catch (SimboloYaDeclaradoException e)
 			{
 				error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya existe");
 			}
+			tSize = null;
+			tamano = 0;
 		}
 	  	( "," t = <tIDENTIFICADOR> ("[" tSize=<tVALOR_ENTERO>"]")? 
 	  	{
@@ -641,7 +661,7 @@ String identificadores(Simbolo.Tipo_variable tipo):
 							 "\tSTC\t32768\n" +
 							 "\tASG\n";
 				}else {
-					error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "[" + tSize.image + "]\" el tamaño debe de ser positivo");
+					error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "[" + tSize.image + "]\" el tamaï¿½o debe de ser positivo");
 				}
 			}
 			catch (SimboloYaDeclaradoException e)
@@ -828,7 +848,7 @@ String lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tT
 						dir++;
 					}
 	  			}else {
-					error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "[" + tSize.image + "]\" el tamaño debe de ser positivo");
+					error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "[" + tSize.image + "]\" el tamaï¿½o debe de ser positivo");
 	  			}
 			}
 			catch (SimboloYaDeclaradoException e) {
@@ -1011,16 +1031,17 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
   	String codigo = "";
   	Token t = null;
   	Simbolo S = null;
+  	Valor v = null;
 }
 {
   	try {
-  	  	t=<tIDENTIFICADOR>
+  	  	t=<tIDENTIFICADOR> ("[" v = expresion() "]")?
   	  	{
   	  	  	try { 
 				S = tablaSimbolos.buscar_simbolo(t.image);
 				if(!(S.getTipo() == Simbolo.Tipo_simbolo.VARIABLE || 
 				  (S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF))) {
-					error_semantico(t.beginLine, t.beginColumn, "Se esperaba variable o parametro por referencia y se obtuvo "+S.getTipo());	
+					error_semantico(t.beginLine, t.beginColumn, "Se esperaba variable o parametro por referencia y se obtuvo "+S.toString());	
 				}else if(S.getVariable() == Simbolo.Tipo_variable.BOOLEANO) {
 					error_semantico(t.beginLine, t.beginColumn, "Operacion lectura no valida para el tipo "+S.getVariable());	
 				}else if (S.getVariable() == Simbolo.Tipo_variable.ENTERO){
@@ -1036,6 +1057,7 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 		        	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO) {
 						codigo += "\tDRF\n";
 		       		}
+		       		
 		       		codigo += "\tRD\t0\n";
 		      	}
 			}
@@ -1049,7 +1071,7 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 				error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" no declarado");	  
 			}
 		}
-  	  	("," t=<tIDENTIFICADOR>
+  	  	("," t=<tIDENTIFICADOR> ("[" v = expresion() "]")?
   	  	{
 			try { 
 				S = tablaSimbolos.buscar_simbolo(t.image);
@@ -1058,21 +1080,30 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 					error_semantico(t.beginLine, t.beginColumn, "Se esperaba variable o parametro por referencia y se obtuvo "+S.getTipo());	
 				}else if(S.getVariable() == Simbolo.Tipo_variable.BOOLEANO) {
 					error_semantico(t.beginLine, t.beginColumn, "Operacion lectura no valida para el tipo "+S.getVariable());	
-				}else if (S.getVariable() == Simbolo.Tipo_variable.ENTERO){
-				  	codigo += "; Acceder a " + S.getTipo() + " " + S.getNombre() + "\n";
-		        	codigo += "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
-		        	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO) {
-						codigo += "\tDRF\n";
-		       		}
-		       		codigo += "\tRD\t1\n";
-		      	}else if (S.getVariable() == Simbolo.Tipo_variable.CHAR){
-		      	  	codigo += "; Acceder a " + S.getTipo() + " " + S.getNombre() + "\n";
-		        	codigo += "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
-		        	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO) {
-						codigo += "\tDRF\n";
-		       		}
-		       		codigo += "\tRD\t0\n";
-		      	}
+				}else if(v != null && S.getTamano() == 0) {
+			 		error_semantico(t.beginLine, t.beginColumn, t.image + " no es un vector");
+				}else if(v != null && v.tipoVariable != Simbolo.Tipo_variable.ENTERO) {
+				  	error_semantico(t.beginLine, t.beginColumn, "El indice debe ser de tipo entero");
+				}else if(v != null && v.valorEnt != null && (v.valorEnt > S.getTamano() || v.valorEnt <= 0)) {
+				  	error_semantico(t.beginLine, t.beginColumn, "El indice se encuentra fuera de rango");  	
+				}else {
+					if(v == null) {
+					   	codigo += "; Acceder a " + S.getTipo() + " " + S.getNombre() + "\n";
+			        	codigo += "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+			        	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO) {
+							codigo += "\tDRF\n";
+			       		}
+					}else {
+						codigo = "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+									  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+									  "\tDRF\n" + v.codigo + "\tPLUS\n" + "\tDRF\n";
+					}		       		
+				  	if (S.getVariable() == Simbolo.Tipo_variable.ENTERO){
+			       		codigo += "\tRD\t1\n";
+		      		}else if (S.getVariable() == Simbolo.Tipo_variable.CHAR){
+			       		codigo += "\tRD\t0\n";
+			      	}
+		     	}
 			}
 			catch (SimboloNoEncontradoException e) { 
 				try{
@@ -1166,6 +1197,7 @@ String asignacion(Token t):
 }
 {	
   	try {
+  	  	("["v=expresion()"]")?
 	  	 {
 		 	try { 
 				S = tablaSimbolos.buscar_simbolo(t.image);
@@ -1173,14 +1205,50 @@ String asignacion(Token t):
 					error_semantico(t.beginLine, t.beginColumn, "No se pueden realizar asignaciones sobre " + S.getTipo());
 				}else if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.VAL) {
 					error_semantico(t.beginLine, t.beginColumn, "No se pueden realizar asignaciones sobre parametros por valor");
+				}else if(v != null && S.getTamano() == 0) {
+			 		error_semantico(t.beginLine, t.beginColumn, t.image + " no es un vector");
+				}else if(v != null && v.tipoVariable != Simbolo.Tipo_variable.ENTERO) {
+				  	error_semantico(t.beginLine, t.beginColumn, "El indice debe ser de tipo entero");
+				}else if(v != null && v.valorEnt != null && (v.valorEnt > S.getTamano()-1 || v.valorEnt < 0)) {
+				  	error_semantico(t.beginLine, t.beginColumn, "El indice se encuentra fuera de rango");  	
 				}else if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-					codigo =  "; Direccion del parametro " + S.getNombre() + "\n" +
-							  "\tSRF\t0\t" + S.getDir() + "\n" +
-							  "; Direccion de la referencia " + S.getNombre() + "\n" +
-							  "\tDRF\n";
+					if(v == null) { 
+						codigo =  "; Direccion del parametro " + S.getNombre() + "\n" +
+								  "\tSRF\t0\t" + S.getDir() + "\n" +
+								  "; Direccion de la referencia " + S.getNombre() + "\n" +
+								  "\tDRF\n";
+					}else {
+						necesariaErrorIndice = true;
+						codigo =  "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  "\tDRF\n" + "\tDRF\n" + "\tDUP\n" +
+								  "; Comprobar underflow\n" +
+								  "\tSTC\t0\n" + "\tLT\n" + "\tJMT\terror_out_of_bounds" +
+								  "; Comprobar overflow\n" +
+								  "\tGTE\n" + "\tJMT\terror_out_of_bounds" +
+								  "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  v.codigo +
+								  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  "\tDRF\n" + v.codigo + "\tPLUS\n" + "\tSTC\t1\n" + "\tPLUS\n";
+					}
 				}else if(S.getTipo() == Simbolo.Tipo_simbolo.VARIABLE) {
-					codigo = "; Direccion de la variable " + S.getNombre() + "\n" +
-							 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+			  		if(v == null) {
+						codigo = "; Direccion de la variable " + S.getNombre() + "\n" +
+								 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+					}else {
+						necesariaErrorIndice = true;
+						codigo = "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  "\tDRF\n" + "\tDUP\n" +
+								  "; Comprobar underflow\n" +
+								  "\tSTC\t0\n" + "\tLT\n" + "\tJMT\terror_out_of_bounds" +
+								  "; Comprobar overflow\n" +
+								  v.codigo +
+								  "\tGTE\n" + "\tJMT\terror_out_of_bounds" +
+								  "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  v.codigo + "\tPLUS\n" + "\tSTC\t1\n" + "\tPLUS\n";
+					}
 				}
 			}
 			catch (SimboloNoEncontradoException e) {
@@ -1246,20 +1314,21 @@ String invocacion_accion(Token t):
 								   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
 									match = false;
 								}
-								if (args.get(i).claseParametro == Simbolo.Clase_parametro.REF) {
+								/*if (args.get(i).claseParametro == Simbolo.Clase_parametro.REF) {
 									error_semantico(t.endLine, t.endColumn, "Se esta pasando un parametro REF y se espera VAL");
-								}
+								}*/
 							}else {
-							  	codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n"));
-                  				codigo += "; Instruccion eliminada DRF\n";
-								if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
-								   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
-									match = false;
+							  	if(args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.VARIABLE ||
+							  	  (args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.PARAMETRO && args.get(i).claseParametro != Simbolo.Clase_parametro.REF)) { 
+								  	codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n"));
+	                  				codigo += "; Instruccion eliminada DRF\n";
+									if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
+									   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
+										match = false;
+									}
+								}else {
+										error_semantico(t.endLine, t.endColumn, "Parametro no referenciable");
 								}
-								else if (args.get(i).claseParametro != Simbolo.Clase_parametro.REF && args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.VARIABLE) {
-									error_semantico(t.endLine, t.endColumn, "Se esta pasando un parametro VAL y se espera REF");
-								}
-								// REVISAR LAS CONSTANTES COMO REF
 							}
 						}
 					}
@@ -1472,7 +1541,11 @@ Valor expresion():
 				error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible entre " + vRes.tipoVariable + " y " + vAux.tipoVariable);
 			}else if(vAux.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO || vRes.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 		 	   	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
-			}else if(vRes.tipoVariable == Simbolo.Tipo_variable.BOOLEANO && (operador.kind == tIGUAL || operador.kind == tNI)) {
+			}else if(vAux.tamano != null || vRes.tamano != null) {
+			  	vRes.tamano = null;
+			  	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO;
+			  	error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible para vector");
+		 	}else if(vRes.tipoVariable == Simbolo.Tipo_variable.BOOLEANO && (operador.kind == tIGUAL || operador.kind == tNI)) {
 				vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO; 
 			  	vRes.codigo += vAux.codigo;
 				if(operador.kind == tIGUAL) {
@@ -1593,6 +1666,10 @@ Valor expresion_simple():
 				error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible entre " + vRes.tipoVariable + " y " + vAux.tipoVariable);
 		 	}else if(vAux.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO || vRes.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 		 	   	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
+		 	}else if(vAux.tamano != null || vRes.tamano != null) {
+			  	vRes.tamano = null;
+			  	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO;
+			  	error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible para vector");
 		 	}else if(operador.kind == tSUMA || operador.kind == tRESTA) {
 				if(vRes.tipoVariable == Simbolo.Tipo_variable.ENTERO && vAux.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
 				  	vRes.codigo += vAux.codigo;
@@ -1682,7 +1759,11 @@ Valor termino():
 				vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
 				error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible entre " + vRes.tipoVariable + " y " + vAux.tipoVariable);
 		 	}else if(vAux.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO || vRes.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
-		 	   	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
+		 	   	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO;
+			}else if(vAux.tamano != null || vRes.tamano != null) {
+			  	vRes.tamano = null;
+			  	vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO;
+			  	error_semantico(operador.beginLine, operador.beginColumn, "Operador \'" + operador.image + "\' incompatible para vector");
 		 	}else if(operador.kind == tMULT || operador.kind == tDIV || operador.kind == tMOD) {
 				if(vRes.tipoVariable == Simbolo.Tipo_variable.ENTERO && vAux.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
 				  	vRes.codigo += vAux.codigo;
@@ -1848,24 +1929,58 @@ Valor factor(Boolean escritura):
 			}
 		| 	t = <tIDENTIFICADOR> ("[" v = expresion() "]")?
 			{
+			  	if(v!=null) {
+					vRes.tamano = v.valorEnt;
+			 	}
 			  	Simbolo S = tablaSimbolos.buscar_simbolo(t.image);
 			  	vRes.tipoSimbolo = S.getTipo();
 			  	vRes.claseParametro = S.getParametro();
+				vRes.tipoVariable = S.getVariable();
+				vRes.claseParametro = S.getParametro();
 			  	if(S.getTipo() != Simbolo.Tipo_simbolo.PARAMETRO && S.getTipo() != Simbolo.Tipo_simbolo.VARIABLE) {
 					error_semantico(t.beginLine, t.beginColumn, t.image + " es un simbolo de tipo " + S.getTipo());
 			 	}else if(v != null && S.getTamano() == 0) {
 			 		error_semantico(t.beginLine, t.beginColumn, t.image + " no es un vector");
+				}else if(v == null && S.getTamano() > 0) {
+			 		error_semantico(t.beginLine, t.beginColumn, t.image + " es un vector");
 				}else if(v != null && v.tipoVariable != Simbolo.Tipo_variable.ENTERO) {
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice debe ser de tipo entero");
-				}else if(v != null && v.valorEnt != null && (v.valorEnt > S.getTamano() || v.valorEnt <= 0)) {
+				}else if(v != null && v.valorEnt != null && (v.valorEnt > S.getTamano()-1 || v.valorEnt < 0)) {
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice se encuentra fuera de rango");  	
+				}else if(v == null && S.getTamano() > 0) {
+					for (int i = 0; i <= S.getTamano(); i++) {
+					  	/*if(escritura) {
+					  	  	if(i!=0) { 
+								vRes.codigo += "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+											  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + (S.getDir()+v.valorEnt) + "\n" +
+											  "\tDRF\n";
+								if(S.getParametro() == Simbolo.Clase_parametro.REF) {
+									vRes.codigo += "\tDRF\n";
+								}
+								if(S.getVariable() == Simbolo.Tipo_variable.CHAR) {	  	
+									vRes.codigo += "\tWRT\t0\n";
+								}else if(S.getVariable() == Simbolo.Tipo_variable.ENTERO) {
+									vRes.codigo += "\tWRT\t1\n";
+								}
+							}
+					 	}else {
+					 	  	if(S.getParametro() == Simbolo.Clase_parametro.REF) {
+								vRes.codigo = 	"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+ 								  				v.codigo +
+								  				"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  				"\tDRF\n" + v.codigo + "\tPLUS\n" + "\tDRF\n";
+					 	 	}else {
+								vRes.codigo +=  "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+										  		"\tSRF\t" + (nivel - S.getNivel()) + "\t" + (S.getDir()+v.valorEnt) + "\n" +
+										  		"\tDRF\n";
+					 		}
+						} */
+					}
 				}else {
-					vRes.tipoVariable = S.getVariable();
-					vRes.claseParametro = S.getParametro();
 					if(v == null || (v.valorEnt != null && S.getParametro() == Simbolo.Clase_parametro.VAL)) {
 					  	if(v != null && v.valorEnt != null) {
 							vRes.codigo = "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-										  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + (S.getDir()+v.valorEnt-1) + "\n" +
+										  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + (S.getDir()+v.valorEnt) + "\n" +
 										  "\tDRF\n";
 					 	}else { 
 							vRes.codigo = "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
@@ -1883,17 +1998,35 @@ Valor factor(Boolean escritura):
 							}
 						}
 					}else {
+						necesariaErrorIndice = true;
 					  	if(S.getParametro() == Simbolo.Clase_parametro.REF) {
-							vRes.codigo = "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-										  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
-										  "\tDRF\n" + v.codigo + "\tPLUS\n" + "\tDRF\n";
+							vRes.codigo =   "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  			"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  			"\tDRF\n" + "\tDRF\n" + "\tDUP\n" +
+								  			"; Comprobar underflow\n" +
+								  			"\tSTC\t0\n" + "\tLT\n" + "\tJMT\terror_out_of_bounds" +
+								  			"; Comprobar overflow\n" +
+								  			v.codigo +
+								  			"\tGTE\n" + "\tJMT\terror_out_of_bounds" +
+								  			"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  			"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  			"\tDRF\n" + v.codigo + "\tPLUS\n" + "\tSTC\t1\n" + "\tPLUS\n" + "\tDRF\n";
 						}else {
-							vRes.codigo = "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-										  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
-							  			  v.codigo + "\tPLUS\n" + "\tDRF\n";
+							vRes.codigo =  "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  			"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  			"\tDRF\n" + "\tDUP\n" +
+								  			"; Comprobar underflow\n" +
+								  			"\tSTC\t0\n" + "\tLT\n" + "\tJMT\terror_out_of_bounds" +
+								  			"; Comprobar overflow\n" +
+								  			v.codigo +
+								  			"\tGTE\n" + "\tJMT\terror_out_of_bounds" +
+								  			"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  			"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  			v.codigo + "\tPLUS\n" + "\tSTC\t1\n" + "\tPLUS\n" + "\tDRF\n";
 						}
 					}
-					vRes.codigo += 	"; comprobamos si i está inicializada\n" +
+					necesariaErrorInicializada = true;
+					vRes.codigo += 	"; comprobamos si " + S.getTipo() + " " + S.getNombre() + " esta inicializada\n" +
 									"\tDUP\n" +
 									"\tSTC\t32768\n" +
 									"\tEQ\n" +
