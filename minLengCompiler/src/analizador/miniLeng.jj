@@ -852,7 +852,7 @@ String lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tT
 					if(accion != null) {
 		  				accion.addParametro(param);
 		  			}
-		  			codigo = "; Recuperacion del parametro " + t.image + "\n" +
+		  			codigo += "; Recuperacion del parametro " + t.image + "\n" +
 		  					 "\tSRF\t0\t" + dir + "\n" +
 		  					 "\tASGI\n";
 		  			if(tSize != null && tClase == Simbolo.Clase_parametro.VAL) {
@@ -867,6 +867,8 @@ String lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tT
 			catch (SimboloYaDeclaradoException e) {
 				error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya existe");
 			}
+			tSize = null;
+			tamano = 0;
   	  	}
   	  	("," t = <tIDENTIFICADOR> ("[" tSize=<tVALOR_ENTERO>"]")?
   	  	{
