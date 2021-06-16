@@ -1221,37 +1221,20 @@ String lista_escribibles():
 }
 {
   	try {
-	  	v = expresion()
+	  	v = factor(true)
 	  	{
-	  	  	
 			if(v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
 				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo "+v.tipoVariable);
-			}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR && v.tamano == null) { 
-				codigo += v.codigo +
-						  "\tWRT\t0\n";
-			}else if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.tamano == null) {
-				codigo += v.codigo +
-						  "\tWRT\t1\n";
-			}else if(v.tipoVariable == Simbolo.Tipo_variable.CADENA && v.tamano == null) {
-				codigo += v.codigo;
-			}else if(v.tamano != null){
-				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo VECTOR DE "+v.tipoVariable);
+			}else {
+				codigo = v.codigo;
 			}					
 	 	}
-	  	(","(v = expresion())
+	  	(","(v = factor(true))
 		{
 			if(v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO) {
 				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo "+v.tipoVariable);
-			}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR && v.tamano == null) { 
-				codigo += v.codigo +
-						  "\tWRT\t0\n";
-			}else if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.tamano == null) {
-				codigo += v.codigo +
-						  "\tWRT\t1\n";
-			}else if(v.tipoVariable == Simbolo.Tipo_variable.CADENA && v.tamano == null) {
+			}else {
 				codigo += v.codigo;
-			}else if(v.tamano != null){
-				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo VECTOR DE "+v.tipoVariable);
 			}
   		}
 	  	)*
@@ -1841,8 +1824,8 @@ Valor termino():
 }
 {
   	try {
-	  	vRes = factor()
-	  	(operador=operador_multiplicativo() vAux = factor()
+	  	vRes = factor(false)
+	  	(operador=operador_multiplicativo() vAux = factor(false)
 	  	{
 		  	if(vAux.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO && vRes.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO && vRes.tipoVariable != vAux.tipoVariable) {
 				vRes.tipoVariable = Simbolo.Tipo_variable.DESCONOCIDO; 
@@ -1946,7 +1929,7 @@ Token operador_multiplicativo():
 	|<tTRUE>
 	|<tFALSE>
 */
-Valor factor():
+Valor factor(Boolean escritura):
 {
 	Valor v = null;
 	Valor vRes = new Valor();
@@ -1955,7 +1938,7 @@ Valor factor():
 }
 {
   	try {
-	  	 	t = <tNOT> v = factor()
+	  	 	t = <tNOT> v = factor(false)
 	  	 	{
 	  	 	  	vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO;
 				if (v.tipoVariable == Simbolo.Tipo_variable.BOOLEANO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
@@ -1967,7 +1950,7 @@ Valor factor():
 					error_semantico(t.beginLine, t.beginColumn, "Operador \'" + t.image + "\' no aplicable para " + v.tipoVariable);
 				} 
 	  		}
-	 	| 	t = "-" v = factor()
+	 	| 	t = "-" v = factor(false)
 	 		{
 	 		  	vRes.tipoVariable = Simbolo.Tipo_variable.ENTERO;
 				if (v.tipoVariable == Simbolo.Tipo_variable.ENTERO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
@@ -1984,6 +1967,9 @@ Valor factor():
 			{
 			  	vRes.tipoVariable = Simbolo.Tipo_variable.CHAR;
 			  	vRes.codigo = v.codigo;
+			  	if(escritura) {
+					vRes.codigo += "\tWRT\t0\n";
+			 	}
 				if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 					if (v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.valorEnt != null) {
 						if(v.valorEnt <= 255 && v.valorEnt >= 0) {
@@ -2002,6 +1988,9 @@ Valor factor():
 			{
 				vRes.tipoVariable = Simbolo.Tipo_variable.ENTERO;
 				vRes.codigo = v.codigo;
+				if(escritura) {
+					vRes.codigo += "\tWRT\t1\n";
+			 	}
 				if(v.tipoVariable == Simbolo.Tipo_variable.CHAR || v.tipoVariable == Simbolo.Tipo_variable.DESCONOCIDO) {
 					if (v.tipoVariable == Simbolo.Tipo_variable.CHAR && v.valorChar != null) {
 						vRes.valorEnt = (int)v.valorChar;
@@ -2072,6 +2061,13 @@ Valor factor():
 						if(S.getParametro() == Simbolo.Clase_parametro.REF) {
 							vRes.codigo += "\tDRF\n";
 						}
+						if(escritura) {
+							if(S.getVariable() == Simbolo.Tipo_variable.CHAR) {	  	
+								vRes.codigo += "\tWRT\t0\n";
+							}else if(S.getVariable() == Simbolo.Tipo_variable.ENTERO) {
+								vRes.codigo += "\tWRT\t1\n";
+							}
+						}
 					}else {
 						necesariaErrorIndice = true;
 						vRes.codigo =  "; Comprobar underflow\n" +
@@ -2114,6 +2110,9 @@ Valor factor():
 				if(t.image.length() < 10 && Long.parseLong(t.image) < 32767 && Long.parseLong(t.image) > -32766) {
 					vRes.valorEnt = Integer.parseInt(t.image);
 					vRes.codigo = "\tSTC\t" + vRes.valorEnt + "\n";
+					if(escritura) {
+						vRes.codigo += "\tWRT\t1\n";
+			 		}
 				}else {
 					error_semantico(t.beginLine, t.beginColumn, "Desboradmiento en la constante entera " + t.image);
 				}
@@ -2123,17 +2122,22 @@ Valor factor():
 				vRes.tipoVariable = Simbolo.Tipo_variable.CHAR;
 				vRes.valorChar = t.image.charAt(1);
 				vRes.codigo = "\tSTC\t" + (int)vRes.valorChar + "\n";
+				if(escritura) {
+					vRes.codigo += "\tWRT\t0\n";
+			 	}
 			}
 		| 	t = <tCONSTCAD>
-			{ 
-			    vRes.codigo = "; cadena \'" + t.image + "\'\n";
-			    char[] cad = t.image.toCharArray();
-			    int j = 0;
-			    for (char i : cad) {
-			    	if (j != 0 && j != t.image.length() - 1) {
-			        	vRes.codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
-			       	}
-			    	j++;
+			{
+			  	if (escritura) { 
+				    vRes.codigo = "; cadena \'" + t.image + "\'\n";
+				    char[] cad = t.image.toCharArray();
+				    int j = 0;
+				    for (char i : cad) {
+				    	if (j != 0 && j != t.image.length() - 1) {
+				        	vRes.codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
+				       	}
+				    	j++;
+				    }
 			    }
 				vRes.tipoVariable = Simbolo.Tipo_variable.CADENA;
 			}
