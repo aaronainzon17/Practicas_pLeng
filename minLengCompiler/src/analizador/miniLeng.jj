@@ -472,68 +472,70 @@ String programa() :
 		codigoAcciones = declaracion_acciones()
 		codigoSentencias = bloque_sentencias() < EOF >
 		{
-		  	String err;
-		  	int j;
-		  	char[] cad;
-			if(necesariaErrorInicializada) { 
-				err = "\"Error en runtime: acceso a variable no inicializada\"";
-			  	codigo += 	"error_inicializada:\n"+
-			  				"; escribir\n" +
-			  				"; cadena " + err + "\n";
-			    cad = err.toCharArray();
-			    j = 0;
-			    for (char i : cad) {
-			    	if (j != 0 && j != err.length() - 1) {
-			        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
-			       	}
-			    	j++;
-			    }
-				codigo += "\tJMP\tL1\n";
+		  	if(!error) { 
+			  	String err;
+			  	int j;
+			  	char[] cad;
+				if(necesariaErrorInicializada) { 
+					err = "\"Error en runtime: acceso a variable no inicializada\"";
+				  	codigo += 	"error_inicializada:\n"+
+				  				"; escribir\n" +
+				  				"; cadena " + err + "\n";
+				    cad = err.toCharArray();
+				    j = 0;
+				    for (char i : cad) {
+				    	if (j != 0 && j != err.length() - 1) {
+				        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
+				       	}
+				    	j++;
+				    }
+					codigo += "\tJMP\tL1\n";
+				}
+				if(necesariaErrorIndice) { 
+				    err = "\"Error en runtime: indice de acceso a vector fuera de rango\"";
+					necesariaErrorIndice = true;
+				  	codigo += 	"error_out_of_bounds:\n"+
+				  				"; escribir\n" +
+				  				"; cadena " + err + "\n";
+				    cad = err.toCharArray();
+				    j = 0;
+				    for (char i : cad) {
+				    	if (j != 0 && j != err.length() - 1) {
+				        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
+				       	}
+				    	j++;
+				    }
+				    codigo += "\tJMP\tL1\n";
+		  		}
+			  	Iterator<Codigo> codeIterator = codigoAcciones.iterator();
+			  	Codigo fragmento;
+			  	while(codeIterator.hasNext()) {
+					fragmento = codeIterator.next();
+					if(fragmento.S.getUsado()) {
+						codigo += fragmento.codigo;
+					}else {
+						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Accion no usada");
+					}
+			 	}
+	
+			 	codigo += "; Inicio " + t.image + "\n" +
+						  program.toString() + ":\n";
+						  
+			 	codeIterator = codigoVariables.iterator();
+			 	while(codeIterator.hasNext()) {
+					fragmento = codeIterator.next();
+					if(fragmento.S.getUsado()) {
+						codigo += fragmento.codigo;
+					}else {
+						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Variable no usada");
+					}
+			 	}
+	
+				codigo += codigoSentencias +
+						  "; Final " + t.image + "\n" +
+						  programEnd.toString() + ":\n" +
+						  "\tLVP";
 			}
-			if(necesariaErrorIndice) { 
-			    err = "\"Error en runtime: indice de acceso a vector fuera de rango\"";
-				necesariaErrorIndice = true;
-			  	codigo += 	"error_out_of_bounds:\n"+
-			  				"; escribir\n" +
-			  				"; cadena " + err + "\n";
-			    cad = err.toCharArray();
-			    j = 0;
-			    for (char i : cad) {
-			    	if (j != 0 && j != err.length() - 1) {
-			        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
-			       	}
-			    	j++;
-			    }
-			    codigo += "\tJMP\tL1\n";
-		  	}
-		  	Iterator<Codigo> codeIterator = codigoAcciones.iterator();
-		  	Codigo fragmento;
-		  	while(codeIterator.hasNext()) {
-				fragmento = codeIterator.next();
-				if(fragmento.S.getUsado()) {
-					codigo += fragmento.codigo;
-				}else {
-					warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Accion no usada");
-				}
-		 	}
-
-		 	codigo += "; Inicio " + t.image + "\n" +
-					  program.toString() + ":\n";
-					  
-		 	codeIterator = codigoVariables.iterator();
-		 	while(codeIterator.hasNext()) {
-				fragmento = codeIterator.next();
-				if(fragmento.S.getUsado()) {
-					codigo += fragmento.codigo;
-				}else {
-					warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Variable no usada");
-				}
-		 	}
-
-			codigo += codigoSentencias +
-					  "; Final " + t.image + "\n" +
-					  programEnd.toString() + ":\n" +
-					  "\tLVP";
 		}
 	}
 	catch (ParseException e) {
@@ -780,35 +782,36 @@ Codigo declaracion_accion():
 	  	codigoAcciones = declaracion_acciones()
 	  	codigoSentencias = bloque_sentencias()
 	  	{
-
-			codigo.S = codigoParams.S;
-			
-	  	  	Iterator<Codigo> codeIterator = codigoAcciones.iterator();
-		  	Codigo fragmento;
-		  	while(codeIterator.hasNext()) {
-				fragmento = codeIterator.next();
-				if(fragmento.S.getUsado()) {
-					codigo.codigo += fragmento.codigo;
-				}else {
-					warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Accion no usada");
-				}
-		 	}
-
-		 	codigo.codigo += codigoParams.codigo;
-					  
-		 	codeIterator = codigoVariables.iterator();
-		 	while(codeIterator.hasNext()) {
-				fragmento = codeIterator.next();
-				if(fragmento.S.getUsado()) {
-					codigo.codigo += fragmento.codigo;
-				}else {
-					warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Variable no usada");
-				}
-		 	}
-	  	  		
-  	  		codigo.codigo += codigoSentencias +
-					 "; Fin accion " + accion.tagName + "\n" +
-					 "\tCSF\n";
+			if(!error) { 
+				codigo.S = codigoParams.S;
+				
+		  	  	Iterator<Codigo> codeIterator = codigoAcciones.iterator();
+			  	Codigo fragmento;
+			  	while(codeIterator.hasNext()) {
+					fragmento = codeIterator.next();
+					if(fragmento.S.getUsado()) {
+						codigo.codigo += fragmento.codigo;
+					}else {
+						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Accion no usada");
+					}
+			 	}
+	
+			 	codigo.codigo += codigoParams.codigo;
+						  
+			 	codeIterator = codigoVariables.iterator();
+			 	while(codeIterator.hasNext()) {
+					fragmento = codeIterator.next();
+					if(fragmento.S.getUsado()) {
+						codigo.codigo += fragmento.codigo;
+					}else {
+						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Variable no usada");
+					}
+			 	}
+		  	  		
+	  	  		codigo.codigo += codigoSentencias +
+						 "; Fin accion " + accion.tagName + "\n" +
+						 "\tCSF\n";
+			}
 			//tablaSimbolos.imprimirTabla();
 			tablaSimbolos.eliminar_variables(nivel);
 			tablaSimbolos.eliminar_acciones(nivel);
