@@ -1240,16 +1240,17 @@ String lista_escribibles():
 			}else if(v.tamano != null){
 				codigo += "; escribiendo vector\n" +
 						  "\tSTC\t91\n" +
-						  "\tWRT\t0\n";
+						  "\tWRT\t0\n" +
+						  v.codigo.substring(0, v.codigo.lastIndexOf("\tDRF\n"));
 				for (int j = 1; j <= v.tamano ; j++) {
 					codigo += "; escribiendo "+ j + "\n" +
 							  "\tDUP\n" +
 							  "\tSTC\t"+j+"\n"+
-							  "\tPLUS"+
+							  "\tPLUS\n"+
 							  "\tDRF\n";
-					if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.tamano == null) {
+					if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
 						codigo += "\tWRT\t1\n";
-					}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR && v.tamano == null) {
+					}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR) {
 						codigo += "\tWRT\t0\n";
 					}
 					if(j!=v.tamano) {
@@ -1276,16 +1277,17 @@ String lista_escribibles():
 			}else if(v.tamano != null){
 				codigo += "; escribiendo vector\n" +
 						  "\tSTC\t91\n" +
-						  "\tWRT\t0\n";
+						  "\tWRT\t0\n" +
+						  v.codigo.substring(0, v.codigo.lastIndexOf("\tDRF\n"));
 				for (int j = 1; j <= v.tamano ; j++) {
 					codigo += "; escribiendo "+ j + "\n" +
 							  "\tDUP\n" +
 							  "\tSTC\t"+j+"\n"+
-							  "\tPLUS"+
+							  "\tPLUS\n"+
 							  "\tDRF\n";
-					if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.tamano == null) {
+					if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
 						codigo += "\tWRT\t1\n";
-					}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR && v.tamano == null) {
+					}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR) {
 						codigo += "\tWRT\t0\n";
 					}
 					if(j!=v.tamano) {
@@ -1337,7 +1339,15 @@ String asignacion(Token t):
 				}else if(v != null && v.tamano!=null && v.tamano > 0) { 
 					error_semantico(t.beginLine, t.beginColumn, "El indice no puede ser un vector");
 				}else if(v == null && S.getTamano() > 0) {
-					
+					if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
+						codigo =  "; Direccion del parametro " + S.getNombre() + "\n" +
+								  "\tSRF\t0\t" + S.getDir() + "\n" +
+								  "; Direccion de la referencia " + S.getNombre() + "\n" +
+								  "\tDRF\n";
+					}else { 
+						codigo = "; Direccion de la variable " + S.getNombre() + "\n" +
+								 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+					}
 				}else {
 					if(v == null) {
 					  	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
