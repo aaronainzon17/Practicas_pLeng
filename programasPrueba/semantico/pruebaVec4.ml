@@ -7,6 +7,13 @@ Se prueba el paso por referencia de vectores
 programa pruebaVec4;
 
 	entero v1[5],mult,i;
+
+accion cambiar_de_linea;
+
+	Principio
+	  escribir (entacar (13), entacar (10));
+	Fin
+	
 % La accion devuelve el vector multiplciado por el valor que se pasa
 % en el atributo por
 accion multiplicar(ref entero v1[5]; val entero por);
@@ -25,6 +32,7 @@ accion multiplicar(ref entero v1[5]; val entero por);
 			i := i + 1;
 		fmq
 		escribir("El vector v1 vale: ", v1);
+		cambiar_de_linea;
 		mult := 2;
 		multiplicar(v1,mult);
 		escribir("La multiplicacion de v1 por ", mult, " es: ", v1);
