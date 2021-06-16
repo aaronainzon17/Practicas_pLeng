@@ -1041,63 +1041,28 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 				S = tablaSimbolos.buscar_simbolo(t.image);
 				if(!(S.getTipo() == Simbolo.Tipo_simbolo.VARIABLE || 
 				  (S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF))) {
-					error_semantico(t.beginLine, t.beginColumn, "Se esperaba variable o parametro por referencia y se obtuvo "+S.getTipo());	
+					error_semantico(t.beginLine, t.beginColumn, "Se esperaba variable o parametro por referencia y se obtuvo "+S.toString());	
 				}else if(S.getVariable() == Simbolo.Tipo_variable.BOOLEANO) {
 					error_semantico(t.beginLine, t.beginColumn, "Operacion lectura no valida para el tipo "+S.getVariable());	
-				}else if(v != null && S.getTamano() == 0) {
-			 		error_semantico(t.beginLine, t.beginColumn, t.image + " no es un vector");
-				}else if(v != null && v.tipoVariable != Simbolo.Tipo_variable.ENTERO) {
-				  	error_semantico(t.beginLine, t.beginColumn, "El indice debe ser de tipo entero");
-				}else if(v != null && v.valorEnt != null && (v.valorEnt > S.getTamano()-1 || v.valorEnt < 0)) {
-				  	error_semantico(t.beginLine, t.beginColumn, "El indice se encuentra fuera de rango");  	
-				}else if(v == null && S.getTamano() > 0) {
-					error_semantico(t.beginLine, t.beginColumn, "Operacion lectura no valida para vectores");
-				}else {
-					if(v == null) {
-					  	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-							codigo +=  "; Direccion del parametro " + S.getNombre() + "\n" +
-									  "\tSRF\t0\t" + S.getDir() + "\n" +
-									  "; Direccion de la referencia " + S.getNombre() + "\n" +
-									  "\tDRF\n";
-						}else { 
-							codigo += "; Direccion de la variable " + S.getNombre() + "\n" +
-									 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
-						}
-					}else {
-					  	codigo +=    "; Comprobar underflow\n" +
-								    "\tSTC\t0\n" +
-								    v.codigo +
-								    "\tGT\n" +
-								    "\tJMT\terror_out_of_bounds\n" +
-								    "; Comprobar overflow\n" +
-								    "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
-								    "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
-								    "\tDRF\n";
-						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  codigo += "\tDRF\n";
-						}
-						codigo +=	v.codigo +
-									"\tLTE\n" +
-									"\tJMT\terror_out_of_bounds\n" +
-									"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-									"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
-						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  codigo += "\tDRF\n";
-						}
-						codigo +=	v.codigo +
-							  		"\tPLUS\n" +
-							  		"\tSTC\t1\n" +
-							  		"\tPLUS\n";
-					}	       		
-				  	if (S.getVariable() == Simbolo.Tipo_variable.ENTERO){
-			       		codigo += "\tRD\t1\n";
-		      		}else if (S.getVariable() == Simbolo.Tipo_variable.CHAR){
-			       		codigo += "\tRD\t0\n";
-			      	}
-		     	}
+				}else if (S.getVariable() == Simbolo.Tipo_variable.ENTERO){
+				  	codigo += "; Acceder a " + S.getTipo() + " " + S.getNombre() + "\n";
+		        	codigo += "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+		        	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO) {
+						codigo += "\tDRF\n";
+		       		}
+		       		codigo += "\tRD\t1\n";
+		      	}else if (S.getVariable() == Simbolo.Tipo_variable.CHAR){
+		      	  	codigo += "; Acceder a " + S.getTipo() + " " + S.getNombre() + "\n";
+		        	codigo += "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+		        	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO) {
+						codigo += "\tDRF\n";
+		       		}
+		       		
+		       		codigo += "\tRD\t0\n";
+		      	}
 			}
 			catch (SimboloNoEncontradoException e) { 
-				try{
+				try{  
 				  	tablaSimbolos.introducir_variable(t.image, Simbolo.Tipo_variable.DESCONOCIDO, nivel, dir,0);
 				}
 				catch(SimboloYaDeclaradoException e1) {
@@ -1119,47 +1084,20 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 			 		error_semantico(t.beginLine, t.beginColumn, t.image + " no es un vector");
 				}else if(v != null && v.tipoVariable != Simbolo.Tipo_variable.ENTERO) {
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice debe ser de tipo entero");
-				}else if(v != null && v.valorEnt != null && (v.valorEnt > S.getTamano()-1 || v.valorEnt < 0)) {
+				}else if(v != null && v.valorEnt != null && (v.valorEnt > S.getTamano() || v.valorEnt <= 0)) {
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice se encuentra fuera de rango");  	
-				}else if(v == null && S.getTamano() > 0) {
-					error_semantico(t.beginLine, t.beginColumn, "Operacion lectura no valida para vectores");
 				}else {
 					if(v == null) {
-					  	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-							codigo +=  "; Direccion del parametro " + S.getNombre() + "\n" +
-									  "\tSRF\t0\t" + S.getDir() + "\n" +
-									  "; Direccion de la referencia " + S.getNombre() + "\n" +
-									  "\tDRF\n";
-						}else { 
-							codigo += "; Direccion de la variable " + S.getNombre() + "\n" +
-									 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
-						}
+					   	codigo += "; Acceder a " + S.getTipo() + " " + S.getNombre() + "\n";
+			        	codigo += "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+			        	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO) {
+							codigo += "\tDRF\n";
+			       		}
 					}else {
-					  	codigo +=    "; Comprobar underflow\n" +
-								    "\tSTC\t0\n" +
-								    v.codigo +
-								    "\tGT\n" +
-								    "\tJMT\terror_out_of_bounds\n" +
-								    "; Comprobar overflow\n" +
-								    "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
-								    "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
-								    "\tDRF\n";
-						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  codigo += "\tDRF\n";
-						}
-						codigo +=	v.codigo +
-									"\tLTE\n" +
-									"\tJMT\terror_out_of_bounds\n" +
-									"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-									"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
-						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  codigo += "\tDRF\n";
-						}
-						codigo +=	v.codigo +
-							  		"\tPLUS\n" +
-							  		"\tSTC\t1\n" +
-							  		"\tPLUS\n";
-					}	       		
+						codigo = "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+									  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+									  "\tDRF\n" + v.codigo + "\tPLUS\n" + "\tDRF\n";
+					}		       		
 				  	if (S.getVariable() == Simbolo.Tipo_variable.ENTERO){
 			       		codigo += "\tRD\t1\n";
 		      		}else if (S.getVariable() == Simbolo.Tipo_variable.CHAR){
@@ -1256,7 +1194,6 @@ String asignacion(Token t):
 	String codigo = "";
 	Simbolo S = null;
 	Valor v = null;
-	Valor v2 = null;
 }
 {	
   	try {
@@ -1273,47 +1210,44 @@ String asignacion(Token t):
 				}else if(v != null && v.tipoVariable != Simbolo.Tipo_variable.ENTERO) {
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice debe ser de tipo entero");
 				}else if(v != null && v.valorEnt != null && (v.valorEnt > S.getTamano()-1 || v.valorEnt < 0)) {
-				  	error_semantico(t.beginLine, t.beginColumn, "El indice se encuentra fuera de rango");
-				}else if(v != null && v.tamano!=null && v.tamano > 0) { 
-					error_semantico(t.beginLine, t.beginColumn, "El indice no puede ser un vector");
-				}else if(v == null && S.getTamano() > 0) {
-					
-				}else {
-					if(v == null) {
-					  	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-							codigo =  "; Direccion del parametro " + S.getNombre() + "\n" +
-									  "\tSRF\t0\t" + S.getDir() + "\n" +
-									  "; Direccion de la referencia " + S.getNombre() + "\n" +
-									  "\tDRF\n";
-						}else { 
-							codigo = "; Direccion de la variable " + S.getNombre() + "\n" +
-									 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
-						}
+				  	error_semantico(t.beginLine, t.beginColumn, "El indice se encuentra fuera de rango");  	
+				}else if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
+					if(v == null) { 
+						codigo =  "; Direccion del parametro " + S.getNombre() + "\n" +
+								  "\tSRF\t0\t" + S.getDir() + "\n" +
+								  "; Direccion de la referencia " + S.getNombre() + "\n" +
+								  "\tDRF\n";
 					}else {
-					  	codigo =    "; Comprobar underflow\n" +
-								    "\tSTC\t0\n" +
-								    v.codigo +
-								    "\tGT\n" +
-								    "\tJMT\terror_out_of_bounds\n" +
-								    "; Comprobar overflow\n" +
-								    "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
-								    "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
-								    "\tDRF\n";
-						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  codigo += "\tDRF\n";
-						}
-						codigo +=	v.codigo +
-									"\tLTE\n" +
-									"\tJMT\terror_out_of_bounds\n" +
-									"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-									"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
-						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  codigo += "\tDRF\n";
-						}
-						codigo +=	v.codigo +
-							  		"\tPLUS\n" +
-							  		"\tSTC\t1\n" +
-							  		"\tPLUS\n";
+						necesariaErrorIndice = true;
+						codigo =  "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  "\tDRF\n" + "\tDRF\n" + "\tDUP\n" +
+								  "; Comprobar underflow\n" +
+								  "\tSTC\t0\n" + "\tLT\n" + "\tJMT\terror_out_of_bounds" +
+								  "; Comprobar overflow\n" +
+								  "\tGTE\n" + "\tJMT\terror_out_of_bounds" +
+								  "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  v.codigo +
+								  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  "\tDRF\n" + v.codigo + "\tPLUS\n" + "\tSTC\t1\n" + "\tPLUS\n";
+					}
+				}else if(S.getTipo() == Simbolo.Tipo_simbolo.VARIABLE) {
+			  		if(v == null) {
+						codigo = "; Direccion de la variable " + S.getNombre() + "\n" +
+								 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+					}else {
+						necesariaErrorIndice = true;
+						codigo = "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  "\tDRF\n" + "\tDUP\n" +
+								  "; Comprobar underflow\n" +
+								  "\tSTC\t0\n" + "\tLT\n" + "\tJMT\terror_out_of_bounds" +
+								  "; Comprobar overflow\n" +
+								  v.codigo +
+								  "\tGTE\n" + "\tJMT\terror_out_of_bounds" +
+								  "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  v.codigo + "\tPLUS\n" + "\tSTC\t1\n" + "\tPLUS\n";
 					}
 				}
 			}
@@ -1328,25 +1262,17 @@ String asignacion(Token t):
 				error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" no declarado");	  
 			} 
 		}  
-	  	<tOPAS>  v2 = expresion()
+	  	<tOPAS>  v = expresion()
 		{
-			if (S.getVariable() !=v2.tipoVariable && v2.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO 
+			if (S.getVariable() !=v.tipoVariable && v.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO 
 			&& S.getVariable() != Simbolo.Tipo_variable.DESCONOCIDO) {  
-	      		error_semantico(t.endLine, t.endColumn, "Asignacion imposible entre:" + S.getVariable() + " y " + v2.tipoVariable);
-	     	}else if((v == null && S.getTamano() == 0 || v != null && S.getTamano() > 0) && v2.tamano!=null && v2.tamano>0) {
-				error_semantico(t.beginLine, t.beginColumn, "No se puede asignar a " + S.getVariable() + " un VECTOR DE " + v2.tipoVariable);
-			}else if(v == null && S.getTamano() > 0 && v2.tamano==null) {
-				error_semantico(t.beginLine, t.beginColumn, "No se puede asignar a un VECTOR DE " + v2.tipoVariable + " un " + S.getVariable());
-			}else if(v == null && S.getTamano() > 0 && v2.tamano!=null && v2.tamano!=S.getTamano()) {
-				error_semantico(t.beginLine, t.beginColumn, "Asignacion imposible entre vectores de distinto tamano");
-			}else if(v == null && S.getTamano() > 0 && v2.tamano!=null && v2.tamano==S.getTamano()) {
-				
-			}else { 
-	        	codigo += 	v2.codigo +
+	      		error_semantico(t.endLine, t.endColumn, "Asignacion imposible entre:" + S.getVariable() + " y " + v.tipoVariable);
+	     	}
+	      	{
+	        	codigo += 	v.codigo +
 	        				"; Asignacion\n" +
 	        				"\tASG\n";
-
-	     	}
+	      	}
 		}
 	  	";"
 	}
@@ -1579,10 +1505,12 @@ ArrayList<Valor> lista_expresiones():
 	  	v = expresion()
 	  	{
 			res.add(v);
+			// Hay que eliminar un DRF?
 	 	}
 	  	("," v = expresion()
 	  	{
 			res.add(v);
+			// Hay que eliminar un DRF?
 	 	})*
 	}
 	catch (ParseException e)
@@ -2013,12 +1941,13 @@ Valor factor(Boolean escritura):
 					error_semantico(t.beginLine, t.beginColumn, t.image + " es un simbolo de tipo " + S.getTipo());
 			 	}else if(v != null && S.getTamano() == 0) {
 			 		error_semantico(t.beginLine, t.beginColumn, t.image + " no es un vector");
+				}else if(v == null && S.getTamano() > 0) {
+			 		error_semantico(t.beginLine, t.beginColumn, t.image + " es un vector");
 				}else if(v != null && v.tipoVariable != Simbolo.Tipo_variable.ENTERO) {
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice debe ser de tipo entero");
 				}else if(v != null && v.valorEnt != null && (v.valorEnt > S.getTamano()-1 || v.valorEnt < 0)) {
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice se encuentra fuera de rango");  	
 				}else if(v == null && S.getTamano() > 0) {
-				  	vRes.tamano = S.getTamano();
 					for (int i = 0; i <= S.getTamano(); i++) {
 					  	/*if(escritura) {
 					  	  	if(i!=0) { 
@@ -2070,31 +1999,31 @@ Valor factor(Boolean escritura):
 						}
 					}else {
 						necesariaErrorIndice = true;
-						vRes.codigo =  "; Comprobar underflow\n" +
-									    "\tSTC\t0\n" +
-									    v.codigo +
-									    "\tGT\n" +
-									    "\tJMT\terror_out_of_bounds\n" +
-									    "; Comprobar overflow\n" +
-									    "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
-									    "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
-									    "\tDRF\n";
-						if(S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  vRes.codigo += "\tDRF\n";
+					  	if(S.getParametro() == Simbolo.Clase_parametro.REF) {
+							vRes.codigo =   "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  			"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  			"\tDRF\n" + "\tDRF\n" + "\tDUP\n" +
+								  			"; Comprobar underflow\n" +
+								  			"\tSTC\t0\n" + "\tLT\n" + "\tJMT\terror_out_of_bounds" +
+								  			"; Comprobar overflow\n" +
+								  			v.codigo +
+								  			"\tGTE\n" + "\tJMT\terror_out_of_bounds" +
+								  			"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  			"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  			"\tDRF\n" + v.codigo + "\tPLUS\n" + "\tSTC\t1\n" + "\tPLUS\n" + "\tDRF\n";
+						}else {
+							vRes.codigo =  "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  			"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  			"\tDRF\n" + "\tDUP\n" +
+								  			"; Comprobar underflow\n" +
+								  			"\tSTC\t0\n" + "\tLT\n" + "\tJMT\terror_out_of_bounds" +
+								  			"; Comprobar overflow\n" +
+								  			v.codigo +
+								  			"\tGTE\n" + "\tJMT\terror_out_of_bounds" +
+								  			"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+								  			"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								  			v.codigo + "\tPLUS\n" + "\tSTC\t1\n" + "\tPLUS\n" + "\tDRF\n";
 						}
-						vRes.codigo +=	v.codigo +
-									    "\tLTE\n" +
-									    "\tJMT\terror_out_of_bounds\n" +
-									    "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-									    "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
-						if(S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  vRes.codigo += "\tDRF\n";
-						}
-						vRes.codigo +=	v.codigo +
-							  			"\tPLUS\n" +
-							  			"\tSTC\t1\n" +
-							  			"\tPLUS\n" +
-							  			"\tDRF\n";
 					}
 					necesariaErrorInicializada = true;
 					vRes.codigo += 	"; comprobamos si " + S.getTipo() + " " + S.getNombre() + " esta inicializada\n" +
