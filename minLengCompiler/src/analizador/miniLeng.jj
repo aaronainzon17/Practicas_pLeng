@@ -1323,28 +1323,30 @@ String lista_escribibles():
 			}else if(v.tipoVariable == Simbolo.Tipo_variable.CADENA) {
 				codigo += v.codigo;
 			}else if(v.tamano != null){
-				codigo += "; escribiendo vector\n" +
-						  "\tSTC\t91\n" +
-						  "\tWRT\t0\n" +
-						  v.codigo.substring(0, v.codigo.lastIndexOf("\tDRF\n"));
-				for (int j = 1; j <= v.tamano ; j++) {
-					codigo += "; escribiendo "+ j + "\n" +
-							  "\tDUP\n" +
-							  "\tSTC\t"+j+"\n"+
-							  "\tPLUS\n"+
-							  "\tDRF\n";
-					if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
-						codigo += "\tWRT\t1\n";
-					}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR) {
-						codigo += "\tWRT\t0\n";
+				if(!error){
+					codigo += "; escribiendo vector\n" +
+							"\tSTC\t91\n" +
+							"\tWRT\t0\n" +
+							v.codigo.substring(0, v.codigo.lastIndexOf("\tDRF\n"));
+					for (int j = 1; j <= v.tamano ; j++) {
+						codigo += "; escribiendo "+ j + "\n" +
+								"\tDUP\n" +
+								"\tSTC\t"+j+"\n"+
+								"\tPLUS\n"+
+								"\tDRF\n";
+						if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
+							codigo += "\tWRT\t1\n";
+						}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR) {
+							codigo += "\tWRT\t0\n";
+						}
+						if(j!=v.tamano) {
+							codigo += "\tSTC\t44\n" +
+									"\tWRT\t0\n";
+						}
 					}
-					if(j!=v.tamano) {
-						codigo += "\tSTC\t44\n" +
-								  "\tWRT\t0\n";
-					}
+					codigo += "\tSTC\t93\n" +
+							"\tWRT\t0\n";
 				}
-				codigo += "\tSTC\t93\n" +
-						  "\tWRT\t0\n";
 			}					
 	 	}
 	  	(","(v = expresion())
@@ -1360,28 +1362,30 @@ String lista_escribibles():
 			}else if(v.tipoVariable == Simbolo.Tipo_variable.CADENA) {
 				codigo += v.codigo;
 			}else if(v.tamano != null){
-				codigo += "; escribiendo vector\n" +
-						  "\tSTC\t91\n" +
-						  "\tWRT\t0\n" +
-						  v.codigo.substring(0, v.codigo.lastIndexOf("\tDRF\n"));
-				for (int j = 1; j <= v.tamano ; j++) {
-					codigo += "; escribiendo "+ j + "\n" +
-							  "\tDUP\n" +
-							  "\tSTC\t"+j+"\n"+
-							  "\tPLUS\n"+
-							  "\tDRF\n";
-					if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
-						codigo += "\tWRT\t1\n";
-					}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR) {
-						codigo += "\tWRT\t0\n";
+				if(!error){
+					codigo += "; escribiendo vector\n" +
+							"\tSTC\t91\n" +
+							"\tWRT\t0\n" +
+							v.codigo.substring(0, v.codigo.lastIndexOf("\tDRF\n"));
+					for (int j = 1; j <= v.tamano ; j++) {
+						codigo += "; escribiendo "+ j + "\n" +
+								"\tDUP\n" +
+								"\tSTC\t"+j+"\n"+
+								"\tPLUS\n"+
+								"\tDRF\n";
+						if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO) {
+							codigo += "\tWRT\t1\n";
+						}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR) {
+							codigo += "\tWRT\t0\n";
+						}
+						if(j!=v.tamano) {
+							codigo += "\tSTC\t44\n" +
+									"\tWRT\t0\n";
+						}
 					}
-					if(j!=v.tamano) {
-						codigo += "\tSTC\t44\n" +
-								  "\tWRT\t0\n";
-					}
+					codigo += "\tSTC\t93\n" +
+							"\tWRT\t0\n";
 				}
-				codigo += "\tSTC\t93\n" +
-						  "\tWRT\t0\n";
 			}
   		}
 	  	)*
