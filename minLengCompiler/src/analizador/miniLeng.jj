@@ -1088,6 +1088,7 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 									 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
 						}
 					}else {
+						necesariaErrorIndice = true;
 					  	codigo +=    "; Comprobar underflow\n" +
 								    "\tSTC\t0\n" +
 								    v.codigo +
@@ -1160,6 +1161,7 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 									 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
 						}
 					}else {
+						necesariaErrorIndice = true;
 					  	codigo +=    "; Comprobar underflow\n" +
 								    "\tSTC\t0\n" +
 								    v.codigo +
@@ -1382,6 +1384,7 @@ String asignacion(Token t):
 									 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
 						}
 					}else {
+						necesariaErrorIndice = true;
 					  	codigo =    "; Comprobar underflow\n" +
 								    "\tSTC\t0\n" +
 								    v.codigo +
