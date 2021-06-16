@@ -1572,13 +1572,11 @@ String invocacion_accion(Token t):
 										codigo += args.get(i).codigo;
 								}
 								if((args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() ||
-								   args.get(i).tamano != S.getListaParametros().get(i).getTamano())&&
-								   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
+									 (args.get(i).tamano != null && S.getListaParametros().get(i).getTamano() > 0 &&
+									 args.get(i).tamano != S.getListaParametros().get(i).getTamano()))&&
+									 args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
 									match = false;
 								}
-								/*if (args.get(i).claseParametro == Simbolo.Clase_parametro.REF) {
-									error_semantico(t.endLine, t.endColumn, "Se esta pasando un parametro REF y se espera VAL");
-								}*/
 							}else {
 							  	if(args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.VARIABLE ||
 							  	  (args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.PARAMETRO && args.get(i).claseParametro != Simbolo.Clase_parametro.REF)) { 
@@ -1586,7 +1584,8 @@ String invocacion_accion(Token t):
 								  		codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n"));
 									}
 									if((args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() ||
-									   args.get(i).tamano != S.getListaParametros().get(i).getTamano())&&
+									   (args.get(i).tamano != null && S.getListaParametros().get(i).getTamano() > 0 &&
+									    args.get(i).tamano != S.getListaParametros().get(i).getTamano()))&&
 									   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
 										match = false;
 									}
