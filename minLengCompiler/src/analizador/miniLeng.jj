@@ -477,35 +477,316 @@ String programa() :
 			  	int j;
 			  	char[] cad;
 				if(necesariaErrorInicializada) { 
-					err = "\"Error en runtime: acceso a variable no inicializada\"";
-				  	codigo += 	"error_inicializada:\n"+
-				  				"; escribir\n" +
-				  				"; cadena " + err + "\n";
-				    cad = err.toCharArray();
-				    j = 0;
-				    for (char i : cad) {
-				    	if (j != 0 && j != err.length() - 1) {
-				        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
-				       	}
-				    	j++;
-				    }
-					codigo += "\tJMP\tL1\n";
+					codigo += 	"error_inicializada:\n" +
+								"; Recuperacion del parametro linea\n" +
+								"\tSRF\t0\t3\n" +
+								"\tASGI\n" +
+								"; Parametro columna\n" +
+								"\tSRF\t0\t4\n" +
+								"\tASGI\n" +
+								"; Parametro numero\n" +
+								"\tSRF\t0\t5\n" +
+								"\tASGI\n" +
+								"; Principio IF\n" +
+								"; Expresion\n" +
+								"; Accediendo a PARAMETRO numero\n" +
+								"\tSRF\t0\t5\n" +
+								"\tDRF\n" +
+								"\tSTC\t32768\n" +
+								"\tEQ\n" +
+								"\tJMF\tfin_error_inicializada\n" +
+								"; Si true\n" +
+								"; Escribir\n" +
+								"\tSTC\t69\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t111\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t110\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t117\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t110\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t116\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t105\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t109\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t40\n" +
+								"\tWRT\t0\n" +
+								"; Accediendo a PARAMETRO linea\n" +
+								"\tSRF\t0\t3\n" +
+								"\tDRF\n" +
+								"\tWRT\t1\n" +
+								"\tSTC\t44\n" +
+								"\tWRT\t0\n" +
+								"; Accediendo a PARAMETRO columna\n" +
+								"\tSRF\t0\t4\n" +
+								"\tDRF\n" +
+								"\tWRT\t1\n" +
+								"\tSTC\t41\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t58\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t97\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t99\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t99\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t115\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t111\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t97\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t118\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t97\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t105\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t97\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t98\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t108\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t110\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t111\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t105\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t110\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t105\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t99\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t105\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t97\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t108\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t105\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t122\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t97\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t100\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t97\n" +
+								"\tWRT\t0\n" +
+								"\tJMP\tL1\n" +
+								"; Fin IF\n" +
+								"fin_error_inicializada:\n" +
+								"\tCSF\n";
 				}
 				if(necesariaErrorIndice) { 
 				    err = "\"Error en runtime: indice de acceso a vector fuera de rango\"";
 					necesariaErrorIndice = true;
-				  	codigo += 	"error_out_of_bounds:\n"+
-				  				"; escribir\n" +
-				  				"; cadena " + err + "\n";
-				    cad = err.toCharArray();
-				    j = 0;
-				    for (char i : cad) {
-				    	if (j != 0 && j != err.length() - 1) {
-				        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
-				       	}
-				    	j++;
-				    }
-				    codigo += "\tJMP\tL1\n";
+				  	codigo += 	"error_out_of_bounds:\n" +
+								"; Recuperacion del parametro linea\n" +
+								"\tSRF\t0\t3\n" +
+								"\tASGI\n" +
+								"; Parametro columna\n" +
+								"\tSRF\t0\t4\n" +
+								"\tASGI\n" +
+								"; Parametro n\n" +
+								"\tSRF\t0\t5\n" +
+								"\tASGI\n" +
+								"; Parametro tamano\n" +
+								"\tSRF\t0\t6\n" +
+								"\tASGI\n" +
+								"; Principio IF\n" +
+								"; Expresion\n" +
+								"; Accediendo a PARAMETRO n\n" +
+								"\tSRF\t0\t5\n" +
+								"\tDRF\n" +
+								"\tSTC\t0\n" +
+								"\tLT\n" +
+								"; Accediendo a PARAMETRO n\n" +
+								"\tSRF\t0\t5\n" +
+								"\tDRF\n" +
+								"; Accediendo a PARAMETRO tamano\n" +
+								"\tSRF\t0\t6\n" +
+								"\tDRF\n" +
+								"\tGTE\n" +
+								"\tOR\n" +
+								"\tfin_JMF\terror_out_of_bounds\n" +
+								"; Si true\n" +
+								"; Escribir\n" +
+								"\tSTC\t69\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t111\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t110\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t117\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t110\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t116\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t105\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t109\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t40\n" +
+								"\tWRT\t0\n" +
+								"; Accediendo a PARAMETRO linea\n" +
+								"\tSRF\t0\t3\n" +
+								"\tDRF\n" +
+								"\tWRT\t1\n" +
+								"\tSTC\t44\n" +
+								"\tWRT\t0\n" +
+								"; Accediendo a PARAMETRO columna\n" +
+								"\tSRF\t0\t4\n" +
+								"\tDRF\n" +
+								"\tWRT\t1\n" +
+								"\tSTC\t41\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t58\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t105\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t110\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t100\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t105\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t99\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t100\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t97\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t99\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t99\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t115\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t111\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t97\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t118\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t99\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t116\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t111\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t102\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t117\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t97\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t100\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t101\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t32\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t114\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t97\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t110\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t103\n" +
+								"\tWRT\t0\n" +
+								"\tSTC\t111\n" +
+								"\tWRT\t0\n" +
+								"\tJMP\tL1\n" +
+								"; Fin IF\n" +
+								"fin_error_out_of_bounds:\n" +
+								"; Fin accion fib\n" +
+								"\tCSF\n";
 		  		}
 			  	Iterator<Codigo> codeIterator = codigoAcciones.iterator();
 			  	Codigo fragmento;
@@ -1149,22 +1430,19 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 						}
 					}else {
 						necesariaErrorIndice = true;
-					  	codigo +=    "; Comprobar underflow\n" +
-								    "\tSTC\t0\n" +
-								    v.codigo +
-								    "\tGT\n" +
-								    "\tJMT\terror_out_of_bounds\n" +
-								    "; Comprobar overflow\n" +
+					  	codigo +=    "; Comprobar underflow y overflow\n" +
 								    "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
 								    "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
 								    "\tDRF\n";
 						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  codigo += "\tDRF\n";
+							codigo += "\tDRF\n";
 						}
 						codigo +=	v.codigo +
-									"\tLTE\n" +
-									"\tJMT\terror_out_of_bounds\n" +
-									"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+									"\tSTC\t"+t.beginColumn+"\n" +
+									"\tSTC\t"+t.beginLine+"\n" +
+									"\tOSF\t" + (tablaSimbolos.tamano_bloque_nivel(nivel)-1) + "\t" + nivel + "\error_out_of_bounds" + "\n";
+									
+						codigo +=	"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
 									"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
 						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
 						  codigo += "\tDRF\n";
@@ -1223,23 +1501,21 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 						}
 					}else {
 						necesariaErrorIndice = true;
-					  	codigo +=    "; Comprobar underflow\n" +
-								    "\tSTC\t0\n" +
-								    v.codigo +
-								    "\tGT\n" +
-								    "\tJMT\terror_out_of_bounds\n" +
-								    "; Comprobar overflow\n" +
+					  	codigo +=    "; Comprobar underflow y overflow\n" +
 								    "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
 								    "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
 								    "\tDRF\n";
 						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  codigo += "\tDRF\n";
+							codigo += "\tDRF\n";
 						}
 						codigo +=	v.codigo +
-									"\tLTE\n" +
-									"\tJMT\terror_out_of_bounds\n" +
-									"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+									"\tSTC\t"+t.beginColumn+"\n" +
+									"\tSTC\t"+t.beginLine+"\n" +
+									"\tOSF\t" + (tablaSimbolos.tamano_bloque_nivel(nivel)-1) + "\t" + nivel + "\error_out_of_bounds" + "\n";
+									
+						codigo +=	"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
 									"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+									
 						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
 						  codigo += "\tDRF\n";
 						}
@@ -1451,23 +1727,21 @@ String asignacion(Token t):
 						}
 					}else {
 						necesariaErrorIndice = true;
-					  	codigo =    "; Comprobar underflow\n" +
-								    "\tSTC\t0\n" +
-								    v.codigo +
-								    "\tGT\n" +
-								    "\tJMT\terror_out_of_bounds\n" +
-								    "; Comprobar overflow\n" +
+					  	codigo +=    "; Comprobar underflow y overflow\n" +
 								    "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
 								    "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
 								    "\tDRF\n";
 						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  codigo += "\tDRF\n";
+							codigo += "\tDRF\n";
 						}
 						codigo +=	v.codigo +
-									"\tLTE\n" +
-									"\tJMT\terror_out_of_bounds\n" +
-									"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+									"\tSTC\t"+t.beginColumn+"\n" +
+									"\tSTC\t"+t.beginLine+"\n" +
+									"\tOSF\t" + (tablaSimbolos.tamano_bloque_nivel(nivel)-1) + "\t" + nivel + "\error_out_of_bounds" + "\n";
+									
+						codigo +=	"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
 									"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+
 						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
 						  codigo += "\tDRF\n";
 						}
@@ -2234,23 +2508,20 @@ Valor factor():
 						}
 					}else {
 						necesariaErrorIndice = true;
-						vRes.codigo =  "; Comprobar underflow\n" +
-									    "\tSTC\t0\n" +
-									    v.codigo +
-									    "\tGT\n" +
-									    "\tJMT\terror_out_of_bounds\n" +
-									    "; Comprobar overflow\n" +
-									    "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
-									    "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
-									    "\tDRF\n";
-						if(S.getParametro() == Simbolo.Clase_parametro.REF) {
-						  vRes.codigo += "\tDRF\n";
+						codigo +=    "; Comprobar underflow y overflow\n" +
+								    "; Buscando el tamano del vector " + S.getTipo() + " " + S.getNombre() + "\n" +
+								    "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+								    "\tDRF\n";
+						if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
+							codigo += "\tDRF\n";
 						}
-						vRes.codigo +=	v.codigo +
-									    "\tLTE\n" +
-									    "\tJMT\terror_out_of_bounds\n" +
-									    "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-									    "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
+						codigo +=	v.codigo +
+									"\tSTC\t"+t.beginColumn+"\n" +
+									"\tSTC\t"+t.beginLine+"\n" +
+									"\tOSF\t" + (tablaSimbolos.tamano_bloque_nivel(nivel)-1) + "\t" + nivel + "\error_out_of_bounds" + "\n";
+									
+						codigo +=	"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+									"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
 						if(S.getParametro() == Simbolo.Clase_parametro.REF) {
 						  vRes.codigo += "\tDRF\n";
 						}
@@ -2263,9 +2534,10 @@ Valor factor():
 					necesariaErrorInicializada = true;
 					vRes.codigo += 	"; comprobamos si " + S.getTipo() + " " + S.getNombre() + " esta inicializada\n" +
 									"\tDUP\n" +
-									"\tSTC\t32768\n" +
-									"\tEQ\n" +
-									"\tJMT\terror_inicializada\n";
+									"\tSTC\t"+t.beginColumn+"\n" +
+									"\tSTC\t"+t.beginLine+"\n" +
+								 	"\tOSF\t" + (tablaSimbolos.tamano_bloque_nivel(nivel)-1) + "\t" + nivel + "\terror_inicializada" + "\n";
+									
 				} 
 			}
 		| 	t = <tVALOR_ENTERO>
