@@ -1233,23 +1233,30 @@ String lista_escribibles():
 			}else if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.tamano == null) {
 				codigo += v.codigo +
 						  "\tWRT\t1\n";
-			}else if(v.tipoVariable == Simbolo.Tipo_variable.CADENA && v.tamano == null) {
+			}else if(v.tipoVariable == Simbolo.Tipo_variable.CADENA) {
 				codigo += v.codigo;
 			}else if(v.tamano != null){
-				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo VECTOR DE "+v.tipoVariable);
+				codigo += "; escribiendo vector\n" +
+						  "\tSTC\t91\n" +
+						  "\tWRT\t0\n";
 				for (int j = 1; j <= v.tamano ; j++) {
-					codigo += "; asignando posicion "+ j + "\n" +
+					codigo += "; escribiendo "+ j + "\n" +
 							  "\tDUP\n" +
 							  "\tSTC\t"+j+"\n"+
 							  "\tPLUS"+
-							  "\tDRF\n"+
-							  "\tASG\n";
+							  "\tDRF\n";
 					if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.tamano == null) {
 						codigo += "\tWRT\t1\n";
 					}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR && v.tamano == null) {
 						codigo += "\tWRT\t0\n";
-					}  			
+					}
+					if(j!=v.tamano) {
+						codigo += "\tSTC\t44\n" +
+								  "\tWRT\t0\n";
+					}
 				}
+				codigo += "\tSTC\t93\n" +
+						  "\tWRT\t0\n";
 			}					
 	 	}
 	  	(","(v = expresion())
@@ -1262,21 +1269,30 @@ String lista_escribibles():
 			}else if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.tamano == null) {
 				codigo += v.codigo +
 						  "\tWRT\t1\n";
-			}else if(v.tipoVariable == Simbolo.Tipo_variable.CADENA && v.tamano == null) {
+			}else if(v.tipoVariable == Simbolo.Tipo_variable.CADENA) {
 				codigo += v.codigo;
 			}else if(v.tamano != null){
-				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo VECTOR DE "+v.tipoVariable);
-				/*for (int j = 1; j <= v.tamano ; j++) {
-					  codigo +=	"; asignando posicion "+ j + "\n" +
-					  			"\tDUP\n" +
-					  			"\tSTC\t"+j+"\n"+
-					  			"\tPLUS"+
-				  	  			v2.codigo.substring(0, v2.lastIndexOf("\tDRF\n")) +
-				  	  			"\tSTC\t"+j+"\n"+
-					  			"\tPLUS"+
-					  			"\tDRF\n"+
-					  			"\tASG\n";  			
-				}*/
+				codigo += "; escribiendo vector\n" +
+						  "\tSTC\t91\n" +
+						  "\tWRT\t0\n";
+				for (int j = 1; j <= v.tamano ; j++) {
+					codigo += "; escribiendo "+ j + "\n" +
+							  "\tDUP\n" +
+							  "\tSTC\t"+j+"\n"+
+							  "\tPLUS"+
+							  "\tDRF\n";
+					if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.tamano == null) {
+						codigo += "\tWRT\t1\n";
+					}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR && v.tamano == null) {
+						codigo += "\tWRT\t0\n";
+					}
+					if(j!=v.tamano) {
+						codigo += "\tSTC\t44\n" +
+								  "\tWRT\t0\n";
+					}
+				}
+				codigo += "\tSTC\t93\n" +
+						  "\tWRT\t0\n";
 			}
   		}
 	  	)*
