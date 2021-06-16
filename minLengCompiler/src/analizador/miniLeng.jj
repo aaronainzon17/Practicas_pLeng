@@ -200,7 +200,7 @@ SKIP :
 | "\r"
 | "\t"
 | "\n"
-| <"%" (~["\n"])* ("\n")>
+| <"%" (~["\n"])* "\n">
 | <"%%" (~["%"])* "%%"> 
 }
 
@@ -1237,6 +1237,19 @@ String lista_escribibles():
 				codigo += v.codigo;
 			}else if(v.tamano != null){
 				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo VECTOR DE "+v.tipoVariable);
+				for (int j = 1; j <= v.tamano ; j++) {
+					codigo += "; asignando posicion "+ j + "\n" +
+							  "\tDUP\n" +
+							  "\tSTC\t"+j+"\n"+
+							  "\tPLUS"+
+							  "\tDRF\n"+
+							  "\tASG\n";
+					if(v.tipoVariable == Simbolo.Tipo_variable.ENTERO && v.tamano == null) {
+						codigo += "\tWRT\t1\n";
+					}else if(v.tipoVariable == Simbolo.Tipo_variable.CHAR && v.tamano == null) {
+						codigo += "\tWRT\t0\n";
+					}  			
+				}
 			}					
 	 	}
 	  	(","(v = expresion())
@@ -1253,6 +1266,17 @@ String lista_escribibles():
 				codigo += v.codigo;
 			}else if(v.tamano != null){
 				error_semantico(token.beginLine, token.beginColumn, "Operacion no valida para el tipo VECTOR DE "+v.tipoVariable);
+				/*for (int j = 1; j <= v.tamano ; j++) {
+					  codigo +=	"; asignando posicion "+ j + "\n" +
+					  			"\tDUP\n" +
+					  			"\tSTC\t"+j+"\n"+
+					  			"\tPLUS"+
+				  	  			v2.codigo.substring(0, v2.lastIndexOf("\tDRF\n")) +
+				  	  			"\tSTC\t"+j+"\n"+
+					  			"\tPLUS"+
+					  			"\tDRF\n"+
+					  			"\tASG\n";  			
+				}*/
 			}
   		}
 	  	)*
@@ -1358,7 +1382,18 @@ String asignacion(Token t):
 			}else if(v == null && S.getTamano() > 0 && v2.tamano!=null && v2.tamano!=S.getTamano()) {
 				error_semantico(t.beginLine, t.beginColumn, "Asignacion imposible entre vectores de distinto tamano");
 			}else if(v == null && S.getTamano() > 0 && v2.tamano!=null && v2.tamano==S.getTamano()) {
-				
+				codigo +=	"; copiando vectores" + "\n";
+				for (int j = 1; j <= S.getTamano() ; j++) {
+					  codigo +=	"; asignando posicion "+ j + "\n" +
+					  			"\tDUP\n" +
+					  			"\tSTC\t"+j+"\n"+
+					  			"\tPLUS"+
+				  	  			v2.codigo.substring(0, v2.codigo.lastIndexOf("\tDRF\n")) +
+				  	  			"\tSTC\t"+j+"\n"+
+					  			"\tPLUS"+
+					  			"\tDRF\n"+
+					  			"\tASG\n";  			
+				}
 			}else { 
 	        	codigo += 	v2.codigo +
 	        				"; Asignacion\n" +
@@ -1403,7 +1438,7 @@ String invocacion_accion(Token t):
 				          	if(S.getListaParametros().get(i).getParametro() == Simbolo.Clase_parametro.VAL) {
 								codigo += args.get(i).codigo;
 								if(S.getListaParametros().get(i).getTamano() > 0) {
-									for (int j = 0; j < S.getListaParametros().get(i).getTamano() ; j++) {
+									for (int j = 0; j <= S.getListaParametros().get(i).getTamano() ; j++) {
 										codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n")) +
 												  "\tSTC\t"+j+"\n"+
 												  "\tPLUS"+
