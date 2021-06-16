@@ -1056,7 +1056,7 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 					if(v == null) {
 					  	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
 							codigo +=  "; Direccion del parametro " + S.getNombre() + "\n" +
-									  "\tSRF\t0\t" + S.getDir() + "\n" +
+									  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
 									  "; Direccion de la referencia " + S.getNombre() + "\n" +
 									  "\tDRF\n";
 						}else { 
@@ -1105,6 +1105,7 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 				}
 				error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" no declarado");	  
 			}
+			v = null;
 		}
   	  	("," t=<tIDENTIFICADOR> ("[" v = expresion() "]")?
   	  	{
@@ -1127,7 +1128,7 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 					if(v == null) {
 					  	if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
 							codigo +=  "; Direccion del parametro " + S.getNombre() + "\n" +
-									  "\tSRF\t0\t" + S.getDir() + "\n" +
+									  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
 									  "; Direccion de la referencia " + S.getNombre() + "\n" +
 									  "\tDRF\n";
 						}else { 
@@ -1400,8 +1401,17 @@ String invocacion_accion(Token t):
 					}else {
 				        for (int i = args.size()-1; i >= 0 ; i--) {
 				          	if(S.getListaParametros().get(i).getParametro() == Simbolo.Clase_parametro.VAL) {
-				          	  	codigo += args.get(i).codigo;   
+								codigo += args.get(i).codigo;
+								if(S.getListaParametros().get(i).getTamano() > 0) {
+									for (int j = 0; j < S.getListaParametros().get(i).getTamano() ; j++) {
+										codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n")) +
+												  "\tSTC\t"+j+"\n"+
+												  "\tPLUS"+
+												  "\tDRF";
+									}
+								}
 								if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
+								   args.get(i).tamano != S.getListaParametros().get(i).getTamano() &&
 								   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
 									match = false;
 								}
@@ -1412,8 +1422,8 @@ String invocacion_accion(Token t):
 							  	if(args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.VARIABLE ||
 							  	  (args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.PARAMETRO && args.get(i).claseParametro != Simbolo.Clase_parametro.REF)) { 
 								  	codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n"));
-	                  				codigo += "; Instruccion eliminada DRF\n";
 									if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
+									   args.get(i).tamano != S.getListaParametros().get(i).getTamano() &&
 									   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
 										match = false;
 									}
@@ -1426,12 +1436,20 @@ String invocacion_accion(Token t):
 					if (!match) {
 						String params = "(";
 					  	for (Simbolo param : S.getListaParametros()) {
-							params += param.getVariable() + ","; 
+					  	  	if (param.getTamano() > 0) {
+								params += "VECTOR["+param.getTamano()+"] DE " + param.getVariable() + ",";
+					  	 	}else {
+								params += param.getVariable() + ",";
+					  		}
 					 	}
 					 	params += ")";
 					 	String inv = "(";
 					  	for (Valor i : args) {
-							inv += i.tipoVariable + ","; 
+					  	  	if (i.tamano != null) {
+								inv += "VECTOR["+i.tamano+"] DE " + i.tipoVariable + ",";
+					  	 	}else {
+								inv += i.tipoVariable + ",";
+					  		}
 					 	}
 					 	inv += ")";
 						error_semantico(t.beginLine, t.beginColumn, "Invocacion a \'" + t.image + params + "\' con \'" + t.image + inv + "\'");
@@ -2030,33 +2048,11 @@ Valor factor():
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice se encuentra fuera de rango");  	
 				}else if(v == null && S.getTamano() > 0) {
 				  	vRes.tamano = S.getTamano();
-					for (int i = 0; i <= S.getTamano(); i++) {
-					  	/*if(escritura) {
-					  	  	if(i!=0) { 
-								vRes.codigo += "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-											  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + (S.getDir()+v.valorEnt) + "\n" +
-											  "\tDRF\n";
-								if(S.getParametro() == Simbolo.Clase_parametro.REF) {
-									vRes.codigo += "\tDRF\n";
-								}
-								if(S.getVariable() == Simbolo.Tipo_variable.CHAR) {	  	
-									vRes.codigo += "\tWRT\t0\n";
-								}else if(S.getVariable() == Simbolo.Tipo_variable.ENTERO) {
-									vRes.codigo += "\tWRT\t1\n";
-								}
-							}
-					 	}else {
-					 	  	if(S.getParametro() == Simbolo.Clase_parametro.REF) {
-								vRes.codigo = 	"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
- 								  				v.codigo +
-								  				"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
-								  				"\tDRF\n" + v.codigo + "\tPLUS\n" + "\tDRF\n";
-					 	 	}else {
-								vRes.codigo +=  "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-										  		"\tSRF\t" + (nivel - S.getNivel()) + "\t" + (S.getDir()+v.valorEnt) + "\n" +
-										  		"\tDRF\n";
-					 		}
-						} */
+					vRes.codigo = "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
+									  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+									  "\tDRF\n";
+					if(S.getParametro() == Simbolo.Clase_parametro.REF) {
+						vRes.codigo += "\tDRF\n";
 					}
 				}else {
 					if(v == null || (v.valorEnt != null && S.getParametro() == Simbolo.Clase_parametro.VAL)) {
