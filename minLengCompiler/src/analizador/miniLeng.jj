@@ -648,18 +648,29 @@ String identificadores(Simbolo.Tipo_variable tipo):
 				if(tSize != null) {
 					tamano = Integer.parseInt(tSize.image);
 	  	  	 	}
-		  	  	if(tSize == null || tamano > 0) { 
+		  	  	if(tSize == null || tamano > 0) {
 					S = tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir,tamano);
 					if(tSize != null) {
-						dir+=tamano;
+						codigo += 	"; Tamano del vector\n" +
+									"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+							 		"\tSTC\t"+tamano+"\n" +
+							 		"\tASG\n";
+						for (int i = 1; i <= tamano ; i++) {	 		
+							codigo += 	"; Reservamos la direccion e inicializamos con valor centinela\n" +
+								 		"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "["+(i-1)+"]" + "\n" +
+								 		"\tSRF\t" + (nivel - S.getNivel()) + "\t" + (S.getDir()+i) + "\n" +
+								 		"\tSTC\t32768\n" +
+								 		"\tASG\n";
+						}
+						dir+=tamano+1;
 					}else {
-						dir++;
-					}
-					codigo += "; Reservamos la direccion e inicializamos con valor centinela\n" +
+					  	codigo += "; Reservamos la direccion e inicializamos con valor centinela\n" +
 							 "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
 							 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
 							 "\tSTC\t32768\n" +
 							 "\tASG\n";
+						dir++;
+					}
 				}else {
 					error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "[" + tSize.image + "]\" el tama�o debe de ser positivo");
 				}
