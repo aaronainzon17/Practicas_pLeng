@@ -15,6 +15,7 @@ package analizador;
 import java.io.IOException;
 import java.lang.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.BufferedWriter;
@@ -34,6 +35,17 @@ class Valor
   Simbolo.Clase_parametro claseParametro;
   Simbolo.Tipo_variable tipoVariable;
   Simbolo.Tipo_simbolo tipoSimbolo;
+}
+
+class Codigo
+{
+  String codigo;
+  Simbolo S;
+
+  public Codigo() {
+    codigo = "";
+    S = null;
+  } 
 }
 
 class Tag
@@ -435,8 +447,8 @@ String programa() :
 {
 	nivel = 0;
 	String codigo = "";
-	String codigoVariables = "";
-	String codigoAcciones = "";
+	ArrayList<Codigo> codigoVariables;
+	ArrayList<Codigo> codigoAcciones;
 	String codigoSentencias = "";
 	tablaSimbolos.inicializar_tabla();
 	Token t = null;
@@ -448,7 +460,7 @@ String programa() :
 	try {
 		<tPROGRAMA>	t = <tIDENTIFICADOR>
 		{
-			tablaSimbolos.introducir_programa(t.image,dir);
+			tablaSimbolos.introducir_programa(t.image,dir,t.beginLine,t.beginColumn);
 		  	program = new TagProgram(tagNum,t.image);
 		  	tagNum++;
 		  	programEnd = new Tag(tagNum,t.image);
@@ -494,14 +506,35 @@ String programa() :
 			    }
 			    codigo += "\tJMP\tL1\n";
 		  	}
-			codigo += codigoAcciones +
-					"; Inicio " + t.image + "\n" +
-					program.toString() + ":\n" +
-					codigoVariables +
-					codigoSentencias +
-					"; Final " + t.image + "\n" +
-					programEnd.toString() + ":\n" +
-					"\tLVP";
+		  	Iterator<Codigo> codeIterator = codigoAcciones.iterator();
+		  	Codigo fragmento;
+		  	while(codeIterator.hasNext()) {
+				fragmento = codeIterator.next();
+				if(fragmento.S.getUsado()) {
+					codigo += fragmento.codigo;
+				}else {
+					warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Accion no usada");
+				}
+		 	}
+
+		 	codigo += "; Inicio " + t.image + "\n" +
+					  program.toString() + ":\n";
+					  
+		 	codeIterator = codigoVariables.iterator();
+		 	while(codeIterator.hasNext()) {
+				fragmento = codeIterator.next();
+				if(fragmento.S.getUsado()) {
+					codigo += fragmento.codigo;
+					System.out.println(fragmento.codigo);
+				}else {
+					warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Variable no usada");
+				}
+		 	}
+
+			codigo += codigoSentencias +
+					  "; Final " + t.image + "\n" +
+					  programEnd.toString() + ":\n" +
+					  "\tLVP";
 		}
 	}
 	catch (ParseException e) {
@@ -529,16 +562,16 @@ String programa() :
 /*
 	(declaracion() ";")*
 */
-String declaracion_variables():
+ArrayList<Codigo> declaracion_variables():
 {
-  	String codigo = "";
-  	String c = "";
+  	ArrayList<Codigo> codigo = new ArrayList<Codigo>();
+  	ArrayList<Codigo> c = new ArrayList<Codigo>();
 }
 {
 	try {
 	  	(c=declaracion() ";"
 	  	{
-			codigo += c;
+			codigo.addAll(c);
 	  	})*
 	}
 	catch (ParseException e)
@@ -553,10 +586,10 @@ String declaracion_variables():
 /*
 	tipo_variables() identificadores()
 */
-String declaracion():
+ArrayList<Codigo> declaracion():
 {
   	Simbolo.Tipo_variable tTipo = null;
-  	String codigo = "";
+  	ArrayList<Codigo> codigo = new ArrayList<Codigo>();
 }
 {
   	try {
@@ -596,13 +629,13 @@ Simbolo.Tipo_variable tipo_variables():
 /*
 	<tIDENTIFICADOR> ( "," <tIDENTIFICADOR> )*
 */
-String identificadores(Simbolo.Tipo_variable tipo): 
+ArrayList<Codigo> identificadores(Simbolo.Tipo_variable tipo): 
 {
   	Token t = null;
   	Token tSize = null;
   	int tamano = 0;
-  	String codigo = "";
-  	Simbolo S = null;
+  	ArrayList<Codigo> codigo = new ArrayList<Codigo>();
+  	Codigo aux = new Codigo();
 }
 {
   	try {
@@ -613,24 +646,24 @@ String identificadores(Simbolo.Tipo_variable tipo):
 					tamano = Integer.parseInt(tSize.image);
 	  	  	 	}
 		  	  	if(tSize == null || tamano > 0) {
-					S = tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir,tamano);
+					aux.S = tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir,tamano,t.beginLine,t.beginColumn);
 					if(tSize != null) {
-						codigo += 	"; Tamano del vector\n" +
-									"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+						aux.codigo += 	"; Tamano del vector\n" +
+									"\tSRF\t" + (nivel - aux.S.getNivel()) + "\t" + aux.S.getDir() + "\n" +
 							 		"\tSTC\t"+tamano+"\n" +
 							 		"\tASG\n";
 						for (int i = 1; i <= tamano ; i++) {	 		
-							codigo += 	"; Reservamos la direccion e inicializamos con valor centinela\n" +
-								 		"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "["+(i-1)+"]" + "\n" +
-								 		"\tSRF\t" + (nivel - S.getNivel()) + "\t" + (S.getDir()+i) + "\n" +
+							aux.codigo += 	"; Reservamos la direccion e inicializamos con valor centinela\n" +
+								 		"; Accediendo a " + aux.S.getTipo() + " " + aux.S.getNombre() + "["+(i-1)+"]" + "\n" +
+								 		"\tSRF\t" + (nivel - aux.S.getNivel()) + "\t" + (aux.S.getDir()+i) + "\n" +
 								 		"\tSTC\t32768\n" +
 								 		"\tASG\n";
 						}
 						dir+=tamano+1;
 					}else {
-					  	codigo += "; Reservamos la direccion e inicializamos con valor centinela\n" +
-							 "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-							 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+					  	aux.codigo += "; Reservamos la direccion e inicializamos con valor centinela\n" +
+							 "; Accediendo a " + aux.S.getTipo() + " " + aux.S.getNombre() + "\n" +
+							 "\tSRF\t" + (nivel - aux.S.getNivel()) + "\t" + aux.S.getDir() + "\n" +
 							 "\tSTC\t32768\n" +
 							 "\tASG\n";
 						dir++;
@@ -645,6 +678,8 @@ String identificadores(Simbolo.Tipo_variable tipo):
 			}
 			tSize = null;
 			tamano = 0;
+			codigo.add(aux);
+			aux = new Codigo();
 		}
 	  	( "," t = <tIDENTIFICADOR> ("[" tSize=<tVALOR_ENTERO>"]")? 
 	  	{
@@ -653,24 +688,24 @@ String identificadores(Simbolo.Tipo_variable tipo):
 					tamano = Integer.parseInt(tSize.image);
 	  	  	 	}
 		  	  	if(tSize == null || tamano > 0) {
-					S = tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir,tamano);
+					aux.S = tablaSimbolos.introducir_variable(t.image,tipo,nivel,dir,tamano,t.beginLine,t.beginColumn);
 					if(tSize != null) {
-						codigo += 	"; Tamano del vector\n" +
-									"\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+						aux.codigo += 	"; Tamano del vector\n" +
+									"\tSRF\t" + (nivel - aux.S.getNivel()) + "\t" + aux.S.getDir() + "\n" +
 							 		"\tSTC\t"+tamano+"\n" +
 							 		"\tASG\n";
 						for (int i = 1; i <= tamano ; i++) {	 		
-							codigo += 	"; Reservamos la direccion e inicializamos con valor centinela\n" +
-								 		"; Accediendo a " + S.getTipo() + " " + S.getNombre() + "["+(i-1)+"]" + "\n" +
-								 		"\tSRF\t" + (nivel - S.getNivel()) + "\t" + (S.getDir()+i) + "\n" +
+							aux.codigo += 	"; Reservamos la direccion e inicializamos con valor centinela\n" +
+								 		"; Accediendo a " + aux.S.getTipo() + " " + aux.S.getNombre() + "["+(i-1)+"]" + "\n" +
+								 		"\tSRF\t" + (nivel - aux.S.getNivel()) + "\t" + (aux.S.getDir()+i) + "\n" +
 								 		"\tSTC\t32768\n" +
 								 		"\tASG\n";
 						}
 						dir+=tamano+1;
 					}else {
-					  	codigo += "; Reservamos la direccion e inicializamos con valor centinela\n" +
-							 "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
-							 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
+					  	aux.codigo += "; Reservamos la direccion e inicializamos con valor centinela\n" +
+							 "; Accediendo a " + aux.S.getTipo() + " " + aux.S.getNombre() + "\n" +
+							 "\tSRF\t" + (nivel - aux.S.getNivel()) + "\t" + aux.S.getDir() + "\n" +
 							 "\tSTC\t32768\n" +
 							 "\tASG\n";
 						dir++;
@@ -685,6 +720,8 @@ String identificadores(Simbolo.Tipo_variable tipo):
 			}
 			tSize = null;
 			tamano = 0;
+			codigo.add(aux);
+			aux = new Codigo();
 	  	}
 	  	)*
 	}
@@ -700,18 +737,16 @@ String identificadores(Simbolo.Tipo_variable tipo):
 /*
 	(declaracion_accion())*
 */
-String declaracion_acciones():
+ArrayList<Codigo> declaracion_acciones():
 {
-	String codigo = "";
-  	String c = "";
+	ArrayList<Codigo> codigo = new ArrayList<Codigo>();
+  	Codigo c = new Codigo();
 }
 {
   	try {
 	  	(c=declaracion_accion()
 	  	{
-	  	  	if(!error) {
-				codigo += c;
-			} 
+			codigo.add(c); 
 	  	})*
 	}
 	catch (ParseException e)
@@ -726,12 +761,12 @@ String declaracion_acciones():
 /*
 	cabecera_accion() ";" declaracion_variables() declaracion_acciones() bloque_sentencias()
 */
-String declaracion_accion():
+Codigo declaracion_accion():
 {
-	String codigo = "";
-  	String codigoParams = "";
-  	String codigoVariables = "";
-  	String codigoAcciones = "";
+	Codigo codigo = new Codigo();
+  	Codigo codigoParams = null;
+  	ArrayList<Codigo> codigoVariables = new ArrayList<Codigo>();
+  	ArrayList<Codigo> codigoAcciones = new ArrayList<Codigo>();
   	String codigoSentencias = "";
   	TagAction accion = new TagAction(tagNum,"");
 	tagNum++;
@@ -746,17 +781,40 @@ String declaracion_accion():
 	  	codigoAcciones = declaracion_acciones()
 	  	codigoSentencias = bloque_sentencias()
 	  	{
-	  	  		codigo = codigoAcciones +
-	  	  				 codigoParams +
-	  	  				 codigoVariables +
-						 codigoSentencias +
-						 "; Fin accion " + accion.tagName + "\n" +
-						 "\tCSF\n";
-				//tablaSimbolos.imprimirTabla();
-				tablaSimbolos.eliminar_variables(nivel);
-				tablaSimbolos.eliminar_acciones(nivel);
-				tablaSimbolos.eliminar_parametros(nivel);
-				nivel--;
+
+			codigo.S = codigoParams.S;
+			
+	  	  	Iterator<Codigo> codeIterator = codigoAcciones.iterator();
+		  	Codigo fragmento;
+		  	while(codeIterator.hasNext()) {
+				fragmento = codeIterator.next();
+				if(fragmento.S.getUsado()) {
+					codigo.codigo += fragmento.codigo;
+				}else {
+					warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Accion no usada");
+				}
+		 	}
+
+		 	codigo.codigo += codigoParams.codigo;
+					  
+		 	codeIterator = codigoVariables.iterator();
+		 	while(codeIterator.hasNext()) {
+				fragmento = codeIterator.next();
+				if(fragmento.S.getUsado()) {
+					codigo.codigo += fragmento.codigo;
+				}else {
+					warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Variable no usada");
+				}
+		 	}
+	  	  		
+  	  		codigo.codigo += codigoSentencias +
+					 "; Fin accion " + accion.tagName + "\n" +
+					 "\tCSF\n";
+			//tablaSimbolos.imprimirTabla();
+			tablaSimbolos.eliminar_variables(nivel);
+			tablaSimbolos.eliminar_acciones(nivel);
+			tablaSimbolos.eliminar_parametros(nivel);
+			nivel--;
 		}
 	}
 	catch (ParseException e)
@@ -771,21 +829,20 @@ String declaracion_accion():
 /*
 	<tACCION> <tIDENTIFICADOR> (parametros_formales())?
 */
-String cabecera_accion(TagAction etiq):
+Codigo cabecera_accion(TagAction etiq):
 {
-  	String codigo = "";
   	String codigoParams = "";
   	Token t = null;
-  	Simbolo accion = null;
+  	Codigo accion = new Codigo();
 }
 {
   	try {
 	  	<tACCION> t = <tIDENTIFICADOR>
 		{
 		  	try { 
-				accion = tablaSimbolos.introducir_accion(t.image,nivel,tagNum-1);
+				accion.S = tablaSimbolos.introducir_accion(t.image,nivel,tagNum-1,t.beginLine,t.beginColumn);
 				etiq.tagName = t.image;
-				codigo = etiq.code();
+				accion.codigo = etiq.code();
 			}
 			catch (SimboloYaDeclaradoException e)
 			{
@@ -795,9 +852,9 @@ String cabecera_accion(TagAction etiq):
 			dir = DIR_INICIAL;
 			
 		}
-	  	(codigoParams = parametros_formales(accion)
+	  	(codigoParams = parametros_formales(accion.S)
 	  	{
-			codigo += codigoParams;
+			accion.codigo += codigoParams;
 	  	})? ";"
 	}
 	catch (ParseException e)
@@ -805,7 +862,7 @@ String cabecera_accion(TagAction etiq):
 		errorSintactico(e);
 	}
 	{
-		return codigo;
+		return accion;
 	}
 }
 
@@ -852,7 +909,7 @@ String lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tT
 					tamano = Integer.parseInt(tSize.image);
 	  	  	 	}
 	  	  	  	if(tSize == null || tamano > 0) {  
-		  			Simbolo param = tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir,tamano);
+		  			Simbolo param = tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir,tamano,t.beginLine,t.beginColumn);
 					if(accion != null) {
 		  				accion.addParametro(param);
 		  			}
@@ -882,7 +939,7 @@ String lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tT
   	  	("," t = <tIDENTIFICADOR> ("[" tSize=<tVALOR_ENTERO>"]")?
   	  	{
   	  	  	try {
-				Simbolo param1 = tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir,0);
+				Simbolo param1 = tablaSimbolos.introducir_parametro(t.image,tTipo,tClase,nivel,dir,0,t.beginLine,t.beginColumn);
 				accion.addParametro(param1);
 				codigo += "; Parametro " + t.image + "\n" +
 	  					 "\tSRF\t0\t" + dir + "\n" +
@@ -1063,6 +1120,7 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
   	  	{
   	  	  	try { 
 				S = tablaSimbolos.buscar_simbolo(t.image);
+				S.setUsado(true);
 				if(!(S.getTipo() == Simbolo.Tipo_simbolo.VARIABLE || 
 				  (S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF))) {
 					error_semantico(t.beginLine, t.beginColumn, "Se esperaba variable o parametro por referencia y se obtuvo "+S.getTipo());	
@@ -1123,7 +1181,7 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 			}
 			catch (SimboloNoEncontradoException e) { 
 				try{
-				  	tablaSimbolos.introducir_variable(t.image, Simbolo.Tipo_variable.DESCONOCIDO, nivel, dir,0);
+				  	tablaSimbolos.introducir_variable(t.image, Simbolo.Tipo_variable.DESCONOCIDO, nivel, dir,0,t.beginLine, t.beginColumn);
 				}
 				catch(SimboloYaDeclaradoException e1) {
 				  	error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya declarado");  
@@ -1136,6 +1194,7 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
   	  	{
 			try { 
 				S = tablaSimbolos.buscar_simbolo(t.image);
+				S.setUsado(true);
 				if(!(S.getTipo() == Simbolo.Tipo_simbolo.VARIABLE || 
 				  (S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF))) {
 					error_semantico(t.beginLine, t.beginColumn, "Se esperaba variable o parametro por referencia y se obtuvo "+S.getTipo());	
@@ -1196,7 +1255,7 @@ String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR 
 			}
 			catch (SimboloNoEncontradoException e) { 
 				try{
-				  	tablaSimbolos.introducir_variable(t.image, Simbolo.Tipo_variable.DESCONOCIDO, nivel, dir,0);
+				  	tablaSimbolos.introducir_variable(t.image, Simbolo.Tipo_variable.DESCONOCIDO, nivel, dir,0,t.beginLine, t.beginColumn);
 				}
 				catch(SimboloYaDeclaradoException e1) {
 				  	error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya declarado");  
@@ -1350,6 +1409,7 @@ String asignacion(Token t):
 	  	 {
 		 	try { 
 				S = tablaSimbolos.buscar_simbolo(t.image);
+				S.setUsado(true);
 				if(S.getTipo() != Simbolo.Tipo_simbolo.VARIABLE && S.getTipo() != Simbolo.Tipo_simbolo.PARAMETRO) {
 					error_semantico(t.beginLine, t.beginColumn, "No se pueden realizar asignaciones sobre " + S.getTipo());
 				}else if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.VAL) {
@@ -1414,8 +1474,9 @@ String asignacion(Token t):
 			}
 			catch (SimboloNoEncontradoException e) {
 				try{  
-				  	tablaSimbolos.introducir_variable(t.image, Simbolo.Tipo_variable.DESCONOCIDO, nivel, dir,0);
+				  	tablaSimbolos.introducir_variable(t.image, Simbolo.Tipo_variable.DESCONOCIDO, nivel, dir,0,t.beginLine, t.beginColumn);
 				  	S = tablaSimbolos.buscar_simbolo(t.image);
+					S.setUsado(true);
 				}
 				catch(SimboloYaDeclaradoException e1) {
 				  	error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya declarado");  
@@ -1480,6 +1541,7 @@ String invocacion_accion(Token t):
 		{
 			try { 
 				S = tablaSimbolos.buscar_simbolo(t.image);
+				S.setUsado(true);
 				if(S.getTipo() != Simbolo.Tipo_simbolo.ACCION) {
 					error_semantico(t.beginLine, t.beginColumn, "\'" + t.image + "\' no es una accion");
 				}else {
@@ -2123,6 +2185,7 @@ Valor factor():
 					vRes.tamano = v.valorEnt;
 			 	}
 			  	Simbolo S = tablaSimbolos.buscar_simbolo(t.image);
+				S.setUsado(true);
 			  	vRes.tipoSimbolo = S.getTipo();
 			  	vRes.claseParametro = S.getParametro();
 				vRes.tipoVariable = S.getVariable();
@@ -2242,7 +2305,7 @@ Valor factor():
 	catch (SimboloNoEncontradoException e)
 	{
 	  try { 
-	  	tablaSimbolos.introducir_variable(t.image, Simbolo.Tipo_variable.DESCONOCIDO, nivel, dir,0);
+	  	tablaSimbolos.introducir_variable(t.image, Simbolo.Tipo_variable.DESCONOCIDO, nivel, dir,0,t.beginLine, t.beginColumn);
 	  }
 	  catch(SimboloYaDeclaradoException e1) {
 	  	error_semantico(t.beginLine, t.beginColumn, "\'" + t.image + "\' ya declarado");  

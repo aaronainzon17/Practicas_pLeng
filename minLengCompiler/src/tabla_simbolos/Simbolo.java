@@ -40,8 +40,13 @@ public class Simbolo {
 	Tipo_simbolo tipo;
 	Tipo_variable variable;
 	Clase_parametro parametro;
+	
+	Integer linea;
+	Integer columna;
 
 	ArrayList<Simbolo> lista_parametros; // Lista de simbolos que representan los parametros de una accion
+	
+	Boolean usado;
 
 	// Getters y setters
 
@@ -112,38 +117,71 @@ public class Simbolo {
 	public Integer getTamano() {
 		return tamano;
 	}
+	
+	public void setUsado(Boolean usado) {
+		this.usado = usado;
+	}
+	
+	public Boolean getUsado() {
+		return usado;
+	}
 
 	// Metodos para construir los tipos de imbolos
 
 	// Configura los campos del simbolo correspondientes a un programa
-	public void introducir_programa(String nombre, int nivel, int dir) {
+	public void introducir_programa(String nombre, int nivel, int dir, int linea, int columna) {
 		this.nombre = nombre;
 		this.tipo = Tipo_simbolo.PROGRAMA;
 		this.nivel = nivel;
+		this.linea = linea;
+		this.columna = columna;
+		usado = true;
 	}
 
 	// Configura los campos del simbolo correspondiente a una variable
-	public void introducir_variable(String nombre, Tipo_variable tipo_var, int nivel, int dir, int tamano) {
+	public void introducir_variable(String nombre, Tipo_variable tipo_var, int nivel, int dir, int tamano, int linea, int columna) {
 		this.nombre = nombre;
 		this.tipo = Tipo_simbolo.VARIABLE;
 		this.variable = tipo_var;
 		this.nivel = nivel;
 		this.dir = dir;
 		this.tamano = tamano;
+		this.linea = linea;
+		this.columna = columna;
+		usado = false;
 	}
 
 	// Configura los campos del simbolo correspondiente a una accion
-	public void introducir_accion(String nombre, int nivel, int dir) {
+	public void introducir_accion(String nombre, int nivel, int dir, int linea, int columna) {
 		this.nombre = nombre;
 		this.tipo = Tipo_simbolo.ACCION;
 		this.lista_parametros = new ArrayList<Simbolo>();
 		this.nivel = nivel;
 		this.dir = dir;
+		this.linea = linea;
+		this.columna = columna;
+		usado = false;
+	}
+
+	public Integer getLinea() {
+		return linea;
+	}
+
+	public void setLinea(Integer linea) {
+		this.linea = linea;
+	}
+
+	public Integer getColumna() {
+		return columna;
+	}
+
+	public void setColumna(Integer columna) {
+		this.columna = columna;
 	}
 
 	// Configura los campos del simbolo correspondiente a un parametro
 	public void introducir_parametro(String nombre, Tipo_variable tipo_var, Clase_parametro clase_param, int nivel,
-			int dir, int tamano) {
+			int dir, int tamano, int linea, int columna) {
 		this.nombre = nombre;
 		this.tipo = Tipo_simbolo.PARAMETRO;
 		this.variable = tipo_var;
@@ -151,6 +189,9 @@ public class Simbolo {
 		this.nivel = nivel;
 		this.dir = dir;
 		this.tamano = tamano;
+		this.linea = linea;
+		this.columna = columna;
+		usado = false;
 	}
 
 	// Comprobadores del tipo de simbolo

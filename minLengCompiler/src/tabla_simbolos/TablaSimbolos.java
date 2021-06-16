@@ -89,7 +89,7 @@ public class TablaSimbolos {
 	private int h(String cadena) {
 		int h = 0;
 		for (int i = 0; i < cadena.length(); i++) {
-			h = T[h ^ cadena.charAt(i)%M];
+			h = T[(h ^ cadena.charAt(i))%M];
 		}
 		return h%M;
 	}
@@ -116,9 +116,9 @@ public class TablaSimbolos {
 	 * nivel 0, con la direccion del parametro. Dado que debe ser el primer simbolo
 	 * a introducir, NO SE VERIFICA QUE EL SIMBOLO YA EXISTA.
 	 */
-	public Simbolo introducir_programa(String nombre, int dir) {
+	public Simbolo introducir_programa(String nombre, int dir, int linea, int columna) {
 		Simbolo simbolo = new Simbolo();
-		simbolo.introducir_programa(nombre, 0, dir);
+		simbolo.introducir_programa(nombre, 0, dir, linea, columna);
 		simbolo.setDir(dir);
 
 		int clave = h(nombre);
@@ -159,10 +159,10 @@ public class TablaSimbolos {
 	 * una excepcion. De lo contrario, introduce un simbolo VARIABLE (simple) con
 	 * los datos de los argumentos.
 	 */
-	public Simbolo introducir_variable(String nombre, Tipo_variable variable, int nivel, int dir,int tamano)
+	public Simbolo introducir_variable(String nombre, Tipo_variable variable, int nivel, int dir,int tamano, int linea, int columna)
 			throws SimboloYaDeclaradoException {
 		Simbolo simbolo = new Simbolo();
-		simbolo.introducir_variable(nombre, variable, nivel, dir, tamano);
+		simbolo.introducir_variable(nombre, variable, nivel, dir, tamano, linea, columna);
 		return introducir_simbolo(simbolo);
 	}
 
@@ -171,9 +171,9 @@ public class TablaSimbolos {
 	 * una excepcion. De lo contrario, introduce un simbolo ACCION con los datos de
 	 * los argumentos.
 	 */
-	public Simbolo introducir_accion(String nombre, int nivel, int dir) throws SimboloYaDeclaradoException {
+	public Simbolo introducir_accion(String nombre, int nivel, int dir, int linea, int columna) throws SimboloYaDeclaradoException {
 		Simbolo simbolo = new Simbolo();
-		simbolo.introducir_accion(nombre, nivel, dir);
+		simbolo.introducir_accion(nombre, nivel, dir, linea, columna);
 		return introducir_simbolo(simbolo);
 	}
 
@@ -183,9 +183,9 @@ public class TablaSimbolos {
 	 * de los argumentos.
 	 */
 	public Simbolo introducir_parametro(String nombre, Tipo_variable variable, Clase_parametro parametro, int nivel,
-			int dir, int tamano) throws SimboloYaDeclaradoException {
+			int dir, int tamano, int linea, int columna) throws SimboloYaDeclaradoException {
 		Simbolo simbolo = new Simbolo();
-		simbolo.introducir_parametro(nombre, variable, parametro, nivel, dir, tamano);
+		simbolo.introducir_parametro(nombre, variable, parametro, nivel, dir, tamano, linea, columna);
 
 		return introducir_simbolo(simbolo);
 	}
