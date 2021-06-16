@@ -1428,10 +1428,10 @@ String asignacion(Token t):
 					  codigo +=	"; asignando posicion "+ j + "\n" +
 					  			"\tDUP\n" +
 					  			"\tSTC\t"+j+"\n"+
-					  			"\tPLUS"+
+					  			"\tPLUS\n"+
 				  	  			v2.codigo.substring(0, v2.codigo.lastIndexOf("\tDRF\n")) +
 				  	  			"\tSTC\t"+j+"\n"+
-					  			"\tPLUS"+
+					  			"\tPLUS\n"+
 					  			"\tDRF\n"+
 					  			"\tASG\n";  			
 				}
@@ -1482,7 +1482,7 @@ String invocacion_accion(Token t):
 									for (int j = 0; j <= S.getListaParametros().get(i).getTamano() ; j++) {
 										codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n")) +
 												  "\tSTC\t"+j+"\n"+
-												  "\tPLUS"+
+												  "\tPLUS\n"+
 												  "\tDRF";
 									}
 								}
