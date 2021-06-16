@@ -459,37 +459,41 @@ String programa() :
 		codigoVariables = declaracion_variables()
 		codigoAcciones = declaracion_acciones()
 		codigoSentencias = bloque_sentencias() < EOF >
-		{		  	
-			necesariaErrorInicializada = true;
-			String err = "\"Error en runtime: acceso a variable no inicializada\"";
-		  	codigo += 	"error_inicializada:\n"+
-		  				"; escribir\n" +
-		  				"; cadena " + err + "\n";
-		    char[] cad = err.toCharArray();
-		    int j = 0;
-		    for (char i : cad) {
-		    	if (j != 0 && j != err.length() - 1) {
-		        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
-		       	}
-		    	j++;
-		    }
-			codigo += "\tJMP\tL1\n";
-			
-		    err = "\"Error en runtime: indice de acceso a vector fuera de rango\"";
-			necesariaErrorIndice = true;
-		  	codigo += 	"error_out_of_bounds:\n"+
-		  				"; escribir\n" +
-		  				"; cadena " + err + "\n";
-		    cad = err.toCharArray();
-		    j = 0;
-		    for (char i : cad) {
-		    	if (j != 0 && j != err.length() - 1) {
-		        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
-		       	}
-		    	j++;
-		    }
-		    codigo += "\tJMP\tL1\n";
-		    
+		{
+		  	String err;
+		  	int j;
+		  	char[] cad;
+			if(necesariaErrorInicializada) { 
+				err = "\"Error en runtime: acceso a variable no inicializada\"";
+			  	codigo += 	"error_inicializada:\n"+
+			  				"; escribir\n" +
+			  				"; cadena " + err + "\n";
+			    cad = err.toCharArray();
+			    j = 0;
+			    for (char i : cad) {
+			    	if (j != 0 && j != err.length() - 1) {
+			        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
+			       	}
+			    	j++;
+			    }
+				codigo += "\tJMP\tL1\n";
+			}
+			if(necesariaErrorIndice) { 
+			    err = "\"Error en runtime: indice de acceso a vector fuera de rango\"";
+				necesariaErrorIndice = true;
+			  	codigo += 	"error_out_of_bounds:\n"+
+			  				"; escribir\n" +
+			  				"; cadena " + err + "\n";
+			    cad = err.toCharArray();
+			    j = 0;
+			    for (char i : cad) {
+			    	if (j != 0 && j != err.length() - 1) {
+			        	codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
+			       	}
+			    	j++;
+			    }
+			    codigo += "\tJMP\tL1\n";
+		  	}
 			codigo += codigoAcciones +
 					"; Inicio " + t.image + "\n" +
 					program.toString() + ":\n" +
