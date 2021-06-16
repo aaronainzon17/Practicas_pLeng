@@ -1595,6 +1595,7 @@ String invocacion_accion(Token t):
 								params += param.getVariable() + ",";
 					  		}
 					 	}
+					 	params = params.substring(0, params.lastIndexOf(","));
 					 	params += ")";
 					 	String inv = "(";
 					  	for (Valor i : args) {
@@ -1604,6 +1605,7 @@ String invocacion_accion(Token t):
 								inv += i.tipoVariable + ",";
 					  		}
 					 	}
+					 	inv = inv.substring(0, inv.lastIndexOf(","));
 					 	inv += ")";
 						error_semantico(t.beginLine, t.beginColumn, "Invocacion a \'" + t.image + params + "\' con \'" + t.image + inv + "\'");
 					}else {
