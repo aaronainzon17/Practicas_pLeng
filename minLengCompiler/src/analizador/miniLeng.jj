@@ -2197,9 +2197,6 @@ Valor factor():
 			}
 		| 	t = <tIDENTIFICADOR> ("[" v = expresion() "]")?
 			{
-			  	if(v!=null) {
-					vRes.tamano = v.valorEnt;
-			 	}
 			  	Simbolo S = tablaSimbolos.buscar_simbolo(t.image);
 				S.setUsado(true);
 			  	vRes.tipoSimbolo = S.getTipo();
