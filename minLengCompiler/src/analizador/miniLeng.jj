@@ -514,7 +514,7 @@ String programa() :
 					if(fragmento.S.getUsado()) {
 						codigo += fragmento.codigo;
 					}else {
-						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Accion no usada");
+						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Accion no usada " + fragmento.S.getNombre());
 					}
 			 	}
 	
@@ -527,7 +527,7 @@ String programa() :
 					if(fragmento.S.getUsado()) {
 						codigo += fragmento.codigo;
 					}else {
-						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Variable no usada");
+						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Variable no usada " + fragmento.S.getNombre());
 					}
 			 	}
 	
@@ -792,7 +792,7 @@ Codigo declaracion_accion():
 					if(fragmento.S.getUsado()) {
 						codigo.codigo += fragmento.codigo;
 					}else {
-						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Accion no usada");
+						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Accion no usada " + fragmento.S.getNombre());
 					}
 			 	}
 	
@@ -804,7 +804,7 @@ Codigo declaracion_accion():
 					if(fragmento.S.getUsado()) {
 						codigo.codigo += fragmento.codigo;
 					}else {
-						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Variable no usada");
+						warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Variable no usada " + fragmento.S.getNombre());
 					}
 			 	}
 		  	  		
