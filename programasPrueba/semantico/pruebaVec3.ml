@@ -8,6 +8,12 @@ programa pruebaVec3;
 
 	entero v1[5],res,i;
 
+accion cambiar_de_linea;
+
+	Principio
+	  escribir (entacar (13), entacar (10));
+	Fin
+	
 accion sumarVec(val entero v1[5]; ref entero suma);
 	entero i;
 	principio
@@ -24,6 +30,8 @@ accion sumarVec(val entero v1[5]; ref entero suma);
 			i := i + 1;
 		fmq
 		escribir("El vector v1 vale: ", v1);
+		cambiar_de_linea;
+		res := 0;
 		sumarVec(v1,res);
 		escribir("La suma del vector es: ", res);
 	fin
