@@ -668,6 +668,8 @@ String identificadores(Simbolo.Tipo_variable tipo):
 			{
 				error_semantico(t.beginLine, t.beginColumn, "\"" + t.image + "\" ya existe");
 			}
+			tSize = null;
+			tamano = 0;
 	  	}
 	  	)*
 	}
