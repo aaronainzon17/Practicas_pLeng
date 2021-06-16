@@ -525,7 +525,6 @@ String programa() :
 				fragmento = codeIterator.next();
 				if(fragmento.S.getUsado()) {
 					codigo += fragmento.codigo;
-					System.out.println(fragmento.codigo);
 				}else {
 					warning(fragmento.S.getLinea(),fragmento.S.getColumna(),"Variable no usada");
 				}
