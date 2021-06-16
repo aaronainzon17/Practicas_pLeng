@@ -2036,7 +2036,11 @@ Valor termino():
 					}
 					vRes.tipoVariable = Simbolo.Tipo_variable.ENTERO;
 					if((operador.kind == tDIV || operador.kind == tMOD) && vAux.valorEnt != null && vAux.valorEnt == 0) {
-						error_semantico(operador.beginLine, operador.beginColumn, "Division por 0");
+						if(operador.kind == tDIV) { 
+							error_semantico(operador.beginLine, operador.beginColumn, "Division por 0");
+						}else {
+							error_semantico(operador.beginLine, operador.beginColumn, "Modulo por 0");
+						}
 					}else if(operador.kind == tMULT && (vAux.valorEnt != null && vAux.valorEnt == 0 || vRes.valorEnt != null && vRes.valorEnt == 0)) {
 					 	vRes.valorEnt = 0;
 					}else if(vRes.valorEnt != null && vAux.valorEnt != null) {
