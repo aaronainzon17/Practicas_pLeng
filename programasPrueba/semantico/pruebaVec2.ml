@@ -1,23 +1,24 @@
 %%
-Programa de prueba pruebaVec1.ml para el analizador semantico 
+Programa de prueba pruebaVec2.ml para el analizador semantico 
 Creado por: Aaron y Pablo
-Se comprueba que se produce un error al asignar dos vectores de distinto tamanio
+Se comprueba que la asignacion entre vectores del mismo tamanio es correcta
 %%
 
 programa comprobar_palabras;
 
-	entero v1[5],v2[5];
+	entero v1[5], v2[5], i;
+
 
 	principio
 		i := 0;
 		mq (i < 5)
-			v1 := i;
+			v1[i] := i;
 			i := i + 1;
 		fmq
 		escribir("El vector v1 vale: ", v1);
 		i := 0;
 		mq (i < 5)
-			v1 := 2*i;
+			v2[i] := 2*i;
 			i := i + 1;
 		fmq
 		escribir("El vector v2 vale: ", v2);
