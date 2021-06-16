@@ -1326,9 +1326,7 @@ String lista_escribibles():
 				codigo += "; escribiendo vector\n" +
 						  "\tSTC\t91\n" +
 						  "\tWRT\t0\n" +
-						  if(!error){
-						  	v.codigo.substring(0, v.codigo.lastIndexOf("\tDRF\n"));
-						  }
+						  v.codigo.substring(0, v.codigo.lastIndexOf("\tDRF\n"));
 				for (int j = 1; j <= v.tamano ; j++) {
 					codigo += "; escribiendo "+ j + "\n" +
 							  "\tDUP\n" +
@@ -1365,9 +1363,7 @@ String lista_escribibles():
 				codigo += "; escribiendo vector\n" +
 						  "\tSTC\t91\n" +
 						  "\tWRT\t0\n" +
-						  if(!error){
-						  	v.codigo.substring(0, v.codigo.lastIndexOf("\tDRF\n"));
-						  }
+						  v.codigo.substring(0, v.codigo.lastIndexOf("\tDRF\n"));
 				for (int j = 1; j <= v.tamano ; j++) {
 					codigo += "; escribiendo "+ j + "\n" +
 							  "\tDUP\n" +
@@ -1445,7 +1441,7 @@ String asignacion(Token t):
 									  "\tSRF\t0\t" + S.getDir() + "\n" +
 									  "; Direccion de la referencia " + S.getNombre() + "\n" +
 									  "\tDRF\n";
-						}else {
+						}else { 
 							codigo = "; Direccion de la variable " + S.getNombre() + "\n" +
 									 "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n";
 						}
@@ -1508,9 +1504,7 @@ String asignacion(Token t):
 					  			"\tDUP\n" +
 					  			"\tSTC\t"+j+"\n"+
 					  			"\tPLUS\n"+
-				  	  			if(!error){
-										v2.codigo.substring(0, v2.codigo.lastIndexOf("\tDRF\n")) +
-								  }
+				  	  			v2.codigo.substring(0, v2.codigo.lastIndexOf("\tDRF\n")) +
 				  	  			"\tSTC\t"+j+"\n"+
 					  			"\tPLUS\n"+
 					  			"\tDRF\n"+
@@ -1561,9 +1555,7 @@ String invocacion_accion(Token t):
 				          	if(S.getListaParametros().get(i).getParametro() == Simbolo.Clase_parametro.VAL) {
 								if(S.getListaParametros().get(i).getTamano() > 0) {
 									for (int j = 0; j <= S.getListaParametros().get(i).getTamano() ; j++) {
-										if(!error){
-											codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n")) +
-									  }
+										codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n")) +
 												  "\tSTC\t"+j+"\n"+
 												  "\tPLUS\n"+
 												  "\tDRF\n";
@@ -1582,9 +1574,7 @@ String invocacion_accion(Token t):
 							}else {
 							  	if(args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.VARIABLE ||
 							  	  (args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.PARAMETRO && args.get(i).claseParametro != Simbolo.Clase_parametro.REF)) { 
-								  	if(!error){
-									  	codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n"));
-									  }
+								  	codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n"));
 									if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
 									   args.get(i).tamano != S.getListaParametros().get(i).getTamano() &&
 									   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
@@ -1605,9 +1595,7 @@ String invocacion_accion(Token t):
 								params += param.getVariable() + ",";
 					  		}
 					 	}
-					 	if(!error){
-						 	params = params.substring(0, params.lastIndexOf(","));
-						  }
+					 	params = params.substring(0, params.lastIndexOf(","));
 					 	params += ")";
 					 	String inv = "(";
 					  	for (Valor i : args) {
@@ -1617,9 +1605,7 @@ String invocacion_accion(Token t):
 								inv += i.tipoVariable + ",";
 					  		}
 					 	}
-					 	if(!error){
-						 	inv = inv.substring(0, inv.lastIndexOf(","));
-						  }
+					 	inv = inv.substring(0, inv.lastIndexOf(","));
 					 	inv += ")";
 						error_semantico(t.beginLine, t.beginColumn, "Invocacion a \'" + t.image + params + "\' con \'" + t.image + inv + "\'");
 					}else {
