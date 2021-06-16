@@ -1565,8 +1565,8 @@ String invocacion_accion(Token t):
 								}else {
 										codigo += args.get(i).codigo;
 								}
-								if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
-								   args.get(i).tamano != S.getListaParametros().get(i).getTamano() &&
+								if((args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() ||
+								   args.get(i).tamano != S.getListaParametros().get(i).getTamano())&&
 								   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
 									match = false;
 								}
@@ -1577,8 +1577,8 @@ String invocacion_accion(Token t):
 							  	if(args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.VARIABLE ||
 							  	  (args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.PARAMETRO && args.get(i).claseParametro != Simbolo.Clase_parametro.REF)) { 
 								  	codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n"));
-									if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
-									   args.get(i).tamano != S.getListaParametros().get(i).getTamano() &&
+									if((args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() ||
+									   args.get(i).tamano != S.getListaParametros().get(i).getTamano())&&
 									   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
 										match = false;
 									}
