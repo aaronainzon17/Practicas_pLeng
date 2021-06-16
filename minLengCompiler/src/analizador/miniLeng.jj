@@ -1502,17 +1502,19 @@ String asignacion(Token t):
 			}else if(v == null && S.getTamano() > 0 && v2.tamano!=null && v2.tamano!=S.getTamano()) {
 				error_semantico(t.beginLine, t.beginColumn, "Asignacion imposible entre vectores de distinto tamano");
 			}else if(v == null && S.getTamano() > 0 && v2.tamano!=null && v2.tamano==S.getTamano()) {
-				codigo +=	"; copiando vectores" + "\n";
-				for (int j = 1; j <= S.getTamano() ; j++) {
-					  codigo +=	"; asignando posicion "+ j + "\n" +
-					  			"\tDUP\n" +
-					  			"\tSTC\t"+j+"\n"+
-					  			"\tPLUS\n"+
-				  	  			v2.codigo.substring(0, v2.codigo.lastIndexOf("\tDRF\n")) +
-				  	  			"\tSTC\t"+j+"\n"+
-					  			"\tPLUS\n"+
-					  			"\tDRF\n"+
-					  			"\tASG\n";  			
+				if(!error){
+					codigo +=	"; copiando vectores" + "\n";
+					for (int j = 1; j <= S.getTamano() ; j++) {
+						codigo +=	"; asignando posicion "+ j + "\n" +
+									"\tDUP\n" +
+									"\tSTC\t"+j+"\n"+
+									"\tPLUS\n"+
+									v2.codigo.substring(0, v2.codigo.lastIndexOf("\tDRF\n")) +
+									"\tSTC\t"+j+"\n"+
+									"\tPLUS\n"+
+									"\tDRF\n"+
+									"\tASG\n";  			
+					}
 				}
 			}else { 
 	        	codigo += 	v2.codigo +
@@ -1580,7 +1582,9 @@ String invocacion_accion(Token t):
 							}else {
 							  	if(args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.VARIABLE ||
 							  	  (args.get(i).tipoSimbolo != Simbolo.Tipo_simbolo.PARAMETRO && args.get(i).claseParametro != Simbolo.Clase_parametro.REF)) { 
-								  	codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n"));
+									if(!error){
+								  		codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n"));
+									}
 									if((args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() ||
 									   args.get(i).tamano != S.getListaParametros().get(i).getTamano())&&
 									   args.get(i).tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO) {
