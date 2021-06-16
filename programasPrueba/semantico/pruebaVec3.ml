@@ -18,6 +18,7 @@ accion sumarVec(val entero v1[5]; ref entero suma);
 	entero i;
 	principio
 		i := 0;
+		suma := 0;
 		mq (i < 5)
 			suma := suma + v1[i];
 			i := i + 1;
@@ -31,7 +32,6 @@ accion sumarVec(val entero v1[5]; ref entero suma);
 		fmq
 		escribir("El vector v1 vale: ", v1);
 		cambiar_de_linea;
-		res := 0;
 		sumarVec(v1,res);
 		escribir("La suma del vector es: ", res);
 	fin

@@ -852,12 +852,17 @@ String lista_parametros(Simbolo.Clase_parametro tClase, Simbolo.Tipo_variable tT
 					if(accion != null) {
 		  				accion.addParametro(param);
 		  			}
-		  			codigo += "; Recuperacion del parametro " + t.image + "\n" +
-		  					 "\tSRF\t0\t" + dir + "\n" +
-		  					 "\tASGI\n";
 		  			if(tSize != null && tClase == Simbolo.Clase_parametro.VAL) {
-						dir+=tamano;
+		  			  	for (int j = tamano; j >= 0 ; j--) {
+							codigo += "; Recuperacion del parametro " + t.image + "\n" +
+			  					 	  "\tSRF\t0\t" + (dir + j) + "\n" +
+			  					 	  "\tASGI\n";
+			  			}
+						dir+=tamano+1;
 					}else {
+					  	codigo += "; Recuperacion del parametro " + t.image + "\n" +
+			  					 "\tSRF\t0\t" + dir + "\n" +
+			  					 "\tASGI\n";
 						dir++;
 					}
 	  			}else {
@@ -1477,14 +1482,15 @@ String invocacion_accion(Token t):
 					}else {
 				        for (int i = args.size()-1; i >= 0 ; i--) {
 				          	if(S.getListaParametros().get(i).getParametro() == Simbolo.Clase_parametro.VAL) {
-								codigo += args.get(i).codigo;
 								if(S.getListaParametros().get(i).getTamano() > 0) {
 									for (int j = 0; j <= S.getListaParametros().get(i).getTamano() ; j++) {
 										codigo += args.get(i).codigo.substring(0, args.get(i).codigo.lastIndexOf("\tDRF\n")) +
 												  "\tSTC\t"+j+"\n"+
 												  "\tPLUS\n"+
-												  "\tDRF";
+												  "\tDRF\n";
 									}
+								}else {
+										codigo += args.get(i).codigo;
 								}
 								if(args.get(i).tipoVariable != S.getListaParametros().get(i).getVariable() &&
 								   args.get(i).tamano != S.getListaParametros().get(i).getTamano() &&
