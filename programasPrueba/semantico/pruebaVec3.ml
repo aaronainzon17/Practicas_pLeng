@@ -1,10 +1,10 @@
 %%
 Programa de prueba pruebaVec3.ml para el analizador semantico 
 Creado por: Aaron y Pablo
-Se comprueba que la asignacion entre vectores del mismo tamanio es correcta
+Se prueba el paso por valor de vectores
 %%
 
-programa comprobar_palabras;
+programa pruebaVec3;
 
 	entero v1[5],res,i;
 

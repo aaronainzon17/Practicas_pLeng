@@ -4,7 +4,7 @@ Creado por: Aaron y Pablo
 Se comprueba que la asignacion entre vectores del mismo tamanio es correcta
 %%
 
-programa comprobar_palabras;
+programa pruebaVec2;
 
 	entero v1[5], v2[5], i;
 

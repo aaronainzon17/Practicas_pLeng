@@ -4,7 +4,7 @@ Creado por: Aaron y Pablo
 Se comprueba que se produce un error al asignar dos vectores de distinto tamanio
 %%
 
-programa comprobar_palabras;
+programa pruebaVec1;
 
 	entero v1[5],v2[3];
 
