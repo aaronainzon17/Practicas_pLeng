@@ -1692,15 +1692,15 @@ String asignacion(Token t):
 					error_semantico(t.beginLine, t.beginColumn, "No se pueden realizar asignaciones sobre " + S.getTipo());
 				}else if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.VAL) {
 					error_semantico(t.beginLine, t.beginColumn, "No se pueden realizar asignaciones sobre parametros por valor");
-				}else if(v != null && S.getTamano() == 0) {
+				}else if(v != null && S != null && S.getTamano() == 0) {
 			 		error_semantico(t.beginLine, t.beginColumn, t.image + " no es un vector");
 				}else if(v != null && v.tipoVariable != Simbolo.Tipo_variable.ENTERO) {
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice debe ser de tipo entero");
-				}else if(v != null && v.valorEnt != null && (v.valorEnt > S.getTamano()-1 || v.valorEnt < 0)) {
+				}else if(v != null && v.valorEnt != null && S != null  && (v.valorEnt > S.getTamano()-1 || v.valorEnt < 0)) {
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice se encuentra fuera de rango");
 				}else if(v != null && v.tamano!=null && v.tamano > 0) { 
 					error_semantico(t.beginLine, t.beginColumn, "El indice no puede ser un vector");
-				}else if(v == null && S.getTamano() > 0) {
+				}else if(v == null && S != null && S.getTamano() > 0) {
 					if(S.getTipo() == Simbolo.Tipo_simbolo.PARAMETRO && S.getParametro() == Simbolo.Clase_parametro.REF) {
 						codigo =  "; Direccion del parametro " + S.getNombre() + "\n" +
 								  "\tSRF\t0\t" + S.getDir() + "\n" +
@@ -1766,13 +1766,13 @@ String asignacion(Token t):
 			if (S.getVariable() !=v2.tipoVariable && v2.tipoVariable != Simbolo.Tipo_variable.DESCONOCIDO 
 			&& S.getVariable() != Simbolo.Tipo_variable.DESCONOCIDO) {  
 	      		error_semantico(t.endLine, t.endColumn, "Asignacion imposible entre:" + S.getVariable() + " y " + v2.tipoVariable);
-	     	}else if((v == null && S.getTamano() == 0 || v != null && S.getTamano() > 0) && v2.tamano!=null && v2.tamano>0) {
+	     	}else if((v == null && S != null && S.getTamano() == 0 || v != null && S != null && S.getTamano() > 0) && v2.tamano!=null && v2.tamano>0) {
 				error_semantico(t.beginLine, t.beginColumn, "No se puede asignar a " + S.getVariable() + " un VECTOR DE " + v2.tipoVariable);
-			}else if(v == null && S.getTamano() > 0 && v2.tamano==null) {
+			}else if(v == null && S != null && S.getTamano() > 0 && v2.tamano==null) {
 				error_semantico(t.beginLine, t.beginColumn, "No se puede asignar a un VECTOR DE " + v2.tipoVariable + " un " + S.getVariable());
-			}else if(v == null && S.getTamano() > 0 && v2.tamano!=null && v2.tamano!=S.getTamano()) {
+			}else if(v == null && S != null && S.getTamano() > 0 && v2.tamano!=null && v2.tamano!=S.getTamano()) {
 				error_semantico(t.beginLine, t.beginColumn, "Asignacion imposible entre vectores de distinto tamano");
-			}else if(v == null && S.getTamano() > 0 && v2.tamano!=null && v2.tamano==S.getTamano()) {
+			}else if(v == null && S != null && S.getTamano() > 0 && v2.tamano!=null && v2.tamano==S.getTamano()) {
 				if(!error){
 					codigo +=	"; copiando vectores" + "\n";
 					for (int j = 1; j <= S.getTamano() ; j++) {
@@ -2476,13 +2476,13 @@ Valor factor():
 				vRes.claseParametro = S.getParametro();
 			  	if(S.getTipo() != Simbolo.Tipo_simbolo.PARAMETRO && S.getTipo() != Simbolo.Tipo_simbolo.VARIABLE) {
 					error_semantico(t.beginLine, t.beginColumn, t.image + " es un simbolo de tipo " + S.getTipo());
-			 	}else if(v != null && S.getTamano() == 0) {
+			 	}else if(v != null && S != null && S.getTamano() == 0) {
 			 		error_semantico(t.beginLine, t.beginColumn, t.image + " no es un vector");
 				}else if(v != null && v.tipoVariable != Simbolo.Tipo_variable.ENTERO) {
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice debe ser de tipo entero");
-				}else if(v != null && v.valorEnt != null && (v.valorEnt > S.getTamano()-1 || v.valorEnt < 0)) {
+				}else if(v != null && v.valorEnt != null && S != null && (v.valorEnt > S.getTamano()-1 || v.valorEnt < 0)) {
 				  	error_semantico(t.beginLine, t.beginColumn, "El indice se encuentra fuera de rango");  	
-				}else if(v == null && S.getTamano() > 0) {
+				}else if(v == null && S != null && S.getTamano() > 0) {
 				  	vRes.tamano = S.getTamano();
 					vRes.codigo = "; Accediendo a " + S.getTipo() + " " + S.getNombre() + "\n" +
 									  "\tSRF\t" + (nivel - S.getNivel()) + "\t" + S.getDir() + "\n" +
@@ -2568,7 +2568,7 @@ Valor factor():
 				    	if (j != 0 && j != t.image.length() - 1) {
 				        	vRes.codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
 				       	}
-				    	j++;
+				    	j++; 
 				    }
 					vRes.tipoVariable = Simbolo.Tipo_variable.CADENA;
 				}
