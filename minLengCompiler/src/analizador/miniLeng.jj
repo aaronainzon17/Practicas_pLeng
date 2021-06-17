@@ -2104,7 +2104,6 @@ Valor expresion():
 		 	}else if(vRes.tipoVariable != Simbolo.Tipo_variable.ENTERO && vRes.tipoVariable != Simbolo.Tipo_variable.CHAR) {
 				error_semantico(operador.beginLine, operador.beginColumn, "Operador relacion \'" + operador.image + "\' no aplicable para " + vRes.tipoVariable);
 			}else {
-			  	vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO; 
 			  	vRes.codigo += vAux.codigo;
 			  	if(operador.kind == tMAYOR) {
 					vRes.codigo += "\tGT\n";
@@ -2150,6 +2149,7 @@ Valor expresion():
 						vRes.valorBool = vRes.valorChar != vAux.valorChar;
 					}
 				}
+				vRes.tipoVariable = Simbolo.Tipo_variable.BOOLEANO; 
 			}
 	 	})*
 	} 
