@@ -2555,17 +2555,23 @@ Valor factor():
 				vRes.codigo = "\tSTC\t" + (int)vRes.valorChar + "\n";
 			}
 		| 	t = <tCONSTCAD>
-			{ 
+			{
 			    vRes.codigo = "; cadena \'" + t.image + "\'\n";
 			    char[] cad = t.image.toCharArray();
-			    int j = 0;
-			    for (char i : cad) {
-			    	if (j != 0 && j != t.image.length() - 1) {
-			        	vRes.codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
-			       	}
-			    	j++;
-			    }
-				vRes.tipoVariable = Simbolo.Tipo_variable.CADENA;
+			    if(t.image.length() == 3) {
+					vRes.tipoVariable = Simbolo.Tipo_variable.CHAR;
+					vRes.valorChar = t.image.charAt(1);
+					vRes.codigo = "\tSTC\t" + (int)vRes.valorChar + "\n";
+			  	}else { 
+				    int j = 0;
+				    for (char i : cad) {
+				    	if (j != 0 && j != t.image.length() - 1) {
+				        	vRes.codigo += "\tSTC\t" + Integer.valueOf(i) + "\n" + "\tWRT\t0\n";
+				       	}
+				    	j++;
+				    }
+					vRes.tipoVariable = Simbolo.Tipo_variable.CADENA;
+				}
 			}
 		| 	<tTRUE>
 			{
