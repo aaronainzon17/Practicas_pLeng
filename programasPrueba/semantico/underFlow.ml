@@ -5,10 +5,11 @@ Se produce un error de underflow al intentar acceder a la
 posicion -2 del vector vec en tiempo de compilacion
 %%
 programa underflow;
-	entero vec[3];
+	entero vec[3],comp;
 	
 	principio
-		si (vec[-2] = 2) ent
-			escribir("El modulo de -2 es: ", vec[-2]);
+		comp := vec[-2];
+		si (comp = 2) ent
+			escribir("El modulo de -2 es: ", comp);
 		fsi
 	fin

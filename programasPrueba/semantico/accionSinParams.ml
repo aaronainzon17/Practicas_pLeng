@@ -6,7 +6,7 @@ por lo que no son accesibles para esa accion
 %%
 
 programa restar;
-	entero sumando1, sumando2;
+	entero sumando1, sumando2,pabloMaquina;
 	
 	accion esPositiva();
 			entero res;
@@ -18,6 +18,11 @@ programa restar;
 		si_no	
 			escribir("El resultado no es positivo");
 		fsi
+	fin
+	
+	accion esPositiva1();
+	principio
+		escribir("a");
 	fin
 
 	principio

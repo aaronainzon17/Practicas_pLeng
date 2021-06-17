@@ -8,8 +8,8 @@ programa sameName;
 	principio
 		i := 0;
 		arg2 := 2;
-		mq (i < 4)
+		mq (2 < 4)
 			arg1 := arg2;
-			i := i + 1;
+			%i := i + 1;
 		fmq
 	fin

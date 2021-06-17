@@ -1,7 +1,7 @@
 %%
 Programa de prueba 7 para el analizador semantico 
 Creado por: Aaron y Pablo
-Se produce un error al comparar con una variable no incializada
+Se produce un error en en tiempo de ejecucion al comparar con una variable no incializada
 %%
 programa noInitialized;
 	entero sum,max;

@@ -6,7 +6,7 @@ por lo que no son accesibles para esa accion
 %%
 
 programa restar;
-	entero sumando1, sumando2;
+	entero sumando1, sumando2,v[7];
 	
 	accion esPositiva();
 			entero res;
@@ -19,6 +19,11 @@ programa restar;
 			escribir("El resultado no es positivo");
 		fsi
 	fin
+	
+	accion pasoVec(val entero v1[3]);
+	principio
+		escribir(v);
+	fin
 
 	principio
 
@@ -27,4 +32,5 @@ programa restar;
 		 escribir("Escribe el segundo numero ");
 		 leer(sumando2);
 		 esPositiva(sumando1,sumando2);
+		 pasoVec(v);
 	fin
