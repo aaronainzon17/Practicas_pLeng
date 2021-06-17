@@ -1,5 +1,5 @@
 %%
-Programa de prueba 1 para el analizador semantico 
+Programa de prueba zeroDivision.ml para el analizador semantico 
 Creado por: Aaron y Pablo
 Se prueba a realizar la operacion division entre 0.
 %%
