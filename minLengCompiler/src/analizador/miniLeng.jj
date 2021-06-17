@@ -1387,7 +1387,7 @@ String leer():
 /*
 	<tIDENTIFICADOR> ("," <tIDENTIFICADOR>)*
 */
-String lista_asignables(): // Esta funcion antes llamaba a lista_parametros POR SI ERROR
+String lista_asignables():
 {
   	String codigo = "";
   	Token t = null;
