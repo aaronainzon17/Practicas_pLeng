@@ -1,8 +1,8 @@
 %%
-Programa de prueba overFlowEjec.ml para el analizador semantico 
+Programa de prueba overFlowEjecucion.ml para el analizador semantico 
 Creado por: Aaron y Pablo
-Se da un error de overflow en tiempo de ejecucion al intentar acceder a 
-la posicion 6 y 7 del vector tablaDelDos
+Se intenta acceder a indices superiores al tamaño del vector en tiempo de ejecución. 
+Se da un error semántico debido a que el índice no está en el rango del vector.
 %%
 
 programa overFlowEjec;

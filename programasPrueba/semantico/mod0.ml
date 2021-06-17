@@ -1,7 +1,7 @@
 %%
 Programa de prueba 1 para el analizador semantico 
 Creado por: Aaron y Pablo
-Se preuba la division por cero
+Se prueba a realizar la operacion modulo 0.
 %%
 
 PROGRAMA mod0;

@@ -1,7 +1,7 @@
 %%
 Programa de prueba pruebaVec1.ml para el analizador semantico 
 Creado por: Aaron y Pablo
-Se comprueba que se produce un error al asignar dos vectores de distinto tamanio
+Se produce un error semantico al asignar dos vectores de distinto tamaño.
 %%
 
 programa pruebaVec1;

@@ -1,7 +1,7 @@
 %%
-Programa de prueba 5 para el analizador semantico 
+Programa de prueba sameNameVarAcc.ml para el analizador semantico 
 Creado por: Aaron y Pablo
-Se produce un error semantico debido a que el nomre de la accion es 
+Se produce un error semantico debido a que el nombre de la accion es 
 el mismo que el de la variable pieza
 %%
 

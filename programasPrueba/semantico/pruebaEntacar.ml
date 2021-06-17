@@ -1,6 +1,7 @@
 %%
 Programa de prueba pruebaEntacar.ml para el analizador semantico 
 Creado por: Aaron y Pablo
+Se comprueba el correcto funcionamiento de la función entacar.
 %%
 programa entacar1;
 	entero sum,max;

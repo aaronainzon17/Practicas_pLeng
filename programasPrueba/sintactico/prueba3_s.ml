@@ -2,7 +2,7 @@
 Programa de prueba 3 para el analizador sintactico 
 Creado por: Aaron y Pablo
 Se produce un error sintactico ya que falla un ent en la
-sentecia si
+sentencia si
 %%
 programa prueba3_s;
 	entero numero1,numero2;

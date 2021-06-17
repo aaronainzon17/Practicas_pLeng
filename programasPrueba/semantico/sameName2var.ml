@@ -1,5 +1,5 @@
  %%
-Programa de prueba 7 para el analizador semantico 
+Programa de prueba sameName2var.ml para el analizador semantico 
 Creado por: Aaron y Pablo
 Se prueba a asignar el mismo nombre a dos variables del mismo nivel
 %%

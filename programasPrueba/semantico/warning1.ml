@@ -1,7 +1,8 @@
 %%
-Programa de prueba 9 para el analizador semantico 
+Programa de prueba warning1.ml para el analizador semantico 
 Creado por: Aaron y Pablo
-Se prueba un valor constante para detectar warnings
+Se evalúa una expresión constante en un bucle mq, lo que da lugar a un bucle infinito.
+Se muestra un aviso de evaluación de expresión constante.
 %%
 programa sameName;
 	entero arg1,arg2,i;

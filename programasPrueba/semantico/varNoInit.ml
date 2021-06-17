@@ -1,7 +1,8 @@
 %%
-Programa de prueba 7 para el analizador semantico 
+Programa de prueba varNoInit.ml para el analizador semantico 
 Creado por: Aaron y Pablo
-Se produce un error en en tiempo de ejecucion al comparar con una variable no incializada
+Se produce un error en tiempo de ejecución al comparar con una variable que no 
+ha sido inicializada anteriormente.
 %%
 programa noInitialized;
 	entero sum,max;

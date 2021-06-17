@@ -1,12 +1,11 @@
 %%
-Programa de prueba 2 para el analizador semantico 
+Programa de prueba accionSinParams.ml para el analizador semantico 
 Creado por: Aaron y Pablo
-En la accion se llama a parametros que no se han pasado por valor o referencia,
-por lo que no son accesibles para esa accion
+Se comprueba el correcto funcionamiento de las funciones leer y escribir.
 %%
 
 programa restar;
-	entero sumando1, sumando2,pabloMaquina;
+	entero sumando1, sumando2, varNoUsada;
 	
 	accion esPositiva();
 			entero res;

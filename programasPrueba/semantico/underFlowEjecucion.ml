@@ -1,8 +1,8 @@
 %%
-Programa de prueba 4 para el analizador semantico 
+Programa de prueba underFlowEjecucion.ml para el analizador semantico 
 Creado por: Aaron y Pablo
-Se da un error de overflow en tiempo de ejecucion al intentar acceder a 
-la posicion 6 y 7 del vector tablaDelDos
+Se intenta acceder a indices negativos del vector en tiempo de ejecución.
+ Se da un error semántico debido a que el índice no está en el rango del vector.
 %%
 
 programa comprobar_palabras;

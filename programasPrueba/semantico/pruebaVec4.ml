@@ -1,7 +1,7 @@
 %%
 Programa de prueba pruebaVec4.ml para el analizador semantico 
 Creado por: Aaron y Pablo
-Se prueba el paso por referencia de vectores 
+Se prueba el paso por referencia de vectores funciona correctamente
 %%
 
 programa pruebaVec4;

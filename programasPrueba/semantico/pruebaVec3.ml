@@ -1,7 +1,7 @@
 %%
 Programa de prueba pruebaVec3.ml para el analizador semantico 
 Creado por: Aaron y Pablo
-Se prueba el paso por valor de vectores
+Se prueba que el paso por valor de vectores funciona correctamente.
 %%
 
 programa pruebaVec3;

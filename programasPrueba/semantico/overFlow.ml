@@ -1,5 +1,5 @@
 %%
-Programa de prueba 6 para el analizador semantico 
+Programa de prueba overFlow.ml para el analizador semantico 
 Creado por: Aaron y Pablo
 Se produce un error de overflow al intentar acceder a la 
 posicion 5 del vector vec en tiempo de compilacion
